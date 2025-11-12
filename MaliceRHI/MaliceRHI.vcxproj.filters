@@ -83,6 +83,12 @@
     <ClInclude Include="code\include\vulkan_renderpass.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\vulkan_framebuffers.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\iframebuffers.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\vulkan_instance.cpp">
@@ -104,6 +110,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="code\src\vulkan_renderpass.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_framebuffers.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

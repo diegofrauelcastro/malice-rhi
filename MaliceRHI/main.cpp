@@ -3,6 +3,7 @@
 #include "idevice.h"
 #include "iswapchain.h"
 #include "irenderpass.h"
+#include "iframebuffers.h"
 
 int main()
 {
