@@ -178,6 +178,7 @@
     <ClInclude Include="code\include\vulkan_swapchain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\src\main.cpp" />
     <ClCompile Include="code\src\volk.c" />
     <ClCompile Include="code\src\vulkan_buffer.cpp" />
     <ClCompile Include="code\src\vulkan_commandbuffers.cpp" />
@@ -191,7 +192,6 @@
     <ClCompile Include="code\src\vulkan_shadermodules.cpp" />
     <ClCompile Include="code\src\vulkan_surface.cpp" />
     <ClCompile Include="code\src\vulkan_swapchain.cpp" />
-    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
