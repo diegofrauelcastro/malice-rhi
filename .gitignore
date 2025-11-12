@@ -4,4 +4,5 @@ obj/
 .vscode/
 debug.log
 log.txt
-MaliceRHI_ForwardRenderer_UT/x64
+MaliceRHI_ForwardRenderer_UT/x64/
+x64/

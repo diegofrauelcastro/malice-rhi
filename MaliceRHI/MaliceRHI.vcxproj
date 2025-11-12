@@ -149,6 +149,17 @@
     <None Include="resources\shaders\frag.spv" />
     <None Include="resources\shaders\vert.spv" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\include\iinstance.h" />
+    <ClInclude Include="code\include\malicerhi_masterheader.h" />
+    <ClInclude Include="code\include\vulkan_forwarddeclarations.h" />
+    <ClInclude Include="code\include\vulkan_instance.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\src\volk.c" />
+    <ClCompile Include="code\src\vulkan_instance.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

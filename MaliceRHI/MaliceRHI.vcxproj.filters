@@ -22,6 +22,12 @@
     <Filter Include="Fichiers de ressources\Compiled">
       <UniqueIdentifier>{bc7d9f4e-825f-451a-bc88-106a17c7afd8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Utils">
+      <UniqueIdentifier>{34925804-aa77-4f21-911b-22868a4cfc14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Utils">
+      <UniqueIdentifier>{5c5a960e-c6b5-42c9-bae1-c860b66a88fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\compile.bat">
@@ -39,5 +45,30 @@
     <None Include="resources\shaders\vert.spv">
       <Filter>Fichiers de ressources\Compiled</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\include\iinstance.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_instance.h">
+      <Filter>Fichiers d%27en-tête\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_forwarddeclarations.h">
+      <Filter>Fichiers d%27en-tête\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\malicerhi_masterheader.h">
+      <Filter>Fichiers d%27en-tête\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\src\vulkan_instance.cpp">
+      <Filter>Fichiers sources\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\volk.c">
+      <Filter>Fichiers sources\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
