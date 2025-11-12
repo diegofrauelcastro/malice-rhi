@@ -11,7 +11,7 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 	if (deviceCount == 0)
-		throw std::runtime_error("/!\\ Failed to find GPUs with Vulkan support!");
+		LOG_THROW("/!\\ Failed to find GPUs with Vulkan support!")
 
 	// Get all physical devices.
 	std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -27,7 +27,8 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 			{
 				VkPhysicalDeviceProperties deviceProperties;
 				vkGetPhysicalDeviceProperties(device, &deviceProperties);
-				std::cout << "\n* Selected GPU --> [" << deviceProperties.deviceName << "]" << std::endl;
+				std::string name = deviceProperties.deviceName;
+				LOG_RHI("Selected GPU --> [%s]", name.c_str())
 			}
 			break;
 		}
@@ -35,7 +36,7 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 
 	// If no suitable device was found, throw an exception.
 	if (physicalDevice == VK_NULL_HANDLE)
-		throw std::runtime_error("/!\\ Failed to find a suitable GPU!");
+		LOG_THROW("/!\\ Failed to find a suitable GPU!")
 }
 
 bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surface)
@@ -173,7 +174,7 @@ void VulkanDevice::CreateLogicalDevice(VkSurfaceKHR _surface)
 	// Create logical device and verify.
 	VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create logical device!");
+		LOG_THROW("/!\\ Failed to create logical device!")
 	volkLoadDevice(logicalDevice);
 
 	// Get queue handles (index 0 since we only requested one queue).
@@ -238,5 +239,5 @@ void VulkanDevice::WaitIdle()
 	if (logicalDevice != VK_NULL_HANDLE)
 		vkDeviceWaitIdle(logicalDevice);
 	else
-		throw std::runtime_error("Trying to wait for unexistent device : object is VK_NULL_HANDLE.");
+		LOG_THROW("Trying to wait for unexistent device : object is VK_NULL_HANDLE.")
 }

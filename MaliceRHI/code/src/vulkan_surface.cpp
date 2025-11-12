@@ -7,10 +7,9 @@ void VulkanSurface::CreateSurface(IInstance* _instance, GLFWwindow* _window)
 {
 	VkResult result = glfwCreateWindowSurface(_instance->API_Vulkan().GetVkHandle(), _window, nullptr, &surface);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create window surface!");
+		LOG_THROW("/!\\ Failed to create window surface!")
 
-	if (enableValidationLayers)
-		std::cout << "\n* Created window surface successfully." << std::endl;
+	LOG_RHI("Created window surface successfully.")
 }
 
 void VulkanSurface::Create(IInstance* _instance, GLFWwindow* _window)

@@ -5,7 +5,7 @@ void VulkanInstance::CreateInstance()
 {
 	// Check validation layers if is in debug mode.
 	if (enableValidationLayers && !CheckValidationLayerSupport())
-		throw std::runtime_error("/!\\ Validation layers requested, but not available!");
+		LOG_THROW("/!\\ Validation layers requested, but not available!")
 
 	// Application info.
 	VkApplicationInfo appInfo{};
@@ -36,7 +36,7 @@ void VulkanInstance::CreateInstance()
 	// Create and verify instance.
 	VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create Vulkan instance!");
+		LOG_THROW("/!\\ Failed to create Vulkan instance!")
 	volkLoadInstance(instance);
 }
 
@@ -57,14 +57,19 @@ std::vector<const char*> VulkanInstance::GetRequiredExtensions()
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 		std::vector<VkExtensionProperties> extensionsProperties(extensionCount);
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensionsProperties.data());
-		std::cout << "- Available extensions:\n";
+		LOG_RHI("Available extensions:")
 		for (const VkExtensionProperties& extension : extensionsProperties)
-			std::cout << '\t' << extension.extensionName << '\n';
-
+		{
+			std::string name = extension.extensionName;
+			LOG_CLEAN("\t%s", name.c_str())
+		}
 		// List all required extensions.
-		std::cout << "- Required extensions:\n";
+		LOG_RHI("Required extensions:")
 		for (const char* extension : extensions)
-			std::cout << '\t' << extension << '\n';
+		{
+			std::string name = extension;
+			LOG_CLEAN("\t%s", name.c_str())
+		}
 	}
 
 	return extensions;
@@ -101,7 +106,7 @@ bool VulkanInstance::CheckValidationLayerSupport()
 void VulkanInstance::Create(const char* _instanceName)
 {
 	if (enableValidationLayers)
-		std::cout << "Started Vulkan" << std::endl;
+		LOG_RHI("Started Vulkan")
 
 	// Init volk since the instance is the first object created. 
 	volkInitialize();
@@ -136,7 +141,7 @@ void VulkanInstance::SetupDebugMessenger()
 	PopulateDebugMessengerCreateInfo(createInfo);
 
 	if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to set up debug messenger!");
+		LOG_THROW("/!\\ Failed to set up debug messenger!")
 }
 
 void VulkanInstance::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)

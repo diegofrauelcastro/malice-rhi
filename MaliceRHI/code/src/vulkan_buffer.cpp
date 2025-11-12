@@ -16,7 +16,7 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 	// Create the buffer and ensure it succeeded.
 	VkResult result = vkCreateBuffer(_device.GetLogicalDeviceVkHandle(), &bufferInfo, nullptr, &_buffer);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create buffer!");
+		LOG_THROW("/!\\ Failed to create buffer!")
 
 	// Get the memory requirements for the buffer.
 	VkMemoryRequirements memRequirements;
@@ -31,7 +31,7 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 	// Allocate the memory and ensure it succeeded.
 	result = vkAllocateMemory(_device.GetLogicalDeviceVkHandle(), &allocInfo, nullptr, &_bufferMemory);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to allocate buffer memory!");
+		LOG_THROW("/!\\ Failed to allocate buffer memory!")
 
 	// Bind the buffer with the allocated memory.
 	vkBindBufferMemory(_device.GetLogicalDeviceVkHandle(), _buffer, _bufferMemory, 0);
@@ -136,7 +136,7 @@ uint32_t VulkanBuffer::FindMemoryType(VulkanDevice& _device, uint32_t _typeFilte
 		if (_typeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & _properties) == _properties)
 			return i;
 	}
-	throw std::runtime_error("/!\\ Failed to find suitable memory type!");
+	LOG_THROW("/!\\ Failed to find suitable memory type!")
 }
 
 void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, void* _data)
@@ -153,7 +153,7 @@ void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferU
 		CreateIndexBuffer(_device->API_Vulkan(), _commandPool->API_Vulkan(), _size, _data);
 		break;
 	default:
-		throw std::runtime_error("/!\\ Creation of an invalid type of buffer!");
+		LOG_THROW("/!\\ Creation of an invalid type of buffer!")
 	}
 }
 

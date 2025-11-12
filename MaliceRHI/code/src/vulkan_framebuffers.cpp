@@ -29,7 +29,7 @@ void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapCha
 		// Create the framebuffer.
 		VkResult result = vkCreateFramebuffer(_device.GetLogicalDeviceVkHandle(), &framebufferInfo, nullptr, &framebuffers[i]);
 		if (result != VK_SUCCESS)
-			throw std::runtime_error("/!\\ Failed to create framebuffer!");
+			LOG_THROW("/!\\ Failed to create framebuffer!")
 	}
 }
 

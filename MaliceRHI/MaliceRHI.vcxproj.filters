@@ -125,6 +125,9 @@
     <ClInclude Include="code\include\vulkan_render_interface.h">
       <Filter>Fichiers d%27en-tête\Vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\debug.h">
+      <Filter>Fichiers d%27en-tête\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\vulkan_instance.cpp">
@@ -168,6 +171,9 @@
     </ClCompile>
     <ClCompile Include="code\src\main.cpp">
       <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\debug.cpp">
+      <Filter>Fichiers sources\Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

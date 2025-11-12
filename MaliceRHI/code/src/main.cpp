@@ -11,6 +11,7 @@
 #include "icommandpool.h"
 #include "icommandbuffers.h"
 #include "ibuffer.h"
+#include "debug.h"
 
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>

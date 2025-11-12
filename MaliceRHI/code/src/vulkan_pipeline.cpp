@@ -115,7 +115,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	// Create the pipeline and ensure it was created successfully.
 	VkResult pipelineLayoutResult = vkCreatePipelineLayout(_device.GetLogicalDeviceVkHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout);
 	if (pipelineLayoutResult != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create pipeline layout!");
+		LOG_THROW("/!\\ Failed to create pipeline layout!")
 
 	// Finally we create the info about our pipeline.
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -147,7 +147,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	// Create the graphics pipeline and ensure it succeeded.
 	VkResult pipelineResult = vkCreateGraphicsPipelines(_device.GetLogicalDeviceVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
 	if (pipelineResult != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create graphics pipeline!");
+		LOG_THROW("/!\\ Failed to create graphics pipeline!")
 }
 
 void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders)

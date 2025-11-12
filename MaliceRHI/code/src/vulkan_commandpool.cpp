@@ -12,7 +12,7 @@ void VulkanCommandPool::CreateCommandPool(VulkanDevice& _device)
 	// Create the command pool for the drawing commands.
 	VkResult result = vkCreateCommandPool(_device.GetLogicalDeviceVkHandle(), &poolInfo, nullptr, &commandPool);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create command pool!");
+		LOG_THROW("/!\\ Failed to create command pool!")
 }
 
 void VulkanCommandPool::Create(IDevice* _device)

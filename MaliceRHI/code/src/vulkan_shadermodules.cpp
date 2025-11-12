@@ -7,10 +7,10 @@ std::vector<char> VulkanShaderModules::ReadFile(const std::string& _filename)
 {
 	// Start reading the file from the end to get the file size easily. Also, open it in binary mode.
 	std::ifstream file(_filename, std::ios::ate | std::ios::binary);
-	std::cout << "Reading " << _filename << std::endl;
+	LOG_RHI("Reading %s", _filename.c_str())
 
 	if (!file.is_open())
-		throw std::runtime_error("/!\\ Failed to open \"" + _filename + "\" file!");
+		LOG_THROW("/!\\ Failed to open \"%s\" file!", _filename.c_str())
 
 
 	// Get the file size and allocate a buffer accordingly.
@@ -36,7 +36,7 @@ VkShaderModule VulkanShaderModules::CreateShaderModule(VulkanDevice& _device, co
 	VkShaderModule shaderModule;
 	VkResult result = vkCreateShaderModule(_device.GetLogicalDeviceVkHandle(), &createInfo, nullptr, &shaderModule);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create shader module!");
+		LOG_THROW("/!\\ Failed to create shader module!");
 	return shaderModule;
 }
 
@@ -58,7 +58,7 @@ void VulkanShaderModules::CreateDescriptorSetLayout(VulkanDevice& _device)
 	// Create the descriptor set layout and ensure it succeeded.
 	VkResult result = vkCreateDescriptorSetLayout(_device.GetLogicalDeviceVkHandle(), &layoutInfo, nullptr, &descriptorSetLayout);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create descriptor set layout!");
+		LOG_THROW("/!\\ Failed to create descriptor set layout!");
 }
 
 std::vector<VkVertexInputAttributeDescription> VulkanShaderModules::CreateInputAttributeDescriptions(std::vector<VertexInputLocationParams> _params)

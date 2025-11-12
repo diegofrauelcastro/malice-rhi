@@ -54,7 +54,7 @@ void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& 
 	// Finally, create the render pass and ensure it succeeded.
 	VkResult result = vkCreateRenderPass(_device.GetLogicalDeviceVkHandle(), &renderPassInfo, nullptr, &renderPass);
 	if (result != VK_SUCCESS)
-		throw std::runtime_error("/!\\ Failed to create render pass!");
+		LOG_THROW("/!\\ Failed to create render pass!")
 }
 
 void VulkanRenderPass::Create(IDevice* _device, ISwapChain* _swapChain)
