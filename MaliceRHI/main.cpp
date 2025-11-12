@@ -5,6 +5,7 @@
 #include "irenderpass.h"
 #include "iframebuffers.h"
 #include "ishadermodules.h"
+#include "icommandpool.h"
 
 int main()
 {

@@ -150,6 +150,7 @@
     <None Include="resources\shaders\vert.spv" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\include\icommandpool.h" />
     <ClInclude Include="code\include\idevice.h" />
     <ClInclude Include="code\include\iframebuffers.h" />
     <ClInclude Include="code\include\iinstance.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="code\include\isurface.h" />
     <ClInclude Include="code\include\iswapchain.h" />
     <ClInclude Include="code\include\malicerhi_masterheader.h" />
+    <ClInclude Include="code\include\vulkan_commandpool.h" />
     <ClInclude Include="code\include\vulkan_device.h" />
     <ClInclude Include="code\include\vulkan_forwarddeclarations.h" />
     <ClInclude Include="code\include\vulkan_framebuffers.h" />
@@ -169,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\volk.c" />
+    <ClCompile Include="code\src\vulkan_commandpool.cpp" />
     <ClCompile Include="code\src\vulkan_device.cpp" />
     <ClCompile Include="code\src\vulkan_framebuffers.cpp" />
     <ClCompile Include="code\src\vulkan_instance.cpp" />
