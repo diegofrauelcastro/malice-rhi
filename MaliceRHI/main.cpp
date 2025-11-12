@@ -2,6 +2,7 @@
 #include "isurface.h"
 #include "idevice.h"
 #include "iswapchain.h"
+#include "irenderpass.h"
 
 int main()
 {
