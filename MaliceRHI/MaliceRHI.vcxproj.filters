@@ -65,6 +65,12 @@
     <ClInclude Include="code\include\vulkan_surface.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\idevice.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_device.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\vulkan_instance.cpp">
@@ -77,6 +83,9 @@
       <Filter>Fichiers sources\Utils</Filter>
     </ClCompile>
     <ClCompile Include="code\src\vulkan_surface.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_device.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
