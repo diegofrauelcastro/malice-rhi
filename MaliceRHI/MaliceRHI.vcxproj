@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\include\ibuffer.h" />
+    <ClInclude Include="code\include\icommandbuffers.h" />
     <ClInclude Include="code\include\icommandpool.h" />
     <ClInclude Include="code\include\idevice.h" />
     <ClInclude Include="code\include\iframebuffers.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="code\include\iswapchain.h" />
     <ClInclude Include="code\include\malicerhi_masterheader.h" />
     <ClInclude Include="code\include\vulkan_buffer.h" />
+    <ClInclude Include="code\include\vulkan_commandbuffers.h" />
     <ClInclude Include="code\include\vulkan_commandpool.h" />
     <ClInclude Include="code\include\vulkan_device.h" />
     <ClInclude Include="code\include\vulkan_forwarddeclarations.h" />
@@ -176,6 +178,7 @@
   <ItemGroup>
     <ClCompile Include="code\src\volk.c" />
     <ClCompile Include="code\src\vulkan_buffer.cpp" />
+    <ClCompile Include="code\src\vulkan_commandbuffers.cpp" />
     <ClCompile Include="code\src\vulkan_commandpool.cpp" />
     <ClCompile Include="code\src\vulkan_device.cpp" />
     <ClCompile Include="code\src\vulkan_framebuffers.cpp" />

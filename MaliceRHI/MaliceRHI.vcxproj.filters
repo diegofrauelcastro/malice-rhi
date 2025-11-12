@@ -113,6 +113,12 @@
     <ClInclude Include="code\include\vulkan_pipeline.h">
       <Filter>Fichiers d%27en-tête\Vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\icommandbuffers.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_commandbuffers.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\vulkan_instance.cpp">
@@ -150,6 +156,9 @@
     </ClCompile>
     <ClCompile Include="code\src\vulkan_pipeline.cpp">
       <Filter>Fichiers sources\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_commandbuffers.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

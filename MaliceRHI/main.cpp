@@ -8,6 +8,7 @@
 #include "icommandpool.h"
 #include "ibuffer.h"
 #include "ipipeline.h"
+#include "icommandbuffers.h"
 
 int main()
 {
