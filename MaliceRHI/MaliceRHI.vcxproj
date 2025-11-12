@@ -155,6 +155,7 @@
     <ClInclude Include="code\include\idevice.h" />
     <ClInclude Include="code\include\iframebuffers.h" />
     <ClInclude Include="code\include\iinstance.h" />
+    <ClInclude Include="code\include\ipipeline.h" />
     <ClInclude Include="code\include\irenderpass.h" />
     <ClInclude Include="code\include\ishadermodules.h" />
     <ClInclude Include="code\include\isurface.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="code\include\vulkan_forwarddeclarations.h" />
     <ClInclude Include="code\include\vulkan_framebuffers.h" />
     <ClInclude Include="code\include\vulkan_instance.h" />
+    <ClInclude Include="code\include\vulkan_pipeline.h" />
     <ClInclude Include="code\include\vulkan_renderpass.h" />
     <ClInclude Include="code\include\vulkan_shadermodules.h" />
     <ClInclude Include="code\include\vulkan_surface.h" />
@@ -178,6 +180,7 @@
     <ClCompile Include="code\src\vulkan_device.cpp" />
     <ClCompile Include="code\src\vulkan_framebuffers.cpp" />
     <ClCompile Include="code\src\vulkan_instance.cpp" />
+    <ClCompile Include="code\src\vulkan_pipeline.cpp" />
     <ClCompile Include="code\src\vulkan_renderpass.cpp" />
     <ClCompile Include="code\src\vulkan_shadermodules.cpp" />
     <ClCompile Include="code\src\vulkan_surface.cpp" />

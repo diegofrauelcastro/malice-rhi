@@ -107,6 +107,12 @@
     <ClInclude Include="code\include\vulkan_buffer.h">
       <Filter>Fichiers d%27en-tête\Vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\ipipeline.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_pipeline.h">
+      <Filter>Fichiers d%27en-tête\Vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\vulkan_instance.cpp">
@@ -140,6 +146,9 @@
       <Filter>Fichiers sources\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="code\src\vulkan_buffer.cpp">
+      <Filter>Fichiers sources\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_pipeline.cpp">
       <Filter>Fichiers sources\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>

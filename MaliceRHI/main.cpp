@@ -7,6 +7,7 @@
 #include "ishadermodules.h"
 #include "icommandpool.h"
 #include "ibuffer.h"
+#include "ipipeline.h"
 
 int main()
 {
