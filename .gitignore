@@ -1,0 +1,7 @@
+out/
+obj/
+.vs/
+.vscode/
+debug.log
+log.txt
+MaliceRHI_ForwardRenderer_UT/x64
