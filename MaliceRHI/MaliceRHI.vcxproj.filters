@@ -59,6 +59,12 @@
     <ClInclude Include="code\include\malicerhi_masterheader.h">
       <Filter>Fichiers d%27en-tête\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\isurface.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_surface.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\vulkan_instance.cpp">
@@ -69,6 +75,9 @@
     </ClCompile>
     <ClCompile Include="code\src\volk.c">
       <Filter>Fichiers sources\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_surface.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
