@@ -6,6 +6,7 @@
 #include "iframebuffers.h"
 #include "ishadermodules.h"
 #include "icommandpool.h"
+#include "ibuffer.h"
 
 int main()
 {
