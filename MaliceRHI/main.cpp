@@ -4,6 +4,7 @@
 #include "iswapchain.h"
 #include "irenderpass.h"
 #include "iframebuffers.h"
+#include "ishadermodules.h"
 
 int main()
 {

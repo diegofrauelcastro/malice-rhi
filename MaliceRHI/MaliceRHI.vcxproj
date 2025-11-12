@@ -154,6 +154,7 @@
     <ClInclude Include="code\include\iframebuffers.h" />
     <ClInclude Include="code\include\iinstance.h" />
     <ClInclude Include="code\include\irenderpass.h" />
+    <ClInclude Include="code\include\ishadermodules.h" />
     <ClInclude Include="code\include\isurface.h" />
     <ClInclude Include="code\include\iswapchain.h" />
     <ClInclude Include="code\include\malicerhi_masterheader.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="code\include\vulkan_framebuffers.h" />
     <ClInclude Include="code\include\vulkan_instance.h" />
     <ClInclude Include="code\include\vulkan_renderpass.h" />
+    <ClInclude Include="code\include\vulkan_shadermodules.h" />
     <ClInclude Include="code\include\vulkan_surface.h" />
     <ClInclude Include="code\include\vulkan_swapchain.h" />
   </ItemGroup>
@@ -171,6 +173,7 @@
     <ClCompile Include="code\src\vulkan_framebuffers.cpp" />
     <ClCompile Include="code\src\vulkan_instance.cpp" />
     <ClCompile Include="code\src\vulkan_renderpass.cpp" />
+    <ClCompile Include="code\src\vulkan_shadermodules.cpp" />
     <ClCompile Include="code\src\vulkan_surface.cpp" />
     <ClCompile Include="code\src\vulkan_swapchain.cpp" />
     <ClCompile Include="main.cpp" />
