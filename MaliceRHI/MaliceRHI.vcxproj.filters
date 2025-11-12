@@ -116,8 +116,14 @@
     <ClInclude Include="code\include\icommandbuffers.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\vulkan_commandbuffers.h">
+    <ClInclude Include="code\include\irender_interface.h">
       <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_commandbuffers.h">
+      <Filter>Fichiers d%27en-tête\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_render_interface.h">
+      <Filter>Fichiers d%27en-tête\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -158,7 +164,10 @@
       <Filter>Fichiers sources\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="code\src\vulkan_commandbuffers.cpp">
-      <Filter>Fichiers sources</Filter>
+      <Filter>Fichiers sources\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_render_interface.cpp">
+      <Filter>Fichiers sources\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

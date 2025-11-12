@@ -9,6 +9,7 @@
 #include "ibuffer.h"
 #include "ipipeline.h"
 #include "icommandbuffers.h"
+#include "irender_interface.h"
 
 int main()
 {
