@@ -62,6 +62,9 @@ VkExtent2D VulkanSwapChain::ChoosePreferredSwapExtent(const VkSurfaceCapabilitie
 }
 void VulkanSwapChain::SetupSwapChain(VulkanDevice& _device, VkSurfaceKHR _surface, GLFWwindow* _window)
 {
+	LOG_CLEAN("\n\n===== SWAP CHAIN SETUP =====\n")
+
+	LOG_RHI("Configuring the swap chain...")
 	SwapChainSupportDetails swapChainSupport = _device.QuerySwapChainSupport(_device.GetPhysicalDeviceVkHandle(), _surface);
 
 	// Choose the best settings we can find in the physical device swap chain support.
@@ -93,13 +96,15 @@ void VulkanSwapChain::SetupSwapChain(VulkanDevice& _device, VkSurfaceKHR _surfac
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
 
 	// Images can be used across multiple queue families without explicit ownership transfers.
-	if (indices.graphicsFamily != indices.presentFamily) {
+	if (indices.graphicsFamily != indices.presentFamily)
+	{
 		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 		createInfo.queueFamilyIndexCount = 2;
 		createInfo.pQueueFamilyIndices = queueFamilyIndices;
 	}
 	// An image is owned by one queue family at a time and ownership must be explicitly transferred before using it in another queue family.This option offers the best performance.
-	else {
+	else
+	{
 		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		createInfo.queueFamilyIndexCount = 0; // Optional
 		createInfo.pQueueFamilyIndices = nullptr; // Optional
@@ -112,6 +117,8 @@ void VulkanSwapChain::SetupSwapChain(VulkanDevice& _device, VkSurfaceKHR _surfac
 	VkResult result = vkCreateSwapchainKHR(_device.GetLogicalDeviceVkHandle(), &createInfo, nullptr, &swapChain);
 	if (result != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to create swap chain!")
+	else
+		LOG_RHI("Created swap chain successfully.")
 
 	// Get the handles of the images in our swap chain.
 	vkGetSwapchainImagesKHR(_device.GetLogicalDeviceVkHandle(), swapChain, &imageCount, nullptr);
@@ -148,7 +155,9 @@ void VulkanSwapChain::CreateImageViews(VulkanDevice& _device)
 		// Create the image view and ensure it succeeded.
 		VkResult result = vkCreateImageView(_device.GetLogicalDeviceVkHandle(), &createInfo, nullptr, &swapChainImageViews[i]);
 		if (result != VK_SUCCESS)
-			LOG_THROW("/!\\ Failed to create one of the image views. Image number " + (i - '0'))
+			LOG_THROW("/!\\ Failed to create one of the image views. Image number %d", (int)i)
+		else
+			LOG_RHI("Successfully created image view %d", (int)i)
 	}
 }
 
@@ -159,15 +168,23 @@ uint32_t VulkanSwapChain::Clamp(uint32_t value, uint32_t min, uint32_t max)
 
 void VulkanSwapChain::CleanupSwapChain(VulkanDevice& _device)
 {
+	LOG_CLEAN("\n\n===== SWAP CHAIN CLEANUP =====\n")
+
 	VkDevice device = _device.GetLogicalDeviceVkHandle();
 
 	// Destroy all image views of our swap chain. The images themselves, however, will be deleted automatically on destroyal of the swap chain.
 	for (VkImageView imageView : swapChainImageViews)
 		vkDestroyImageView(device, imageView, nullptr);
+	LOG_RHI("Successfully destroyed all image views.")
 
 	// Destroy swap chain.
 	if (swapChain != VK_NULL_HANDLE)
+	{
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
+		LOG_RHI("Swap chain destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy a swap chain...")
 }
 
 void VulkanSwapChain::CleanupSyncObjects(VulkanDevice& _device)

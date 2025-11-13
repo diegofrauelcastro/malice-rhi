@@ -12,6 +12,8 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 	vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 	if (deviceCount == 0)
 		LOG_THROW("/!\\ Failed to find GPUs with Vulkan support!")
+	else
+		LOG_RHI("Picking a GPU to use...")
 
 	// Get all physical devices.
 	std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -174,7 +176,9 @@ void VulkanDevice::CreateLogicalDevice(VkSurfaceKHR _surface)
 	// Create logical device and verify.
 	VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create logical device!")
+		LOG_THROW("/!\\ Failed to create device!")
+	else
+		LOG_RHI("Device created successfully.")
 	volkLoadDevice(logicalDevice);
 
 	// Get queue handles (index 0 since we only requested one queue).
@@ -215,6 +219,8 @@ SwapChainSupportDetails VulkanDevice::QuerySwapChainSupport(VkPhysicalDevice _de
 
 void VulkanDevice::Create(IInstance* _instance, ISurface* _surface)
 {
+	LOG_CLEAN("\n\n===== DEVICE CREATION =====\n")
+
 	VulkanInstance& vulkanInstance = _instance->API_Vulkan();
 	VulkanSurface& vulkanSurface = _surface->API_Vulkan();
 
@@ -229,9 +235,16 @@ void VulkanDevice::Create(IInstance* _instance, ISurface* _surface)
 
 void VulkanDevice::Destroy()
 {
+	LOG_CLEAN("\n\n===== DEVICE DESTRUCTION =====\n")
+
 	// Destroy logical device. Physical device is destroyed automatically on instance destruction.
 	if (logicalDevice != VK_NULL_HANDLE)
+	{
 		vkDestroyDevice(logicalDevice, nullptr);
+		LOG_RHI("Device destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy the device...")
 }
 
 void VulkanDevice::WaitIdle()

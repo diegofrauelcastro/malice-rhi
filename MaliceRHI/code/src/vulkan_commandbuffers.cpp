@@ -10,6 +10,8 @@
 
 void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCommandPool& _commandPool, VulkanSwapChain& _swapChain)
 {
+	LOG_CLEAN("\n\n===== COMMAND BUFFERS CREATION =====\n")
+
 	commandBuffers.resize(_swapChain.GetMaxFramesInFlight());
 
 	// Allocate for one primary command buffer alone.
@@ -24,6 +26,8 @@ void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCom
 	VkResult result = vkAllocateCommandBuffers(_device.GetLogicalDeviceVkHandle(), &allocInfo, commandBuffers.data());
 	if (result != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to allocate command buffers!")
+	else
+		LOG_RHI("Command buffers allocated successfully.")
 }
 
 void VulkanCommandBuffers::BeginDraw(IRenderPass* _renderPass, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex)
@@ -107,7 +111,7 @@ void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapC
 	// Submit to the graphics queue and ensure it succeeded.
 	VkResult result = vkQueueSubmit(_device->API_Vulkan().GetGraphicsQueueVkHandle(), 1, &submitInfo, _swapChain->API_Vulkan().GetInFlightFencesVkHandles()[currentFrame]);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to submit draw command buffer!");
+		LOG_THROW("/!\\ Failed to submit draw command buffer!")
 
 	// Present the rendered image to the screen.
 	VkPresentInfoKHR presentInfo{};
@@ -165,5 +169,6 @@ void VulkanCommandBuffers::Create(IDevice* _device, ICommandPool* _commandPool, 
 
 void VulkanCommandBuffers::Destroy(IDevice* _device)
 {
-
+	LOG_CLEAN("\n\n===== COMMAND BUFFERS DESTRUCTION =====\n")
+	LOG_RHI("Command buffers destroyed successfully.")
 }

@@ -3,9 +3,16 @@
 
 void VulkanInstance::CreateInstance()
 {
+	LOG_CLEAN("\n\n===== INSTANCE CREATION =====\n")
+
 	// Check validation layers if is in debug mode.
 	if (enableValidationLayers && !CheckValidationLayerSupport())
-		LOG_THROW("/!\\ Validation layers requested, but not available!")
+	{
+		if (!CheckValidationLayerSupport())
+			LOG_THROW("/!\\ Validation layers requested, but not available!")
+		else
+			LOG_RHI("Validation layers enabled successfully.")
+	}
 
 	// Application info.
 	VkApplicationInfo appInfo{};
@@ -37,6 +44,8 @@ void VulkanInstance::CreateInstance()
 	VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 	if (result != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to create Vulkan instance!")
+	else
+		LOG_RHI("Vulkan instance created successfully.")
 	volkLoadInstance(instance);
 }
 
@@ -71,7 +80,7 @@ std::vector<const char*> VulkanInstance::GetRequiredExtensions()
 			LOG_CLEAN("\t%s", name.c_str())
 		}
 	}
-
+	LOG_CLEAN("")
 	return extensions;
 }
 
@@ -105,11 +114,12 @@ bool VulkanInstance::CheckValidationLayerSupport()
 
 void VulkanInstance::Create(const char* _instanceName)
 {
-	if (enableValidationLayers)
-		LOG_RHI("Started Vulkan")
+	LOG_CLEAN("\n\n===== INITIALIZATION =====\n")
 
 	// Init volk since the instance is the first object created. 
 	volkInitialize();
+
+	LOG_RHI("Vulkan and Volk initialized successfully.")
 
 	// Rename the instance.
 	instanceName = _instanceName;
@@ -121,16 +131,31 @@ void VulkanInstance::Create(const char* _instanceName)
 
 void VulkanInstance::Destroy()
 {
+	LOG_CLEAN("\n\n===== INSTANCE DESTRUCTION =====\n")
+
 	// Destroy debug utils if necessary.
 	if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
+	{
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+		LOG_RHI("Debug messenger destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy the debug messenger...")
 
-	// Destroy Vulkan instance and window.
+	// Destroy Vulkan instance.
 	if (instance != VK_NULL_HANDLE)
+	{
 		vkDestroyInstance(instance, nullptr);
+		LOG_RHI("Vulkan instance destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy the Vulkan instance...")
+
+	LOG_CLEAN("\n\n===== TERMINATION =====\n")
 
 	// End Volk loader since the instance is the last object destroyed.
 	volkFinalize();
+	LOG_RHI("Vulkan and Volk finalized.")
 }
 
 void VulkanInstance::SetupDebugMessenger()
@@ -142,6 +167,8 @@ void VulkanInstance::SetupDebugMessenger()
 
 	if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to set up debug messenger!")
+	else
+		LOG_RHI("Debug messenger created successfully.")
 }
 
 void VulkanInstance::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
@@ -155,7 +182,8 @@ void VulkanInstance::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreat
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanInstance::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
-	std::cerr << "\n* /!\\ Validation layer --> " << pCallbackData->pMessage << "\n" << std::endl;
+	LOG_CLEAN("")
+	LOG_RHI("\n\n* /!\\ Validation layer --> %s\n", pCallbackData->pMessage)
 	return VK_FALSE;
 }
 

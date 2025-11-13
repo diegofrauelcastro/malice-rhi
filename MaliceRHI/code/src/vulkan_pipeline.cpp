@@ -7,12 +7,15 @@
 
 void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderPass& _renderPass, VulkanShaderModules& _shaders)
 {
+	LOG_CLEAN("\n\n===== GRAPHICS PIPELINE CREATION =====\n")
+
 	// Create info for the vertex shader.
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 	vertShaderStageInfo.module = _shaders.GetVertexShaderModuleVkHandle();
 	vertShaderStageInfo.pName = "main";
+	LOG_RHI("Vertex shader linked.")
 
 	// Create info for the fragment shader.
 	VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
@@ -20,6 +23,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	fragShaderStageInfo.module = _shaders.GetFragmentShaderModuleVkHandle();
 	fragShaderStageInfo.pName = "main";
+	LOG_RHI("Fragment shader linked.")
 
 	// Store these two shader stages in an array for later use in the pipeline creation.
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
@@ -116,6 +120,8 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	VkResult pipelineLayoutResult = vkCreatePipelineLayout(_device.GetLogicalDeviceVkHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout);
 	if (pipelineLayoutResult != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to create pipeline layout!")
+	else
+		LOG_RHI("Pipeline layout created successfully.")
 
 	// Finally we create the info about our pipeline.
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -144,10 +150,14 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	pipelineInfo.renderPass = _renderPass.GetVkHandle();
 	pipelineInfo.subpass = 0;
 
+	LOG_RHI("Finished configuring graphics pipeline.")
+
 	// Create the graphics pipeline and ensure it succeeded.
 	VkResult pipelineResult = vkCreateGraphicsPipelines(_device.GetLogicalDeviceVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
 	if (pipelineResult != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to create graphics pipeline!")
+	else
+		LOG_RHI("Graphics pipeline created successfully.")
 }
 
 void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders)
@@ -157,11 +167,23 @@ void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderM
 
 void VulkanPipeline::Destroy(IDevice* _device)
 {
+	LOG_RHI("\n\n===== GRAPHICS PIPELINE DESTRUCTION =====\n")
+
 	// Destroy the graphics pipeline.
 	if (pipeline != VK_NULL_HANDLE)
+	{
 		vkDestroyPipeline(_device->API_Vulkan().GetLogicalDeviceVkHandle(), pipeline, nullptr);
+		LOG_RHI("Graphics pipeline destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy a graphics pipeline...")
 
 	// Destroy the pipeline's layout.
 	if (pipelineLayout != VK_NULL_HANDLE)
+	{
 		vkDestroyPipelineLayout(_device->API_Vulkan().GetLogicalDeviceVkHandle(), pipelineLayout, nullptr);
+		LOG_RHI("Pipeline layout destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy a pipeline layout...")
 }

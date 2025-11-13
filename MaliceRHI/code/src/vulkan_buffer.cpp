@@ -6,6 +6,8 @@
 
 void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer& _buffer, VkDeviceMemory& _bufferMemory)
 {
+	LOG_RHI("Creating empty buffer...")
+
 	// Create info about the buffer we want to create.
 	VkBufferCreateInfo bufferInfo{};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -17,6 +19,8 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 	VkResult result = vkCreateBuffer(_device.GetLogicalDeviceVkHandle(), &bufferInfo, nullptr, &_buffer);
 	if (result != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to create buffer!")
+	else
+		LOG_RHI("Buffer created successfully.")
 
 	// Get the memory requirements for the buffer.
 	VkMemoryRequirements memRequirements;
@@ -32,6 +36,8 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 	result = vkAllocateMemory(_device.GetLogicalDeviceVkHandle(), &allocInfo, nullptr, &_bufferMemory);
 	if (result != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to allocate buffer memory!")
+	else
+		LOG_RHI("Buffer memory allocated successfully.\n")
 
 	// Bind the buffer with the allocated memory.
 	vkBindBufferMemory(_device.GetLogicalDeviceVkHandle(), _buffer, _bufferMemory, 0);
@@ -39,6 +45,8 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 
 void VulkanBuffer::CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, void* _src)
 {
+	LOG_CLEAN("\n\n===== VERTEX BUFFER CREATION =====\n")
+
 	// Create a staging buffer that is host visible to upload the vertex data to it.
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -58,10 +66,13 @@ void VulkanBuffer::CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& 
 	// Destroy the staging buffer and free its memory.
 	vkDestroyBuffer(_device.GetLogicalDeviceVkHandle(), stagingBuffer, nullptr);
 	vkFreeMemory(_device.GetLogicalDeviceVkHandle(), stagingBufferMemory, nullptr);
+	LOG_RHI("End of vertex buffer creation.")
 }
 
 void VulkanBuffer::CreateIndexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, void* _src)
 {
+	LOG_CLEAN("\n\n===== INDEX BUFFER CREATION =====\n")
+
 	// Create a staging buffer that is host visible to upload the index data to it.
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -81,10 +92,13 @@ void VulkanBuffer::CreateIndexBuffer(VulkanDevice& _device, VulkanCommandPool& _
 	// Destroy the staging buffer and free its memory.
 	vkDestroyBuffer(_device.GetLogicalDeviceVkHandle(), stagingBuffer, nullptr);
 	vkFreeMemory(_device.GetLogicalDeviceVkHandle(), stagingBufferMemory, nullptr);
+	LOG_RHI("End of index buffer creation.")
 }
 
 void VulkanBuffer::CopyBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, VkBuffer _srcBuffer, VkBuffer _dstBuffer, uint64_t _size)
 {
+	LOG_RHI("Copying data to the buffer...")
+
 	// Allocate a temporary command buffer for the copy operation.
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -134,7 +148,10 @@ uint32_t VulkanBuffer::FindMemoryType(VulkanDevice& _device, uint32_t _typeFilte
 	{
 		// Check if the type is in the type filter and if it has the required properties.
 		if (_typeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & _properties) == _properties)
+		{
+			LOG_RHI("Found a suitable memory type for the buffer.")
 			return i;
+		}
 	}
 	LOG_THROW("/!\\ Failed to find suitable memory type!")
 }
@@ -159,10 +176,33 @@ void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferU
 
 void VulkanBuffer::Destroy(IDevice* _device)
 {
-	// Free the buffer
+	switch (bufferType)
+	{
+	case VERTEX_BUFFER:
+		LOG_CLEAN("\n\n===== VERTEX BUFFER DESTRUCTION =====\n")
+		break;
+	case INDEX_BUFFER:
+		LOG_CLEAN("\n\n===== INDEX BUFFER DESTRUCTION =====\n")
+		break;
+	default:
+		LOG_CLEAN("\n\n===== UNDEFINED BUFFER DESTRUCTION =====\n")
+		break;
+	}
 
+	// Destroy the buffer
 	if (buffer != VK_NULL_HANDLE)
+	{
 		vkDestroyBuffer(_device->API_Vulkan().GetLogicalDeviceVkHandle(), buffer, nullptr);
+		LOG_RHI("Buffer destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong while destroying a buffer...")
+	// Free the buffer
 	if (bufferMemory != VK_NULL_HANDLE)
+	{
 		vkFreeMemory(_device->API_Vulkan().GetLogicalDeviceVkHandle(), bufferMemory, nullptr);
+		LOG_RHI("Buffer memory freed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong while freeing a buffer...")
 }

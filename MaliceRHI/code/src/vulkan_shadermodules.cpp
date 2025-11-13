@@ -36,7 +36,9 @@ VkShaderModule VulkanShaderModules::CreateShaderModule(VulkanDevice& _device, co
 	VkShaderModule shaderModule;
 	VkResult result = vkCreateShaderModule(_device.GetLogicalDeviceVkHandle(), &createInfo, nullptr, &shaderModule);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create shader module!");
+		LOG_THROW("/!\\ Failed to create shader module!")
+	else
+		LOG_RHI("Shader module created successfully.")
 	return shaderModule;
 }
 
@@ -58,7 +60,9 @@ void VulkanShaderModules::CreateDescriptorSetLayout(VulkanDevice& _device)
 	// Create the descriptor set layout and ensure it succeeded.
 	VkResult result = vkCreateDescriptorSetLayout(_device.GetLogicalDeviceVkHandle(), &layoutInfo, nullptr, &descriptorSetLayout);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create descriptor set layout!");
+		LOG_THROW("/!\\ Failed to create descriptor set layout!")
+	else
+		LOG_RHI("Descriptor set layout created successfully.")
 }
 
 std::vector<VkVertexInputAttributeDescription> VulkanShaderModules::CreateInputAttributeDescriptions(std::vector<VertexInputLocationParams> _params)
@@ -72,6 +76,7 @@ std::vector<VkVertexInputAttributeDescription> VulkanShaderModules::CreateInputA
 		attributeDescriptions[i].location = _params[i].location;
 		attributeDescriptions[i].format = DataTypeToVkFormat(_params[i].type);
 		attributeDescriptions[i].offset = _params[i].offset;
+		LOG_RHI("Initialized shader vertex input at location %d", (int)_params[i].location)
 	}
 
 	return attributeDescriptions;
@@ -104,25 +109,46 @@ VkFormat VulkanShaderModules::DataTypeToVkFormat(EShaderDataType _type)
 
 void VulkanShaderModules::Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _params)
 {
+	LOG_CLEAN("\n\n===== SHADER MODULES CREATION =====\n")
+
 	// Read both precompiled shader files.
 	std::vector<char> vertexShaderCode = ReadFile(_vertPath);
 	std::vector<char> fragmentShaderCode = ReadFile(_fragPath); // The path looks like this because the default directory is the one where the executable is.
 
 	// Make a module for each of them.
+	LOG_RHI("Creating vertex shader module...")
 	vertexShader = CreateShaderModule(_device->API_Vulkan(), vertexShaderCode);
+	LOG_RHI("Creating fragment shader module...")
 	fragmentShader = CreateShaderModule(_device->API_Vulkan(), fragmentShaderCode);
 
 	// Initialize vertex input locations.
 	vertexInputTotalSize = _vertexTotalSize;
+	LOG_CLEAN("")
+	LOG_RHI("Initializing vertex input...")
 	attributeDescriptions = CreateInputAttributeDescriptions(_params);
 }
 
 void VulkanShaderModules::Destroy(IDevice* _device)
 {
+	LOG_CLEAN("\n\n===== SHADER MODULES DESTRUCTION =====\n")
+
 	// Destroy both modules.
 
 	if (fragmentShader != VK_NULL_HANDLE)
+	{
 		vkDestroyShaderModule(_device->API_Vulkan().GetLogicalDeviceVkHandle(), fragmentShader, nullptr);
+		LOG_RHI("Fragment shader destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy fragment shader...")
 	if (vertexShader != VK_NULL_HANDLE)
+	{
 		vkDestroyShaderModule(_device->API_Vulkan().GetLogicalDeviceVkHandle(), vertexShader, nullptr);
+		LOG_RHI("Vertex shader destroyed successfully.")
+	}
+	else
+		LOG_RHI("Something went wrong trying to destroy vertex shader...")
+
+	attributeDescriptions.clear();
+	attributeDescriptions.shrink_to_fit();
 }

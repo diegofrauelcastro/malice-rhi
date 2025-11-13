@@ -7,8 +7,11 @@
 
 void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VulkanRenderPass& _renderPass)
 {
+	LOG_CLEAN("\n\n===== FRAMEBUFFERS CREATION =====\n")
+
 	// Resize to hold all framebuffers (one for each ImageView in our swap chain images).
 	framebuffers.resize(_swapChain.GetImageViewsVkHandle().size());
+	LOG_RHI("Creating a framebuffer per image in the swapchain...")
 	// Iterate through every image view and create a framebuffer for each.
 	for (size_t i = 0; i < _swapChain.GetImageViewsVkHandle().size(); i++)
 	{
@@ -30,6 +33,8 @@ void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapCha
 		VkResult result = vkCreateFramebuffer(_device.GetLogicalDeviceVkHandle(), &framebufferInfo, nullptr, &framebuffers[i]);
 		if (result != VK_SUCCESS)
 			LOG_THROW("/!\\ Failed to create framebuffer!")
+		else
+			LOG_RHI("Framebuffer %d created successfully.", (int)i)
 	}
 }
 
@@ -40,7 +45,12 @@ void VulkanFramebuffers::Create(IDevice* _device, ISwapChain* _swapChain, IRende
 
 void VulkanFramebuffers::Destroy(IDevice* _device)
 {
+	LOG_CLEAN("\n\n===== FRAMEBUFFERS DESTRUCTION =====\n")
+
 	// Destroy framebuffers.
-	for (VkFramebuffer framebuffer : framebuffers)
-		vkDestroyFramebuffer(_device->API_Vulkan().GetLogicalDeviceVkHandle(), framebuffer, nullptr);
+	for (size_t i = 0; i < framebuffers.size(); i++)
+	{
+		vkDestroyFramebuffer(_device->API_Vulkan().GetLogicalDeviceVkHandle(), framebuffers[i], nullptr);
+		LOG_RHI("Framebuffer %d destroyed successfully.", (int)i)
+	}
 }
