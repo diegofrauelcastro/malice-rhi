@@ -25,7 +25,7 @@ public:
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, ICommandPool* _commandPool, ISwapChain* _swapChain) override;
-	void Destroy(IDevice* _device) override;
+	void Destroy(IDevice* _device, ICommandPool* _commandPool) override;
 
 
 	/// Retrieving the backend ///

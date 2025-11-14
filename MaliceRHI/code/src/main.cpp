@@ -54,30 +54,30 @@ int main()
     //glfwSetWindowUserPointer(window, this);
     
     // Factory class
-    VulkanRenderInterface RHI;
+    IRenderInterface* RHI = new VulkanRenderInterface();
 
     // Instance
-    IInstance* instance = RHI.InstantiateInstance();
+    IInstance* instance = RHI->InstantiateInstance();
     instance->Create("RHI App");
     
     // Surface
-    ISurface* surface = RHI.InstantiateSurface();
+    ISurface* surface = RHI->InstantiateSurface();
     surface->Create(instance, window);
 
     // Device (GPU)
-    IDevice* device = RHI.InstantiateDevice();
+    IDevice* device = RHI->InstantiateDevice();
     device->Create(instance, surface);
 
     // Swap chain
-    ISwapChain* swapChain = RHI.InstantiateSwapChain();
+    ISwapChain* swapChain = RHI->InstantiateSwapChain();
     swapChain->Create(device, surface, window);
 
     // Render pass
-    IRenderPass* renderPass = RHI.InstantiateRenderPass();
+    IRenderPass* renderPass = RHI->InstantiateRenderPass();
     renderPass->Create(device, swapChain);
 
     // Framebuffers
-    IFramebuffers* framebuffers = RHI.InstantiateFramebuffers();
+    IFramebuffers* framebuffers = RHI->InstantiateFramebuffers();
     framebuffers->Create(device, swapChain, renderPass);
 
     // Shader location params
@@ -92,24 +92,24 @@ int main()
     colorParams.offset = offsetof(UserVertex, UserVertex::color);
 
     // Shader modules
-    IShaderModules* shaders = RHI.InstantiateShaderModules();
+    IShaderModules* shaders = RHI->InstantiateShaderModules();
     shaders->Create(device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", vertexTotalSize, { posParams, colorParams });
 
     // Graphics pipeline
-    IPipeline* pipeline = RHI.InstantiatePipeline();
+    IPipeline* pipeline = RHI->InstantiatePipeline();
     pipeline->Create(device, renderPass, shaders);
 
     // Command pool
-    ICommandPool* commandPool = RHI.InstantiateCommandPool();
+    ICommandPool* commandPool = RHI->InstantiateCommandPool();
     commandPool->Create(device);
 
     // Command buffer
-    ICommandBuffers* commands = RHI.InstantiateCommandBuffers();
+    ICommandBuffers* commands = RHI->InstantiateCommandBuffers();
     commands->Create(device, commandPool, swapChain);
 
     // Vertex and index buffers
-    IBuffer* vertexBuffer = RHI.InstantiateBuffer();
-    IBuffer* indexBuffer = RHI.InstantiateBuffer();
+    IBuffer* vertexBuffer = RHI->InstantiateBuffer();
+    IBuffer* indexBuffer = RHI->InstantiateBuffer();
     vertexBuffer->Create(device, commandPool, VERTEX_BUFFER, sizeof(userVertices[0]) * userVertices.size(), (void*)userVertices.data());
     indexBuffer->Create(device, commandPool, INDEX_BUFFER, sizeof(userIndices[0]) * userIndices.size(), (void*)userIndices.data());
 
@@ -122,8 +122,8 @@ int main()
         uint32_t imageIndex = swapChain->AcquireNextImage(device, commands->GetCurrentFrame());
         commands->BeginDraw(renderPass, swapChain, framebuffers, imageIndex);
 
-        commands->BindPipeline(pipeline);
-        commands->DrawVerticesByIndices(userIndices.size(), vertexBuffer, indexBuffer);
+            commands->BindPipeline(pipeline);
+            commands->DrawVerticesByIndices(userIndices.size(), vertexBuffer, indexBuffer);
 
         commands->EndDraw();
         commands->SubmitAndPresent(device, swapChain, imageIndex);
@@ -134,60 +134,60 @@ int main()
 
     // Buffers
     vertexBuffer->Destroy(device);
-    RHI.DeleteBuffer(vertexBuffer);
+    RHI->DeleteBuffer(vertexBuffer);
     indexBuffer->Destroy(device);
-    RHI.DeleteBuffer(indexBuffer);
+    RHI->DeleteBuffer(indexBuffer);
     vertexBuffer = nullptr;
     indexBuffer = nullptr;
 
     // Command buffer
-    commands->Destroy(device);
-    RHI.DeleteCommandBuffers(commands);
+    commands->Destroy(device, commandPool);
+    RHI->DeleteCommandBuffers(commands);
     commands = nullptr;
 
     // Command pool
     commandPool->Destroy(device);
-    RHI.DeleteCommandPool(commandPool);
+    RHI->DeleteCommandPool(commandPool);
     commandPool = nullptr;
 
     // Graphics pipeline
     pipeline->Destroy(device);
-    RHI.DeletePipeline(pipeline);
+    RHI->DeletePipeline(pipeline);
     pipeline = nullptr;
 
     // Shader modules
     shaders->Destroy(device);
-    RHI.DeleteShaderModules(shaders);
+    RHI->DeleteShaderModules(shaders);
     shaders = nullptr;
 
     // Framebuffers
     framebuffers->Destroy(device);
-    RHI.DeleteFramebuffers(framebuffers);
+    RHI->DeleteFramebuffers(framebuffers);
     framebuffers = nullptr;
 
     // Swap chain
     swapChain->Destroy(device);
-    RHI.DeleteSwapChain(swapChain);
+    RHI->DeleteSwapChain(swapChain);
     swapChain = nullptr;
 
     // Render Pass
     renderPass->Destroy(device);
-    RHI.DeleteRenderPass(renderPass);
+    RHI->DeleteRenderPass(renderPass);
     renderPass = nullptr;
 
     // Device (GPU)
     device->Destroy();
-    RHI.DeleteDevice(device);
+    RHI->DeleteDevice(device);
     device = nullptr;
 
     // Surface
     surface->Destroy(instance);
-    RHI.DeleteSurface(surface);
+    RHI->DeleteSurface(surface);
     surface = nullptr;
 
     // Instance
     instance->Destroy();
-    RHI.DeleteInstance(instance);
+    RHI->DeleteInstance(instance);
     instance = nullptr;
 
     // Window
@@ -196,6 +196,12 @@ int main()
 
     userVertices.clear();
     userIndices.clear();
+    userVertices.shrink_to_fit();
+    userIndices.shrink_to_fit();
+
+    // Free factory class pointer.
+    delete RHI;
+    MaliceRHI::Debug::Log::GetInstance()->Destroy();
 
     ///////////////////////////
     return 0;

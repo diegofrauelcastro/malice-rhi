@@ -30,7 +30,7 @@ public:
 	/// Lifetime methods ///
 
 	virtual void Create(IDevice* _device, ICommandPool* _commandPool, ISwapChain* _swapChain) = 0;
-	virtual void Destroy(IDevice* _device) = 0;
+	virtual void Destroy(IDevice* _device, ICommandPool* _commandPool) = 0;
 
 
 	/// Retrieving the backend ///

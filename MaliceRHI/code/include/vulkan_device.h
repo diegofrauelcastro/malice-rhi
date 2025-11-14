@@ -46,7 +46,7 @@ private:
 	#endif
 
 	// Device extensions that we want to check for, and enable.
-	const std::vector<const char*> deviceExtensions = {
+	std::vector<const char*> deviceExtensions = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 

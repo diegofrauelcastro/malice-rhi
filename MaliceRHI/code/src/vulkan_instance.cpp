@@ -60,6 +60,7 @@ std::vector<const char*> VulkanInstance::GetRequiredExtensions()
 	if (enableValidationLayers)
 	{
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		extensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 
 		// List all available extensions.
 		uint32_t extensionCount = 0;
@@ -150,6 +151,9 @@ void VulkanInstance::Destroy()
 	}
 	else
 		LOG_RHI("Something went wrong trying to destroy the Vulkan instance...")
+
+	validationLayers.clear();
+	validationLayers.shrink_to_fit();
 
 	LOG_CLEAN("\n\n===== TERMINATION =====\n")
 

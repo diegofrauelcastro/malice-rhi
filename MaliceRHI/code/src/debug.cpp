@@ -16,18 +16,24 @@ Log::Log(std::string fileName)
 
 Log::~Log()
 {
-    if (f.is_open())
-    {
-        std::cout << "[LOGGER] " << PrintClean("Closing log file...") << std::endl;
-        f.close();
-    }
     Destroy();
 }
 
 void Log::Destroy()
 {
-    if (singleton != nullptr)
+    if (f.is_open())
+    {
+        std::cout << "[LOGGER] " << PrintClean("Closing log file...") << std::endl;
+        f.close();
+        f.clear();
+    }
+
+    if (singleton != nullptr && !bIsCurrentlyDestroying)
+    {
+        bIsCurrentlyDestroying = true;
         delete singleton;
+        singleton = nullptr;
+    }
 }
 
 Log* Log::GetInstance()

@@ -53,4 +53,7 @@ void VulkanFramebuffers::Destroy(IDevice* _device)
 		vkDestroyFramebuffer(_device->API_Vulkan().GetLogicalDeviceVkHandle(), framebuffers[i], nullptr);
 		LOG_RHI("Framebuffer %d destroyed successfully.", (int)i)
 	}
+
+	framebuffers.clear();
+	framebuffers.shrink_to_fit();
 }

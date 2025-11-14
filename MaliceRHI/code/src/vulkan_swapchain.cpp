@@ -285,6 +285,18 @@ void VulkanSwapChain::Destroy(IDevice* _device)
 {
 	CleanupSwapChain(_device->API_Vulkan());
 	CleanupSyncObjects(_device->API_Vulkan());
+
+	swapChainImages.clear();
+	swapChainImages.shrink_to_fit();
+	swapChainImageViews.clear();
+	swapChainImageViews.shrink_to_fit();
+
+	imageAvailableSemaphores.clear();
+	imageAvailableSemaphores.shrink_to_fit();
+	renderFinishedSemaphores.clear();
+	renderFinishedSemaphores.shrink_to_fit();
+	inFlightFences.clear();
+	inFlightFences.shrink_to_fit();
 }
 
 

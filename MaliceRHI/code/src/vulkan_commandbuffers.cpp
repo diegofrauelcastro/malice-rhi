@@ -130,7 +130,7 @@ void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapC
 
 	// Handle swap chain recreation if it's out of date (when window resized for example).
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-		//_swapChain->API_Vulkan().RecreateSwapChain();
+		//_swapChain->API_Vulkan().RecreateSwapChain(); // TODO Remove the fact that the window can be resized manually.
 		LOG_THROW("/!\\ Swap chain is obsolete/suboptimal!")
 	else if (result != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to present swap chain image!")
@@ -167,8 +167,14 @@ void VulkanCommandBuffers::Create(IDevice* _device, ICommandPool* _commandPool, 
 	CreateCommandBuffers(_device->API_Vulkan(), _commandPool->API_Vulkan(), _swapChain->API_Vulkan());
 }
 
-void VulkanCommandBuffers::Destroy(IDevice* _device)
+void VulkanCommandBuffers::Destroy(IDevice* _device, ICommandPool* _commandPool)
 {
 	LOG_CLEAN("\n\n===== COMMAND BUFFERS DESTRUCTION =====\n")
+
+	vkFreeCommandBuffers(_device->API_Vulkan().GetLogicalDeviceVkHandle(), _commandPool->API_Vulkan().GetVkHandle(), (uint32_t)commandBuffers.size(), commandBuffers.data());
+
+	commandBuffers.clear();
+	commandBuffers.shrink_to_fit();
+
 	LOG_RHI("Command buffers destroyed successfully.")
 }

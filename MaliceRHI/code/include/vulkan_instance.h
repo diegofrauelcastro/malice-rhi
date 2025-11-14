@@ -23,7 +23,7 @@ private:
 	#endif
 
 	// Validation layers that we want to enable.
-	const std::vector<const char*> validationLayers = {
+	std::vector<const char*> validationLayers = {
 		"VK_LAYER_KHRONOS_validation"
 	};
 

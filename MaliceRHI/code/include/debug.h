@@ -53,6 +53,7 @@ namespace MaliceRHI
 
             static Log* singleton;
 			std::ofstream f;
+			bool bIsCurrentlyDestroying = false;
         public:
             static Log* GetInstance();
 

@@ -245,6 +245,11 @@ void VulkanDevice::Destroy()
 	}
 	else
 		LOG_RHI("Something went wrong trying to destroy the device...")
+
+	validationLayers.clear();
+	validationLayers.shrink_to_fit();
+	deviceExtensions.clear();
+	deviceExtensions.shrink_to_fit();
 }
 
 void VulkanDevice::WaitIdle()
