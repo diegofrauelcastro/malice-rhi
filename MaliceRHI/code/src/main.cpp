@@ -84,16 +84,21 @@ int main()
     uint32_t vertexTotalSize = sizeof(UserVertex);
     VertexInputLocationParams posParams;
     posParams.location = 0;
-    posParams.type = EShaderDataType::VEC2;
-    posParams.offset = offsetof(UserVertex, UserVertex::pos);
+    posParams.type = VEC2;
+    posParams.memoryOffset = offsetof(UserVertex, UserVertex::pos);
     VertexInputLocationParams colorParams;
     colorParams.location = 1;
-    colorParams.type = EShaderDataType::VEC3;
-    colorParams.offset = offsetof(UserVertex, UserVertex::color);
+    colorParams.type = VEC3;
+    colorParams.memoryOffset = offsetof(UserVertex, UserVertex::color);
 
     // Shader modules
     IShaderModules* shaders = RHI->InstantiateShaderModules();
     shaders->Create(device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", vertexTotalSize, { posParams, colorParams });
+    // Descriptor sets params (optionnal)
+    shaders->AddDescriptorSetBinding(1, 0, 2, VERTEX_SHADER);
+    shaders->AddDescriptorSetBinding(1, 1, 2, VERTEX_SHADER);
+    shaders->AddDescriptorSetBinding(0, 0, 2, VERTEX_SHADER);
+    shaders->AddDescriptorSetBinding(0, 1, 2, VERTEX_SHADER);
 
     // Graphics pipeline
     IPipeline* pipeline = RHI->InstantiatePipeline();
@@ -115,6 +120,8 @@ int main()
 
     //// LOOP
 
+    LOG_CLEAN("\n\n===== LOOP =====\n")
+    LOG_DEBUG("User loop start...")
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -128,7 +135,9 @@ int main()
         commands->EndDraw();
         commands->SubmitAndPresent(device, swapChain, imageIndex);
     }
+    LOG_DEBUG("User loop end. Waiting for device to be idle...")
     device->WaitIdle();
+    LOG_DEBUG("Device is idle. Resuming.")
 
     //// DESTROY
 

@@ -99,13 +99,14 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
+	// Initialize info about the descriptor set layouts.
+	CreateDescriptorSetLayouts(_device, _shaders);
+
 	// Create info about our pipeline.
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	/*pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;*/ // TODO Implement layout count (for uniform buffers).
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
+	pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
+	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
 	// Create the pipeline and ensure it was created successfully.
 	VkResult pipelineLayoutResult = vkCreatePipelineLayout(_device.GetLogicalDeviceVkHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout);
@@ -151,6 +152,42 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 		LOG_RHI("Graphics pipeline created successfully.")
 }
 
+void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanShaderModules& _shaders)
+{
+	// Retrieve all existing descriptor set indices and sort them in ascending order.
+	std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> mapTemp = _shaders.GetMapDescSetLayoutBindingsPerSetIndex();
+	std::vector<uint32_t> existingSetIndices;
+	for (auto it = mapTemp.begin(); it != mapTemp.end(); it++)
+		existingSetIndices.push_back(it->first);
+	sort(existingSetIndices.begin(), existingSetIndices.end());	// Ascending order sort O(n log n).
+
+	// Create all the descriptor set layouts.
+	descriptorSetLayouts.resize(existingSetIndices.size());
+	LOG_CLEAN("")
+	LOG_RHI("Creating descriptor set layouts for each descriptor set...")
+	for (uint32_t i = 0; i < existingSetIndices.size(); i++)
+	{
+		// Throw an error if for example the user defined set 0 and 2 but forgot set 1.
+		if (i != existingSetIndices[i])
+			LOG_THROW("/!\\ There seems to be a missing index for the descriptor sets? Last recorded index is %d, current index %d <- fix this one please.\n/!\\ If last recorded index is -1, it means descriptor set 0 is missing.", (int)(i-1), (int)existingSetIndices[i])
+
+		// Create info about the descriptor set layout.
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = (uint32_t)mapTemp[i].size();
+		layoutInfo.pBindings = mapTemp[i].data();
+
+		// Create the descriptor set layout and ensure it succeeded.
+		VkResult result = vkCreateDescriptorSetLayout(_device.GetLogicalDeviceVkHandle(), &layoutInfo, nullptr, &descriptorSetLayouts[i]);
+		if (result != VK_SUCCESS)
+			LOG_THROW("/!\\ Failed to create descriptor set layout for descriptor set number %d!", (int)i)
+		else
+			LOG_RHI("Descriptor set %d's layout created successfully.", (int)i)
+	}
+	LOG_RHI("Finished creating descriptor set layouts.")
+	LOG_CLEAN("")
+}
+
 void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders)
 {
 	CreateGraphicsPipeline(_device->API_Vulkan(), _renderPass->API_Vulkan(), _shaders->API_Vulkan());
@@ -159,6 +196,22 @@ void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderM
 void VulkanPipeline::Destroy(IDevice* _device)
 {
 	LOG_RHI("\n\n===== GRAPHICS PIPELINE DESTRUCTION =====\n")
+
+	// Destroy the descriptor set layouts.
+	for (size_t i = 0; i < descriptorSetLayouts.size(); i++)
+	{
+		if (descriptorSetLayouts[i] != VK_NULL_HANDLE)
+		{
+			vkDestroyDescriptorSetLayout(_device->API_Vulkan().GetLogicalDeviceVkHandle(), descriptorSetLayouts[i], nullptr);
+			LOG_RHI("Descriptor set %d's layout destroyed successfully.", (int)i)
+		}
+		else
+			LOG_RHI("Something went wrong trying to destroy descriptor set %d's layout...", (int)i)
+	}
+
+	// Clear vector.
+	descriptorSetLayouts.clear();
+	descriptorSetLayouts.shrink_to_fit();
 
 	// Destroy the graphics pipeline.
 	if (pipeline != VK_NULL_HANDLE)

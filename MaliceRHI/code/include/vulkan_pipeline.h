@@ -17,12 +17,16 @@ private:
 
 	VkPipeline pipeline;
 	VkPipelineLayout pipelineLayout;
+	std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
 
 	/// Helper functions ///
 
 	// Create graphics pipeline.
 	void CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderPass& _renderPass, VulkanShaderModules& _shaders);
 	
+	// Create descriptor set layout.
+	void CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanShaderModules& _shaders);
+
 public:
 	/// Lifetime methods ///
 
@@ -34,4 +38,6 @@ public:
 
 	VulkanPipeline& API_Vulkan() override { return (*this); }
 	VkPipeline GetVkHandle() const { return pipeline; }
+	VkPipelineLayout GetPipelineLayoutVkHandle() const { return pipelineLayout; }
+	std::vector<VkDescriptorSetLayout> GetDescriptorSetLayoutsVkHandles() const { return descriptorSetLayouts; }
 };

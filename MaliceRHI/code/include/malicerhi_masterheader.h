@@ -10,7 +10,9 @@
 #include <memory>
 #include <stdexcept>
 #include <iostream>
+#include <map>
 #include "debug.h"
+#include <algorithm>
 
 // GLFW
 #include <GLFW/glfw3.h>

@@ -148,6 +148,12 @@ void VulkanCommandBuffers::BindPipeline(IPipeline* _pipeline)
 	vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->API_Vulkan().GetVkHandle());
 }
 
+void VulkanCommandBuffers::BindUniformBuffer(IPipeline* _pipeline, uint32_t _descriptorSetIndex)
+{
+	// Bind the descriptor set for the current frame.
+	//vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->API_Vulkan().GetPipelineLayoutVkHandle(), _descriptorSetIndex, 1, &descriptorSets[currentFrame], 0, nullptr);
+}
+
 void VulkanCommandBuffers::DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer* _vertexBuffer, IBuffer* _indexBuffer)
 {
 	// Bind the vertex buffer.
@@ -156,8 +162,6 @@ void VulkanCommandBuffers::DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer
 	vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 	// Bind the index buffer.
 	vkCmdBindIndexBuffer(commandBuffers[currentFrame], _indexBuffer->API_Vulkan().GetVkHandle(), 0, VK_INDEX_TYPE_UINT16);
-	// Bind the descriptor set for the current frame.
-	//vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr); // TODO Adapt for uniform buffer
 	// Draw command.
 	vkCmdDrawIndexed(commandBuffers[currentFrame], _vertexNumber, 1, 0, 0, 0);
 }

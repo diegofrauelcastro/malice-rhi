@@ -22,12 +22,11 @@ private:
 	uint32_t vertexInputTotalSize = 0;
 	// Shader vertex input attributes bindings (locations).
 	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+	// Map of "descriptor set layout bindings" per descriptor set index.
+	std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> mapDescriptorSetLayoutDescsPerSetIndex;
 
-	// TODO
-	VkDescriptorSetLayout descriptorSetLayout;
 
-
-	/// Helper function ///
+	/// Helper functions ///
 
 	// Read a file. Static function.
 	static std::vector<char> ReadFile(const std::string& _filename);
@@ -35,11 +34,8 @@ private:
 	// Create shader modules.
 	VkShaderModule CreateShaderModule(VulkanDevice& _device, const std::vector<char>& code);
 
-	// Create descriptor set layout.
-	void CreateDescriptorSetLayout(VulkanDevice& _device); // TODO Adjust to give the user more control.
-
-	// Use given structs to build a VkVertexInputAttributeDescription and pass it to the graphics pipeline.
-	std::vector<VkVertexInputAttributeDescription> CreateInputAttributeDescriptions(std::vector<VertexInputLocationParams> _params);
+	// Use given structs to build a list of VkVertexInputAttributeDescription and pass it to the graphics pipeline.
+	void CreateInputAttributeDescriptions(std::vector<VertexInputLocationParams> _params);
 
 	// Transform a data type from our enum to a VkFormat.
 	VkFormat DataTypeToVkFormat(EShaderDataType _type);
@@ -47,7 +43,7 @@ private:
 public:
 	/// Lifetime methods ///
 
-	void Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _params) override ;
+	void Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams) override ;
 	void Destroy(IDevice* _device) override;
 
 
@@ -56,7 +52,12 @@ public:
 	VulkanShaderModules& API_Vulkan() override { return (*this); }
 	VkShaderModule GetVertexShaderModuleVkHandle() const { return vertexShader; }
 	VkShaderModule GetFragmentShaderModuleVkHandle() const { return fragmentShader; }
-	VkDescriptorSetLayout GetDescriptorSetLayoutVkHandle() const { return descriptorSetLayout; }
 	uint32_t GetVertexInputTotalSize() const { return vertexInputTotalSize; }
 	std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptorsVkHandles() const { return attributeDescriptions; }
+	std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> GetMapDescSetLayoutBindingsPerSetIndex() const { return mapDescriptorSetLayoutDescsPerSetIndex; }
+
+	/// Class specfic methods ///
+
+	// Create the parameters for a descriptor set layout binding for a specified set.
+	void AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage) override;
 };

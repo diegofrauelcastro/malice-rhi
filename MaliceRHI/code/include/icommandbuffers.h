@@ -55,6 +55,9 @@ public:
 	// Bind a pipeline to draw the next objects with.
 	virtual void BindPipeline(IPipeline* _pipeline) = 0;
 
+	// Bind uniform buffer.
+	virtual void BindUniformBuffer(IPipeline* _pipeline, uint32_t _descriptorSetIndex) = 0;
+
 	// Draw a specified number of vertices from a given set of vertex/index buffers.
 	virtual void DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer* vertexBuffer, IBuffer* indexBuffer) = 0;
 };

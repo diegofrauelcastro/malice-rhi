@@ -42,32 +42,8 @@ VkShaderModule VulkanShaderModules::CreateShaderModule(VulkanDevice& _device, co
 	return shaderModule;
 }
 
-void VulkanShaderModules::CreateDescriptorSetLayout(VulkanDevice& _device)
+void VulkanShaderModules::CreateInputAttributeDescriptions(std::vector<VertexInputLocationParams> _params)
 {
-	// Create a layout binding for the future uniform buffer object (UBO).
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;		// Our UBO will be used in the vertex shader.
-
-	// Create info about the descriptor set layout.
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
-
-	// Create the descriptor set layout and ensure it succeeded.
-	VkResult result = vkCreateDescriptorSetLayout(_device.GetLogicalDeviceVkHandle(), &layoutInfo, nullptr, &descriptorSetLayout);
-	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create descriptor set layout!")
-	else
-		LOG_RHI("Descriptor set layout created successfully.")
-}
-
-std::vector<VkVertexInputAttributeDescription> VulkanShaderModules::CreateInputAttributeDescriptions(std::vector<VertexInputLocationParams> _params)
-{
-	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 	attributeDescriptions.resize(_params.size());
 
 	for (int i = 0; i < _params.size(); i++)
@@ -75,11 +51,9 @@ std::vector<VkVertexInputAttributeDescription> VulkanShaderModules::CreateInputA
 		attributeDescriptions[i].binding = 0;
 		attributeDescriptions[i].location = _params[i].location;
 		attributeDescriptions[i].format = DataTypeToVkFormat(_params[i].type);
-		attributeDescriptions[i].offset = _params[i].offset;
+		attributeDescriptions[i].offset = _params[i].memoryOffset;
 		LOG_RHI("Initialized shader vertex input at location %d", (int)_params[i].location)
 	}
-
-	return attributeDescriptions;
 }
 
 VkFormat VulkanShaderModules::DataTypeToVkFormat(EShaderDataType _type)
@@ -107,7 +81,33 @@ VkFormat VulkanShaderModules::DataTypeToVkFormat(EShaderDataType _type)
 	}
 }
 
-void VulkanShaderModules::Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _params)
+void VulkanShaderModules::AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage)
+{
+	VkShaderStageFlags shaderStageVkEquivalent;
+	switch (_shaderStage)
+	{
+	case ALL:
+		shaderStageVkEquivalent = VK_SHADER_STAGE_ALL;
+		break;
+	case FRAGMENT_SHADER:
+		shaderStageVkEquivalent = VK_SHADER_STAGE_VERTEX_BIT;
+		break;
+	case VERTEX_SHADER:
+	default:
+		shaderStageVkEquivalent = VK_SHADER_STAGE_FRAGMENT_BIT;
+		break;
+	}
+
+	VkDescriptorSetLayoutBinding uboLayoutBinding{};
+	uboLayoutBinding.binding = _bindingIndex;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.descriptorCount = _descriptorCount;
+	uboLayoutBinding.stageFlags = shaderStageVkEquivalent;
+	mapDescriptorSetLayoutDescsPerSetIndex[_setIndex].push_back(uboLayoutBinding);
+	LOG_RHI("Registered shader's descriptor set %d (binding %d) with %d descriptors.", (int)_setIndex, (int)_bindingIndex, (int)_descriptorCount)
+}
+
+void VulkanShaderModules::Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams)
 {
 	LOG_CLEAN("\n\n===== SHADER MODULES CREATION =====\n")
 
@@ -125,7 +125,8 @@ void VulkanShaderModules::Create(IDevice* _device, const char* _vertPath, const 
 	vertexInputTotalSize = _vertexTotalSize;
 	LOG_CLEAN("")
 	LOG_RHI("Initializing vertex input...")
-	attributeDescriptions = CreateInputAttributeDescriptions(_params);
+	CreateInputAttributeDescriptions(_vertexInputParams);
+	LOG_CLEAN("")
 }
 
 void VulkanShaderModules::Destroy(IDevice* _device)
@@ -149,6 +150,116 @@ void VulkanShaderModules::Destroy(IDevice* _device)
 	else
 		LOG_RHI("Something went wrong trying to destroy vertex shader...")
 
+	// Clear attributeDescriptions vectors.
 	attributeDescriptions.clear();
 	attributeDescriptions.shrink_to_fit();
+
+	// Clear vectors of descriptor set layout bindings for each descriptor set index in the map.
+	for (auto it = mapDescriptorSetLayoutDescsPerSetIndex.begin(); it != mapDescriptorSetLayoutDescsPerSetIndex.end(); it++)
+	{
+		it->second.clear();
+		it->second.shrink_to_fit();
+	}
+	// Clear the map.
+	mapDescriptorSetLayoutDescsPerSetIndex.clear();
+	mapDescriptorSetLayoutDescsPerSetIndex;
 }
+
+
+/*void WindowApplication::CreateUniformBuffers()
+{
+	// Calculate the size of the uniform buffer we need.
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+	// Resize the vectors to hold a uniform buffer and its memory for each frame.
+	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+	// Map pointers for each uniform buffer.
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		vkMapMemory(logicalDevice, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+	}
+}
+
+void WindowApplication::UpdateUniformBuffer(uint32_t currentImage)
+{
+	// Calculate the time since the start of the application.
+	static auto startTime = std::chrono::high_resolution_clock::now();
+	// Get the current time.
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	// Calculate the time difference in seconds as a float.
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	std::cout << "Time: " << time << "s\r";
+
+	// Create the model, view, and projection matrices.
+	UniformBufferObject ubo{};
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+	ubo.proj[1][1] *= -1;
+
+	// Copy the data to the mapped uniform buffer.
+	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+}
+
+void WindowApplication::CreateDescriptorPool()
+{
+	// Create pool of descriptors.
+
+	VkDescriptorPoolSize poolSize{};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+	VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1; // TODO Make this customizable???
+	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+	VkResult result = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool);
+	if (result != VK_SUCCESS)
+		throw std::runtime_error("/!\\ Failed to create descriptor pool!");
+}
+
+void WindowApplication::CreateDescriptorSets()
+{
+	// Create info about the descriptor sets.
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+	VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = descriptorPool;
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	allocInfo.pSetLayouts = layouts.data();
+
+	// Prepare to hold the descriptor sets (one per frame in flight).
+	descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+
+	// Create the descriptor sets and ensure it succeeded.
+	VkResult result = vkAllocateDescriptorSets(logicalDevice, &allocInfo, descriptorSets.data());
+	if (result != VK_SUCCESS)
+		throw std::runtime_error("/!\\ Failed to allocate descriptor sets!");
+
+	// Populate the vector of descriptors.
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = uniformBuffers[i];
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(UniformBufferObject);
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = descriptorSets[i];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
+
+		vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, nullptr);
+	}
+}*/
