@@ -33,7 +33,7 @@ public:
 
 	/// Lifetime methods ///
 
-	virtual void Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, void* _data) = 0;
+	virtual void Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, const void* _data) = 0;
 	virtual void Destroy(IDevice* _device) = 0;
 
 

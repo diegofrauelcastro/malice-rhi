@@ -125,6 +125,15 @@
     <ClInclude Include="code\include\debug.h">
       <Filter>Fichiers d%27en-tête\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\vulkan_uniformbuffers.h">
+      <Filter>Fichiers d%27en-tête\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\idescriptorsetsgroup.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan_descriptorsetsgroup.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\src\vulkan_instance.cpp">
@@ -171,6 +180,15 @@
     </ClCompile>
     <ClCompile Include="code\src\debug.cpp">
       <Filter>Fichiers sources\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="code\include\iuniformbuffers.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_uniformbuffers.cpp">
+      <Filter>Fichiers sources\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="code\src\vulkan_descriptorsetsgroup.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

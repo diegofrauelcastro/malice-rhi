@@ -12,6 +12,8 @@ class ICommandPool;
 class IBuffer;
 class IFramebuffers;
 class ISwapChain;
+class IDescriptorSetsGroup;
+class IUniformBuffers;
 
 // Swap chain interface
 class ICommandBuffers
@@ -55,9 +57,12 @@ public:
 	// Bind a pipeline to draw the next objects with.
 	virtual void BindPipeline(IPipeline* _pipeline) = 0;
 
-	// Bind uniform buffer.
-	virtual void BindUniformBuffer(IPipeline* _pipeline, uint32_t _descriptorSetIndex) = 0;
+	// Bind descriptor sets.
+	virtual void BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets) = 0;
 
 	// Draw a specified number of vertices from a given set of vertex/index buffers.
 	virtual void DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer* vertexBuffer, IBuffer* indexBuffer) = 0;
+
+	// Update the uniform buffer descriptor in the given descriptor set.
+	virtual void UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount) = 0;
 };

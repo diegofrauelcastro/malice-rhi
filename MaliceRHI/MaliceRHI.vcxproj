@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -44,7 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>true</EnableASAN>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -52,7 +52,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>true</EnableASAN>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -156,6 +156,7 @@
     <ClInclude Include="code\include\ibuffer.h" />
     <ClInclude Include="code\include\icommandbuffers.h" />
     <ClInclude Include="code\include\icommandpool.h" />
+    <ClInclude Include="code\include\idescriptorsetsgroup.h" />
     <ClInclude Include="code\include\idevice.h" />
     <ClInclude Include="code\include\iframebuffers.h" />
     <ClInclude Include="code\include\iinstance.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="code\include\vulkan_buffer.h" />
     <ClInclude Include="code\include\vulkan_commandbuffers.h" />
     <ClInclude Include="code\include\vulkan_commandpool.h" />
+    <ClInclude Include="code\include\vulkan_descriptorsetsgroup.h" />
     <ClInclude Include="code\include\vulkan_device.h" />
     <ClInclude Include="code\include\vulkan_framebuffers.h" />
     <ClInclude Include="code\include\vulkan_instance.h" />
@@ -178,14 +180,17 @@
     <ClInclude Include="code\include\vulkan_shadermodules.h" />
     <ClInclude Include="code\include\vulkan_surface.h" />
     <ClInclude Include="code\include\vulkan_swapchain.h" />
+    <ClInclude Include="code\include\vulkan_uniformbuffers.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\include\iuniformbuffers.h" />
     <ClCompile Include="code\src\debug.cpp" />
     <ClCompile Include="code\src\main.cpp" />
     <ClCompile Include="code\src\volk.c" />
     <ClCompile Include="code\src\vulkan_buffer.cpp" />
     <ClCompile Include="code\src\vulkan_commandbuffers.cpp" />
     <ClCompile Include="code\src\vulkan_commandpool.cpp" />
+    <ClCompile Include="code\src\vulkan_descriptorsetsgroup.cpp" />
     <ClCompile Include="code\src\vulkan_device.cpp" />
     <ClCompile Include="code\src\vulkan_framebuffers.cpp" />
     <ClCompile Include="code\src\vulkan_instance.cpp" />
@@ -195,6 +200,7 @@
     <ClCompile Include="code\src\vulkan_shadermodules.cpp" />
     <ClCompile Include="code\src\vulkan_surface.cpp" />
     <ClCompile Include="code\src\vulkan_swapchain.cpp" />
+    <ClCompile Include="code\src\vulkan_uniformbuffers.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

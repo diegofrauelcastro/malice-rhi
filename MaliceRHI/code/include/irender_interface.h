@@ -12,6 +12,8 @@ class ICommandPool;
 class ICommandBuffers;
 class IShaderModules;
 class IPipeline;
+class IUniformBuffers;
+class IDescriptorSetsGroup;
 
 // Available rendering APIs.
 enum ERenderingAPI
@@ -31,6 +33,8 @@ public:
 	// Class destructor
 	virtual ~IRenderInterface() = default;
 
+	// Get current rendering API.
+	ERenderingAPI GetCurrentAPI() const { return currentAPI; }
 
 	// Instance
 	virtual IInstance* InstantiateInstance() = 0;
@@ -75,4 +79,12 @@ public:
 	// Command buffers
 	virtual IPipeline* InstantiatePipeline() = 0;
 	virtual void DeletePipeline(IPipeline* _pipeline) { delete _pipeline; }
+
+	// Descriptor sets bundle
+	virtual IDescriptorSetsGroup* InstantiateDescriptorSetsBundle() = 0;
+	virtual void DeleteDescriptorSetsBundle(IDescriptorSetsGroup* _descriptorSets) { delete _descriptorSets; }
+
+	// Uniform buffer
+	virtual IUniformBuffers* InstantiateUniformBuffers() = 0;
+	virtual void DeleteUniformBuffers(IUniformBuffers* _uniformBuffer) { delete _uniformBuffer; }
 };

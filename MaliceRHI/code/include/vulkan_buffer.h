@@ -28,10 +28,10 @@ protected:
 	void CopyBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, VkBuffer _srcBuffer, VkBuffer _dstBuffer, uint64_t _size);
 
 	// Create a vertex buffer.
-	void CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, void* _src);
+	void CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, const void* _src);
 
 	// Create an index buffer.
-	void CreateIndexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, void* _src);
+	void CreateIndexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, const void* _src);
 
 	// Find memory type for a buffer.
 	uint32_t FindMemoryType(VulkanDevice& _device, uint32_t _typeFilter, VkMemoryPropertyFlags _properties);
@@ -43,7 +43,7 @@ public:
 
 	/// Lifetime methods ///
 
-	void Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, void* _data) override;
+	void Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, const void* _data) override;
 	void Destroy(IDevice* _device) override;
 
 

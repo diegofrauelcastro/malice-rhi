@@ -9,7 +9,7 @@ class VulkanDevice;
 class VulkanCommandPool;
 class VulkanSwapChain;
 
-// Swap chain interface
+// Vulkan command buffers class
 class VulkanCommandBuffers : public ICommandBuffers
 {
 private:
@@ -47,9 +47,12 @@ public:
 	// Bind a pipeline to draw the next objects with.
 	void BindPipeline(IPipeline* _pipeline) override;
 
-	// Bind a uniform buffer.
-	void BindUniformBuffer(IPipeline* _pipeline, uint32_t _descriptorSetIndex) override;
-
 	// Draw a specified number of vertices from a given set of vertex/index buffers.
 	void DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer* _vertexBuffer, IBuffer* _indexBuffer) override;
+
+	// Bind descriptor sets.
+	void BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets) override;
+
+	// Update the uniform buffer descriptor in the given descriptor set.
+	void UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount) override;
 };

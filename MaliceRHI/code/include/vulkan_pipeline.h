@@ -18,6 +18,7 @@ private:
 	VkPipeline pipeline;
 	VkPipelineLayout pipelineLayout;
 	std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+	std::vector<std::vector<VkDescriptorSetLayoutBinding>> descriptorSetLayoutBindingsPerSet; // Initialized in CreateDescriptorSetLayouts.
 
 	/// Helper functions ///
 
@@ -40,4 +41,5 @@ public:
 	VkPipeline GetVkHandle() const { return pipeline; }
 	VkPipelineLayout GetPipelineLayoutVkHandle() const { return pipelineLayout; }
 	std::vector<VkDescriptorSetLayout> GetDescriptorSetLayoutsVkHandles() const { return descriptorSetLayouts; }
+	std::vector<std::vector<VkDescriptorSetLayoutBinding>> GetDescriptorSetLayoutBindingsPerSet() const { return descriptorSetLayoutBindingsPerSet; }
 };

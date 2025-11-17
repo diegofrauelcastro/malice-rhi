@@ -43,7 +43,7 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 	vkBindBufferMemory(_device.GetLogicalDeviceVkHandle(), _buffer, _bufferMemory, 0);
 }
 
-void VulkanBuffer::CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, void* _src)
+void VulkanBuffer::CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, const void* _src)
 {
 	LOG_CLEAN("\n\n===== VERTEX BUFFER CREATION =====\n")
 
@@ -69,7 +69,7 @@ void VulkanBuffer::CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& 
 	LOG_RHI("End of vertex buffer creation.")
 }
 
-void VulkanBuffer::CreateIndexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, void* _src)
+void VulkanBuffer::CreateIndexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, const void* _src)
 {
 	LOG_CLEAN("\n\n===== INDEX BUFFER CREATION =====\n")
 
@@ -156,7 +156,7 @@ uint32_t VulkanBuffer::FindMemoryType(VulkanDevice& _device, uint32_t _typeFilte
 	LOG_THROW("/!\\ Failed to find suitable memory type!")
 }
 
-void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, void* _data)
+void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, const void* _data)
 {
 	// Init the buffer with the given data for the specified usage.
 	bufferType = _usage;

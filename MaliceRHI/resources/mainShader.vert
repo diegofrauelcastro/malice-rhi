@@ -1,4 +1,4 @@
-/*#version 450
+#version 450
 
 // Inputs
 layout(location = 0) in vec2 inPosition;
@@ -8,24 +8,14 @@ layout(location = 1) in vec3 inColor;
 layout(location = 0) out vec3 fragColor;
 
 // Uniforms
-layout(binding = 0) uniform UniformBufferObject {
+layout(set = 0, binding = 0) uniform GlobalUBO
+{
     mat4 model;
     mat4 view;
     mat4 proj;
-} ubo;
+} global;
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 0.0, 1.0);
-    fragColor = inColor;
-}*/
-#version 450
-
-layout(location = 0) in vec2 inPosition;
-layout(location = 1) in vec3 inColor;
-
-layout(location = 0) out vec3 fragColor;
-
-void main() {
-    gl_Position = vec4(inPosition, 0.0, 1.0);
+    gl_Position = global.proj * global.view * global.model * vec4(inPosition, 0.0, 1.0);
     fragColor = inColor;
 }

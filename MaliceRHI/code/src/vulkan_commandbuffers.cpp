@@ -7,6 +7,9 @@
 #include "vulkan_framebuffers.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_buffer.h"
+#include "vulkan_uniformbuffers.h"
+
+#include "vulkan_descriptorsetsgroup.h"
 
 void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCommandPool& _commandPool, VulkanSwapChain& _swapChain)
 {
@@ -89,9 +92,6 @@ void VulkanCommandBuffers::EndDraw()
 
 void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex)
 {
-	// Update the uniform buffer for the current frame.
-	//UpdateUniformBuffer(currentFrame);		// TODO Adapt for uniform buffers
-
 	// Submit the commands inside the command buffer.
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -104,7 +104,7 @@ void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapC
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 	// Specify the semaphore to signal once the command buffer has finished execution.
-	VkSemaphore signalSemaphores[] = { _swapChain->API_Vulkan().GetRenderFinishedSemaphoresVkHandles()[currentFrame] };
+	VkSemaphore signalSemaphores[] = { _swapChain->API_Vulkan().GetRenderFinishedSemaphoresVkHandles()[_imageIndex] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -137,9 +137,6 @@ void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapC
 
 	// Advance to the next frame.
 	currentFrame = (currentFrame + 1) % _swapChain->GetMaxFramesInFlight();
-
-	// This removes the validation layers about the semaphores being unsignaled (TODO ???)
-	_device->WaitIdle();
 }
 
 void VulkanCommandBuffers::BindPipeline(IPipeline* _pipeline)
@@ -148,10 +145,15 @@ void VulkanCommandBuffers::BindPipeline(IPipeline* _pipeline)
 	vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->API_Vulkan().GetVkHandle());
 }
 
-void VulkanCommandBuffers::BindUniformBuffer(IPipeline* _pipeline, uint32_t _descriptorSetIndex)
+void VulkanCommandBuffers::BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets)
 {
 	// Bind the descriptor set for the current frame.
-	//vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->API_Vulkan().GetPipelineLayoutVkHandle(), _descriptorSetIndex, 1, &descriptorSets[currentFrame], 0, nullptr);
+	const std::vector<VkDescriptorSet> sets = _descriptorSets->API_Vulkan().GetDescriptorSetsVkHandles()[currentFrame];
+	vkCmdBindDescriptorSets(
+		commandBuffers[currentFrame],
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		_pipeline->API_Vulkan().GetPipelineLayoutVkHandle(), 0, static_cast<uint32_t>(sets.size()), sets.data(), 0, nullptr
+	);
 }
 
 void VulkanCommandBuffers::DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer* _vertexBuffer, IBuffer* _indexBuffer)
@@ -181,4 +183,38 @@ void VulkanCommandBuffers::Destroy(IDevice* _device, ICommandPool* _commandPool)
 	commandBuffers.shrink_to_fit();
 
 	LOG_RHI("Command buffers destroyed successfully.")
+}
+
+void VulkanCommandBuffers::UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount)
+{
+	// Prepare the buffer info structure.
+	VkDescriptorBufferInfo bufInfo{};
+	bufInfo.buffer = _ubo->API_Vulkan().GetBuffers()[currentFrame].buffer;
+	bufInfo.offset = 0;
+	bufInfo.range = _ubo->API_Vulkan().GetBufferSize();
+
+	// Check that the set index is valid.
+	size_t setCount = _descSets->API_Vulkan().GetDescriptorSetsVkHandles()[0].size();
+	if (setCount == 0)
+	{
+		LOG_RHI("/!\\ No descriptor sets available to update.")
+		return;
+	}
+	else if (_setIndex >= setCount)
+	{
+		LOG_RHI("/!\\ Set index %d is out of bounds (max is %d).", (int)_setIndex, (int)(setCount - 1))
+		return;
+	}
+
+	// Prepare the write descriptor set structure.
+	VkWriteDescriptorSet write{};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.dstSet = _descSets->API_Vulkan().GetDescriptorSetsVkHandles()[currentFrame][_setIndex];
+	write.dstBinding = _binding;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.descriptorCount = _descriptorCount;
+	write.pBufferInfo = &bufInfo;
+
+	// Update the descriptor set.
+	vkUpdateDescriptorSets(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &write, 0, nullptr);
 }

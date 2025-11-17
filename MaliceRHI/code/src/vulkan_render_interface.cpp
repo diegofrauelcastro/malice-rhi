@@ -11,6 +11,9 @@
 #include "vulkan_commandpool.h"
 #include "vulkan_commandbuffers.h"
 #include "vulkan_buffer.h"
+//#include "vulkan_descriptorsetsbundle.h"
+#include "vulkan_descriptorsetsgroup.h"
+#include "vulkan_uniformbuffers.h"
 
 
 // Instance
@@ -76,4 +79,16 @@ IShaderModules* VulkanRenderInterface::InstantiateShaderModules()
 IPipeline* VulkanRenderInterface::InstantiatePipeline()
 {
 	return new VulkanPipeline();
+}
+
+// Descriptor sets bundle
+IDescriptorSetsGroup* VulkanRenderInterface::InstantiateDescriptorSetsBundle()
+{
+	return new VulkanDescriptorSetsGroup();
+}
+
+// Uniform buffer
+IUniformBuffers* VulkanRenderInterface::InstantiateUniformBuffers()
+{
+	return new VulkanUniformBuffers();
 }

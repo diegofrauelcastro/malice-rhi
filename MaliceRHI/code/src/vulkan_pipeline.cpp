@@ -163,6 +163,9 @@ void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanSha
 
 	// Create all the descriptor set layouts.
 	descriptorSetLayouts.resize(existingSetIndices.size());
+	// Also prepare to store the descriptor set layout bindings per set for later use.
+	descriptorSetLayoutBindingsPerSet.resize(existingSetIndices.size());
+
 	LOG_CLEAN("")
 	LOG_RHI("Creating descriptor set layouts for each descriptor set...")
 	for (uint32_t i = 0; i < existingSetIndices.size(); i++)
@@ -183,6 +186,9 @@ void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanSha
 			LOG_THROW("/!\\ Failed to create descriptor set layout for descriptor set number %d!", (int)i)
 		else
 			LOG_RHI("Descriptor set %d's layout created successfully.", (int)i)
+		
+		// Store the descriptor set layout bindings for later use.
+		descriptorSetLayoutBindingsPerSet[i] = mapTemp[i];
 	}
 	LOG_RHI("Finished creating descriptor set layouts.")
 	LOG_CLEAN("")

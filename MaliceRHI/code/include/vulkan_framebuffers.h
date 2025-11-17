@@ -3,13 +3,12 @@
 #include "malicerhi_masterheader.h"
 #include "iframebuffers.h"
 
-
 // Forward declarations
 class VulkanDevice;
 class VulkanSwapChain;
 class VulkanRenderPass;
 
-// Framebuffers interface
+// Framebuffers class
 class VulkanFramebuffers : public IFramebuffers
 {
 private:

@@ -11,11 +11,15 @@
 #include "icommandpool.h"
 #include "icommandbuffers.h"
 #include "ibuffer.h"
+#include "idescriptorsetsgroup.h"
+#include "iuniformbuffers.h"
 #include "debug.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <chrono>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -26,6 +30,14 @@ struct UserVertex
     glm::vec3 color;
 };
 
+struct UniformBufferObject
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
+
 // Vertex data for a simple square.
 std::vector<UserVertex> userVertices = {
     {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -35,9 +47,28 @@ std::vector<UserVertex> userVertices = {
 };
 // Index data for the square (two triangles).
 std::vector<uint16_t> userIndices = {
-0, 3, 2, 2, 1, 0
+0, 1, 2, 2, 3, 0
 };
 
+static UniformBufferObject UpdateUniformBuffer()
+{
+    // Calculate the time since the start of the application.
+    static auto startTime = std::chrono::high_resolution_clock::now();
+    // Get the current time.
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    // Calculate the time difference in seconds as a float.
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    std::cout << "Time: " << time << "s\r";
+
+    // Create the model, view, and projection matrices.
+    UniformBufferObject ubo{};
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 10.0f);
+    ubo.proj[1][1] *= -1;
+	return ubo;
+}
 
 int main()
 {
@@ -95,10 +126,8 @@ int main()
     IShaderModules* shaders = RHI->InstantiateShaderModules();
     shaders->Create(device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", vertexTotalSize, { posParams, colorParams });
     // Descriptor sets params (optionnal)
-    shaders->AddDescriptorSetBinding(1, 0, 2, VERTEX_SHADER);
-    shaders->AddDescriptorSetBinding(1, 1, 2, VERTEX_SHADER);
-    shaders->AddDescriptorSetBinding(0, 0, 2, VERTEX_SHADER);
-    shaders->AddDescriptorSetBinding(0, 1, 2, VERTEX_SHADER);
+    shaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);
+    shaders->AddDescriptorSetBinding(1, 0, 1, FRAGMENT_SHADER);
 
     // Graphics pipeline
     IPipeline* pipeline = RHI->InstantiatePipeline();
@@ -118,6 +147,16 @@ int main()
     vertexBuffer->Create(device, commandPool, VERTEX_BUFFER, sizeof(userVertices[0]) * userVertices.size(), (void*)userVertices.data());
     indexBuffer->Create(device, commandPool, INDEX_BUFFER, sizeof(userIndices[0]) * userIndices.size(), (void*)userIndices.data());
 
+	// Descriptor sets bundle
+    IDescriptorSetsGroup* descriptorSets = RHI->InstantiateDescriptorSetsBundle();
+	descriptorSets->Create(device, pipeline, swapChain);
+    
+    // Uniform buffer
+	IUniformBuffers* mvpBuffer = RHI->InstantiateUniformBuffers();
+    IUniformBuffers* colorBuffer = RHI->InstantiateUniformBuffers();
+	mvpBuffer->Create(device, swapChain, sizeof(UniformBufferObject));
+    colorBuffer->Create(device, swapChain, sizeof(glm::vec4));
+
     //// LOOP
 
     LOG_CLEAN("\n\n===== LOOP =====\n")
@@ -126,11 +165,25 @@ int main()
     {
         glfwPollEvents();
 
+		// Update uniform buffer
+		UniformBufferObject ubo = UpdateUniformBuffer();
+		mvpBuffer->UploadData(commands, sizeof(glm::mat4)*3, &ubo);
+
+        // Update color
+		glm::vec4 newColor = glm::vec4((sin(glfwGetTime()) + 1.0f) / 2.0f, (cos(glfwGetTime()) + 1.0f) / 2.0f, 0.0f, 1.0f);
+		colorBuffer->UploadData(commands, sizeof(glm::vec4), &newColor);
+
+		// Drawing code
         uint32_t imageIndex = swapChain->AcquireNextImage(device, commands->GetCurrentFrame());
         commands->BeginDraw(renderPass, swapChain, framebuffers, imageIndex);
 
             commands->BindPipeline(pipeline);
-            commands->DrawVerticesByIndices(userIndices.size(), vertexBuffer, indexBuffer);
+            
+			commands->BindDescriptorSets(pipeline, descriptorSets);
+			commands->UpdateUniformBuffer(device, descriptorSets, mvpBuffer, 0, 0, 1);
+			commands->UpdateUniformBuffer(device, descriptorSets, colorBuffer, 1, 0, 1);
+
+            commands->DrawVerticesByIndices((uint32_t)userIndices.size(), vertexBuffer, indexBuffer);
 
         commands->EndDraw();
         commands->SubmitAndPresent(device, swapChain, imageIndex);
@@ -140,6 +193,19 @@ int main()
     LOG_DEBUG("Device is idle. Resuming.")
 
     //// DESTROY
+
+	// Uniform buffer
+	mvpBuffer->Destroy(device);
+	RHI->DeleteUniformBuffers(mvpBuffer);
+	mvpBuffer = nullptr;
+	colorBuffer->Destroy(device);
+	RHI->DeleteUniformBuffers(colorBuffer);
+	colorBuffer = nullptr;
+
+	// Descriptor sets bundle
+	descriptorSets->Destroy(device);
+	RHI->DeleteDescriptorSetsBundle(descriptorSets);
+	descriptorSets = nullptr;
 
     // Buffers
     vertexBuffer->Destroy(device);

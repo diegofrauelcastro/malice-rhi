@@ -7,7 +7,7 @@
 // Forward declarations
 class VulkanDevice;
 
-// Shader modules interface
+// Vulkan shader modules class
 class VulkanShaderModules : public IShaderModules
 {
 private:

@@ -190,7 +190,7 @@ void VulkanSwapChain::CleanupSwapChain(VulkanDevice& _device)
 void VulkanSwapChain::CleanupSyncObjects(VulkanDevice& _device)
 {
 	// Destroy sync objects.
-	for (size_t i = 0; i < maxFramesInFlight; i++)
+	for (size_t i = 0; i < swapChainImages.size(); i++)
 	{
 		if (imageAvailableSemaphores[i] != VK_NULL_HANDLE)
 			vkDestroySemaphore(_device.GetLogicalDeviceVkHandle(), imageAvailableSemaphores[i], nullptr);
@@ -245,9 +245,10 @@ void VulkanSwapChain::RecreateSwapChain(IDevice* _device, ISurface* _surface, GL
 
 void VulkanSwapChain::CreateSyncObjects(VulkanDevice& _device)
 {
-	imageAvailableSemaphores.resize(maxFramesInFlight);
-	renderFinishedSemaphores.resize(maxFramesInFlight);
-	inFlightFences.resize(maxFramesInFlight);
+	size_t numberOfImages = swapChainImages.size();
+	imageAvailableSemaphores.resize(numberOfImages);
+	renderFinishedSemaphores.resize(numberOfImages);
+	inFlightFences.resize(numberOfImages);
 
 	// Infos for both semaphores.
 	VkSemaphoreCreateInfo semaphoreInfo{};
@@ -259,7 +260,7 @@ void VulkanSwapChain::CreateSyncObjects(VulkanDevice& _device)
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 	// Create the semaphores and fences (one per frame).
-	for (size_t i = 0; i < maxFramesInFlight; i++)
+	for (size_t i = 0; i < numberOfImages; i++)
 	{
 		// Create two semaphores and one fence for each frame, and ensure everything worked out well.
 		VkResult semaphoreImageAvailableResult = vkCreateSemaphore(_device.GetLogicalDeviceVkHandle(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]);

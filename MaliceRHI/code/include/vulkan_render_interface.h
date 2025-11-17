@@ -27,4 +27,8 @@ public:
 	IShaderModules* InstantiateShaderModules() override;
 	// Command buffers
 	IPipeline* InstantiatePipeline() override;
+	// Descriptor sets bundle
+	IDescriptorSetsGroup* InstantiateDescriptorSetsBundle() override;
+	// Uniform buffers
+	IUniformBuffers* InstantiateUniformBuffers() override;
 };

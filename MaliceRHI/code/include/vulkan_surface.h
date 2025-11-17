@@ -3,7 +3,6 @@
 #include "malicerhi_masterheader.h"
 #include "isurface.h"
 
-
 // Vulkan Surface class
 class VulkanSurface : public ISurface
 {

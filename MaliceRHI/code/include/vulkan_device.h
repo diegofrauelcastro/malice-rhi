@@ -3,7 +3,6 @@
 #include "malicerhi_masterheader.h"
 #include "idevice.h"
 
-
 // Structure to hold queue family indices.
 struct QueueFamilyIndices
 {

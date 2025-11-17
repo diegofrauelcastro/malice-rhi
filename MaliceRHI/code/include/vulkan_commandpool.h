@@ -3,11 +3,10 @@
 #include "malicerhi_masterheader.h"
 #include "icommandpool.h"
 
-
 // Forward declarations
 class VulkanDevice;
 
-// Command pool interface
+// Vulkan command pool class
 class VulkanCommandPool : public ICommandPool
 {
 private:

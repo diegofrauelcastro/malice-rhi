@@ -3,12 +3,11 @@
 #include "malicerhi_masterheader.h"
 #include "irenderpass.h"
 
-
 // Forward declarations
 class VulkanSwapChain;
 class VulkanDevice;
 
-// Render pass interface
+// Render pass class
 class VulkanRenderPass : public IRenderPass
 {
 private:
