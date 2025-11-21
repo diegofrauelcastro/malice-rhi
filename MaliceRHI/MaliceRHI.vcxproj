@@ -40,14 +40,14 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -75,10 +75,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)out\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>malice_rhi</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)out\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>malice_rhi</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,6 +128,9 @@
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <OutputFile>$(OutDir)malice_rhi$(TargetExt)</OutputFile>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -143,14 +148,10 @@
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <OutputFile>$(OutDir)malice_rhi$(TargetExt)</OutputFile>
+    </Lib>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <None Include="resources\compile.bat" />
-    <None Include="resources\mainShader.frag" />
-    <None Include="resources\mainShader.vert" />
-    <None Include="resources\shaders\frag.spv" />
-    <None Include="resources\shaders\vert.spv" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\include\debug.h" />
     <ClInclude Include="code\include\ibuffer.h" />
@@ -181,11 +182,11 @@
     <ClInclude Include="code\include\vulkan_surface.h" />
     <ClInclude Include="code\include\vulkan_swapchain.h" />
     <ClInclude Include="code\include\vulkan_uniformbuffers.h" />
+    <ClInclude Include="code\include\malice_rhi\malice_rhi.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\include\iuniformbuffers.h" />
     <ClCompile Include="code\src\debug.cpp" />
-    <ClCompile Include="code\src\main.cpp" />
     <ClCompile Include="code\src\volk.c" />
     <ClCompile Include="code\src\vulkan_buffer.cpp" />
     <ClCompile Include="code\src\vulkan_commandbuffers.cpp" />

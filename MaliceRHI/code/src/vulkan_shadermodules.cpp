@@ -160,7 +160,6 @@ void VulkanShaderModules::Destroy(IDevice* _device)
 		it->second.clear();
 		it->second.shrink_to_fit();
 	}
-	// Clear the map.
+	// Clear the map itself.
 	mapDescriptorSetLayoutDescsPerSetIndex.clear();
-	mapDescriptorSetLayoutDescsPerSetIndex;
 }

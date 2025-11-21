@@ -190,6 +190,14 @@ void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanSha
 		// Store the descriptor set layout bindings for later use.
 		descriptorSetLayoutBindingsPerSet[i] = mapTemp[i];
 	}
+	// Clear the temporary map.
+	for (auto it = mapTemp.begin(); it != mapTemp.end(); it++)
+	{
+		it->second.clear();
+		it->second.shrink_to_fit();
+	}
+	mapTemp.clear();
+
 	LOG_RHI("Finished creating descriptor set layouts.")
 	LOG_CLEAN("")
 }
@@ -218,6 +226,9 @@ void VulkanPipeline::Destroy(IDevice* _device)
 	// Clear vector.
 	descriptorSetLayouts.clear();
 	descriptorSetLayouts.shrink_to_fit();
+	// Clear vector of descriptor set layout bindings per set.
+	descriptorSetLayoutBindingsPerSet.clear();
+	descriptorSetLayoutBindingsPerSet.shrink_to_fit();
 
 	// Destroy the graphics pipeline.
 	if (pipeline != VK_NULL_HANDLE)

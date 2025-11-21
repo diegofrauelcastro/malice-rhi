@@ -1,19 +1,6 @@
-﻿#include "vulkan_render_interface.h"
+#include <iostream>
 
-#include "iinstance.h"
-#include "idevice.h"
-#include "isurface.h"
-#include "iswapchain.h"
-#include "irenderpass.h"
-#include "iframebuffers.h"
-#include "ishadermodules.h"
-#include "ipipeline.h"
-#include "icommandpool.h"
-#include "icommandbuffers.h"
-#include "ibuffer.h"
-#include "idescriptorsetsgroup.h"
-#include "iuniformbuffers.h"
-#include "debug.h"
+#include <malice_rhi/malice_rhi.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,22 +19,22 @@ struct UserVertex
 
 struct UniformBufferObject
 {
-    glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
+    glm::mat4 model;
 };
 
 
 // Vertex data for a simple square.
 std::vector<UserVertex> userVertices = {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+    {{0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+    {{0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
     {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 };
 // Index data for the square (two triangles).
 std::vector<uint16_t> userIndices = {
-0, 1, 2, 2, 3, 0
+    0, 1, 2, 2, 3, 0
 };
 
 static UniformBufferObject UpdateUniformBuffer()
@@ -127,6 +114,7 @@ int main()
     shaders->Create(device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", vertexTotalSize, { posParams, colorParams });
     // Descriptor sets params (optionnal)
     shaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);
+    shaders->AddDescriptorSetBinding(0, 1, 1, VERTEX_SHADER);
     shaders->AddDescriptorSetBinding(1, 0, 1, FRAGMENT_SHADER);
 
     // Graphics pipeline
@@ -152,9 +140,11 @@ int main()
 	descriptorSets->Create(device, pipeline, swapChain);
     
     // Uniform buffer
-	IUniformBuffers* mvpBuffer = RHI->InstantiateUniformBuffers();
+	IUniformBuffers* camBuffer = RHI->InstantiateUniformBuffers();
+	IUniformBuffers* modelBuffer = RHI->InstantiateUniformBuffers();
     IUniformBuffers* colorBuffer = RHI->InstantiateUniformBuffers();
-	mvpBuffer->Create(device, swapChain, sizeof(UniformBufferObject));
+    camBuffer->Create(device, swapChain, sizeof(glm::mat4)*2);
+    modelBuffer->Create(device, swapChain, sizeof(glm::mat4));
     colorBuffer->Create(device, swapChain, sizeof(glm::vec4));
 
     //// LOOP
@@ -167,7 +157,9 @@ int main()
 
 		// Update uniform buffer
 		UniformBufferObject ubo = UpdateUniformBuffer();
-		mvpBuffer->UploadData(commands, sizeof(glm::mat4)*3, &ubo);
+		glm::mat4 camMatrices[] = {ubo.view, ubo.proj};
+        camBuffer->UploadData(commands, sizeof(glm::mat4)*2, camMatrices);
+        modelBuffer->UploadData(commands, sizeof(glm::mat4), &ubo.model);
 
         // Update color
 		glm::vec4 newColor = glm::vec4((sin(glfwGetTime()) + 1.0f) / 2.0f, (cos(glfwGetTime()) + 1.0f) / 2.0f, 0.0f, 1.0f);
@@ -180,7 +172,8 @@ int main()
             commands->BindPipeline(pipeline);
             
 			commands->BindDescriptorSets(pipeline, descriptorSets);
-			commands->UpdateUniformBuffer(device, descriptorSets, mvpBuffer, 0, 0, 1);
+            commands->UpdateUniformBuffer(device, descriptorSets, modelBuffer, 0, 0, 1);
+			commands->UpdateUniformBuffer(device, descriptorSets, camBuffer, 0, 1, 1);
 			commands->UpdateUniformBuffer(device, descriptorSets, colorBuffer, 1, 0, 1);
 
             commands->DrawVerticesByIndices((uint32_t)userIndices.size(), vertexBuffer, indexBuffer);
@@ -195,9 +188,12 @@ int main()
     //// DESTROY
 
 	// Uniform buffer
-	mvpBuffer->Destroy(device);
-	RHI->DeleteUniformBuffers(mvpBuffer);
-	mvpBuffer = nullptr;
+    camBuffer->Destroy(device);
+	RHI->DeleteUniformBuffers(camBuffer);
+    camBuffer = nullptr;
+    modelBuffer->Destroy(device);
+	RHI->DeleteUniformBuffers(modelBuffer);
+    modelBuffer = nullptr;
 	colorBuffer->Destroy(device);
 	RHI->DeleteUniformBuffers(colorBuffer);
 	colorBuffer = nullptr;
