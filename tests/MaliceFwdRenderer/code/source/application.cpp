@@ -156,6 +156,7 @@ void Application::Draw()
 	uint32_t img = m_SwapChain->AcquireNextImage(m_Device, frame);
 
 	// Recording commands.
+	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 0.0f });
 	m_Commands->BeginDraw(m_RenderPass, m_SwapChain, m_Framebuffers, img);
 
 		m_Commands->BindPipeline(m_Pipeline);
@@ -257,6 +258,4 @@ void Application::Cleanup()
 
 	// RHI.
 	delete m_RHI;
-	// Log destruction.
-	MaliceRHI::Debug::Log::GetInstance()->Destroy();
 }

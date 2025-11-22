@@ -33,6 +33,8 @@ VulkanRenderInterface::~VulkanRenderInterface()
 	LOG_RHI("Finalizing Volk for Vulkan RHI...")
 	volkFinalize();
 	LOG_RHI("Vulkan RHI cleaned up.\n")
+	// Log destruction.
+	MaliceRHI::Debug::Log::GetInstance()->Destroy();
 }
 
 // Instance

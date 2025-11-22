@@ -15,6 +15,14 @@ class ISwapChain;
 class IDescriptorSetsGroup;
 class IUniformBuffers;
 
+struct Color
+{
+	float r = 0.0f;
+	float g = 0.0f;
+	float b = 0.0f;
+	float a = 0.0f;
+};
+
 // Swap chain interface
 class ICommandBuffers
 {
@@ -23,6 +31,7 @@ protected:
 
 	// Index of the current image of the swap chain that is being presented.
 	uint32_t currentFrame = 0;
+	Color backgroundColor;
 
 public:
 	// Class destructor
@@ -41,6 +50,12 @@ public:
 
 
 	/// Class specific methods ///
+
+	// Get current background color.
+	Color GetClearColor() const { return backgroundColor; }
+
+	// Get current background color.
+	void SetClearColor(Color _color) { backgroundColor = _color; }
 
 	// Get Current Frame.
 	uint32_t GetCurrentFrame() const { return currentFrame; }

@@ -35,6 +35,8 @@ void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCom
 
 void VulkanCommandBuffers::BeginDraw(IRenderPass* _renderPass, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex)
 {
+	swapChainExtent = _swapChain->API_Vulkan().GetImageExtent();
+
 	// Reset the current command buffer.
 	vkResetCommandBuffer(commandBuffers[currentFrame], 0);
 	// Begin recording the command buffer.
@@ -54,29 +56,13 @@ void VulkanCommandBuffers::BeginDraw(IRenderPass* _renderPass, ISwapChain* _swap
 	renderPassInfo.renderPass = _renderPass->API_Vulkan().GetVkHandle();
 	renderPassInfo.framebuffer = _framebuffers->API_Vulkan().GetVkHandles()[_imageIndex];
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = _swapChain->API_Vulkan().GetImageExtent();
-	VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };	// Color of the "background" (the color we fill the image before rendering).
+	renderPassInfo.renderArea.extent = swapChainExtent;
+	VkClearValue clearColor = { {{backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a}} };	// Color of the "background" (the color we fill the image before rendering).
 	renderPassInfo.clearValueCount = 1;
 	renderPassInfo.pClearValues = &clearColor;
 
 	// Bind the render pass.
 	vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	// Setup viewport values (required because we set it as dynamic).
-	VkViewport viewport{};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(_swapChain->API_Vulkan().GetImageExtent().width);
-	viewport.height = static_cast<float>(_swapChain->API_Vulkan().GetImageExtent().height);
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
-	vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
-
-	// Setup scissor values (required because we set it as dynamic).
-	VkRect2D scissor{};
-	scissor.offset = { 0, 0 };
-	scissor.extent = _swapChain->API_Vulkan().GetImageExtent();
-	vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 }
 
 void VulkanCommandBuffers::EndDraw()
@@ -146,6 +132,22 @@ void VulkanCommandBuffers::BindPipeline(IPipeline* _pipeline)
 {
 	// Bind the graphics pipeline.
 	vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->API_Vulkan().GetVkHandle());
+
+	// Setup viewport values (required because we set it as dynamic).
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = static_cast<float>(swapChainExtent.width);
+	viewport.height = static_cast<float>(swapChainExtent.height);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
+
+	// Setup scissor values (required because we set it as dynamic).
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = swapChainExtent;
+	vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 }
 
 void VulkanCommandBuffers::BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets)

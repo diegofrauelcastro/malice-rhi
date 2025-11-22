@@ -27,6 +27,9 @@ ISART Digital, GP2 - 2025/2026
 ### Usage Examples  
 - [Example of User-Side Initialization](#example-of-user-side-initialization)
 
+### Issues
+- [Known issues](#known-issues)
+
 ## Overview
 
 MaliceRHI is a student project that implements a small Rendering Hardware Interface (RHI) designed to abstract low-level graphics APIs.  
@@ -291,9 +294,10 @@ Represents a set of command buffers, typically one per frame-in-flight.
 - Begin/End render pass / recording commands.
 - Bind graphics pipeline
 - Bind descriptor sets
-- Issue draw calls, with given index and vertex buffers.
+- Issue draw calls, with given index and vertex buffers
 - Submit work and present images
-- Update uniform buffers at a given set+binding, with a given count for each binding (useful for lists/arrays).
+- Clear color (background) change (RGBA float).
+- Update uniform buffers at a given set+binding, with a given count for each binding (useful for lists/arrays)
 
 Example usage:
 ```cpp
@@ -338,11 +342,29 @@ swapChain = nullptr;
 
 Pipeline and draw example:
 ```cpp
+// Acquire next image from the swap chain, from the current frame stored inside the command buffers.
+uint32_t frame = m_Commands->GetCurrentFrame();
+uint32_t img = m_SwapChain->AcquireNextImage(m_Device, frame);
+
+commands->SetClearColor({0.0f, 0.0f, 0.0f, 0.0f});
 commands->BeginDraw(renderPass, swapChain, framebuffers, imageIndex);
   commands->BindPipeline(pipeline);
   commands->BindDescriptorSets(pipeline, descriptorSets);
+  commands->UpdateUniformBuffer(device, descriptorSets, uniformBuffer, 0, 0, 1);
   commands->DrawIndexed(indexCount, vertexBuffer, indexBuffer);
 commands->EndDraw();
+
+commands->SubmitAndPresent(device, swapChain, framebuffers, imageIndex);
 ```
 
 For a full demo, look inside the folder `./tests/MaliceFwdRenderer/` to see more code.
+
+# Known issues
+
+- No depth test is currently made.
+- Render pass only has one attachment.
+- The descriptor sets were made with Vulkan implementation in mind, therefore it might not be scalable in other APIs, but I don't know in which cases specifically.
+- The viewport space WILL be wrong when changing APIs because Vulkan has the up coordinate "upside-down" in comparison to OpenGL for instance.
+- The window is resizable by default, and this is not changeable by the user. If a static window is wanted, that is not possible to setup because viewport and scissors have been coded in backend to be always dynamic.
+- I wasn't sure about my own understanding of sync objects, and their use in other APIs, so I preferred keeping them under the hood to avoid overcomplexifying my debug sessions.
+- The user must still choose manually in the first lines of the program between all of the Render Interfaces. (For now only Vulkan)

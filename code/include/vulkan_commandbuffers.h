@@ -15,6 +15,7 @@ class VulkanCommandBuffers : public ICommandBuffers
 private:
 	/// Class properties ///
 	std::vector<VkCommandBuffer> commandBuffers;
+	VkExtent2D swapChainExtent;
 
 	/// Helper functions ///
 
