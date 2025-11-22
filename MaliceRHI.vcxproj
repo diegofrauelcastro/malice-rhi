@@ -203,6 +203,9 @@
     <ClCompile Include="code\src\vulkan_swapchain.cpp" />
     <ClCompile Include="code\src\vulkan_uniformbuffers.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -5,7 +5,7 @@ void VulkanInstance::CreateInstance()
 {
 	LOG_CLEAN("\n\n===== INSTANCE CREATION =====\n")
 
-	LOG_RHI("Creating Vulkan instance...")
+	LOG_RHI("Creating Vulkan instance... Warning: this may take several seconds and freeze the application.")
 	// Check validation layers if is in debug mode.
 	if (enableValidationLayers && !CheckValidationLayerSupport())
 	{

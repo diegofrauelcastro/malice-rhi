@@ -67,10 +67,11 @@ void Application::InitScene()
     colorParams.location = 1;
     colorParams.type = VEC3;
     colorParams.memoryOffset = offsetof(UserVertex, UserVertex::color);
+	std::vector<VertexInputLocationParams> params = { posParams, colorParams };
 
 	// Shader modules.
 	m_Shaders = m_RHI->InstantiateShaderModules();
-	m_Shaders->Create(m_Device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", sizeof(UserVertex), { posParams, colorParams });
+	m_Shaders->Create(m_Device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", sizeof(UserVertex), params);
 
 	// Descriptor set bindings.
 	m_Shaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);
