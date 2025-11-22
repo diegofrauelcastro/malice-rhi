@@ -79,7 +79,18 @@ void Application::InitScene()
 
 	// Graphics pipeline.
 	m_Pipeline = m_RHI->InstantiatePipeline();
-	m_Pipeline->Create(m_Device, m_RenderPass, m_Shaders);
+	PipelineParams pipeline;
+	pipeline.enableRasterizerDiscard = false;
+	pipeline.enableDepthClamp = false;
+	pipeline.inputTopologyMode = TRIANGLE_LIST;
+	pipeline.polygonMode = FILL;
+	pipeline.enablePrimitiveRestart = false;
+	pipeline.rasterizerLineWidth = 1.0f;
+	pipeline.frontFace = COUNTER_CLOCKWISE;
+	pipeline.cullingMode = CULL_BACK_FACE;
+	pipeline.enableDepthBias = false;
+	pipeline.enableColorBlend = false;
+	m_Pipeline->Create(m_Device, m_RenderPass, m_Shaders, pipeline);
 
 	// Command pool.
 	m_CommandPool = m_RHI->InstantiateCommandPool();
@@ -156,7 +167,7 @@ void Application::Draw()
 		m_Commands->DrawVerticesByIndices((uint32_t)userIndices.size(), m_VertexBuffer, m_IndexBuffer);
 	m_Commands->EndDraw();
 	// Submitting commands and presenting the image.
-	m_Commands->SubmitAndPresent(m_Device, m_SwapChain, img);
+	m_Commands->SubmitAndPresent(m_Device, m_SwapChain, m_Framebuffers, img);
 }
 
 void Application::Run()

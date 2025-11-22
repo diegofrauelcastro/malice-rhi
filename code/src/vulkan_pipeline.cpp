@@ -4,8 +4,7 @@
 #include "vulkan_renderpass.h"
 #include "vulkan_shadermodules.h"
 
-
-void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderPass& _renderPass, VulkanShaderModules& _shaders)
+void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderPass& _renderPass, VulkanShaderModules& _shaders, PipelineParams& _params)
 {
 	LOG_CLEAN("\n\n===== GRAPHICS PIPELINE CREATION =====\n")
 
@@ -44,11 +43,14 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
+	// User parameters translated for vulkan use.
+	VulkanTranslatedParams translatedParams = TranslateAbstractParameters(_params);
+
 	// Create info about how the given vertices should be assembled.
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	inputAssembly.primitiveRestartEnable = VK_FALSE;
+	inputAssembly.topology = translatedParams.inputTopologyMode;
+	inputAssembly.primitiveRestartEnable = _params.enablePrimitiveRestart;
 
 	// Create info about the viewport and the scissors.
 	VkPipelineViewportStateCreateInfo viewportState{};
@@ -59,13 +61,13 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	// Setup the rasterizer.
 	VkPipelineRasterizationStateCreateInfo rasterizer{};
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	rasterizer.depthClampEnable = VK_FALSE;
-	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-	rasterizer.depthBiasEnable = VK_FALSE;
+	rasterizer.depthClampEnable = _params.enableDepthClamp;
+	rasterizer.rasterizerDiscardEnable = _params.enableRasterizerDiscard;
+	rasterizer.polygonMode = translatedParams.polygonMode;
+	rasterizer.lineWidth = _params.rasterizerLineWidth;
+	rasterizer.cullMode = translatedParams.cullingMode;
+	rasterizer.frontFace = translatedParams.frontFace;
+	rasterizer.depthBiasEnable = _params.enableDepthBias;
 
 	// Setup anti-aliasing.
 	VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -76,7 +78,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	// Configure color blending.
 	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachment.blendEnable = VK_FALSE;
+	colorBlendAttachment.blendEnable = _params.enableColorBlend;
 
 	VkPipelineColorBlendStateCreateInfo colorBlending{};
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -105,7 +107,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	// Create info about our pipeline.
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
+	pipelineLayoutInfo.setLayoutCount = (uint32_t)descriptorSetLayouts.size();
 	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
 	// Create the pipeline and ensure it was created successfully.
@@ -202,9 +204,80 @@ void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanSha
 	LOG_CLEAN("")
 }
 
-void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders)
+VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParameters(PipelineParams _params)
 {
-	CreateGraphicsPipeline(_device->API_Vulkan(), _renderPass->API_Vulkan(), _shaders->API_Vulkan());
+	VulkanTranslatedParams newParams;
+	// Primitive topology
+	switch (_params.inputTopologyMode)
+	{
+	default:
+	case POINT_LIST:
+		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+		break;
+	case LINE_LIST:
+		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+		break;
+	case LINE_STRIP:
+		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+		break;
+	case TRIANGLE_LIST:
+		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		break;
+	case TRIANGLE_STRIP:
+		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+		break;
+	case TRIANGLE_FAN:
+		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+		break;
+	}
+	// Polygon mode
+	switch (_params.polygonMode)
+	{
+	default:
+	case FILL:
+		newParams.polygonMode = VK_POLYGON_MODE_FILL;
+		break;
+	case LINE:
+		newParams.polygonMode = VK_POLYGON_MODE_LINE;
+		break;
+	case POINT:
+		newParams.polygonMode = VK_POLYGON_MODE_POINT;
+		break;
+	}
+	// Front face
+	switch (_params.frontFace)
+	{
+	default:
+	case COUNTER_CLOCKWISE:
+		newParams.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		break;
+	case CLOCKWISE:
+		newParams.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		break;
+	}
+	// Culling mode
+	switch (_params.cullingMode)
+	{
+	default:
+	case CULL_NONE:
+		newParams.cullingMode = VK_CULL_MODE_NONE;
+		break;
+	case CULL_FRONT_FACE:
+		newParams.cullingMode = VK_CULL_MODE_FRONT_BIT;
+		break;
+	case CULL_BACK_FACE:
+		newParams.cullingMode = VK_CULL_MODE_BACK_BIT;
+		break;
+	case CULL_FRONT_AND_BACK:
+		newParams.cullingMode = VK_CULL_MODE_FRONT_AND_BACK;
+		break;
+	}
+	return newParams;
+}
+
+void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders, PipelineParams& _params)
+{
+	CreateGraphicsPipeline(_device->API_Vulkan(), _renderPass->API_Vulkan(), _shaders->API_Vulkan(), _params);
 }
 
 void VulkanPipeline::Destroy(IDevice* _device)

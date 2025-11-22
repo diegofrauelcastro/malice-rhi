@@ -52,7 +52,7 @@ public:
 	virtual void EndDraw() = 0;
 
 	// Submit command buffer.
-	virtual void SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex) = 0;
+	virtual void SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex) = 0;
 
 	// Bind a pipeline to draw the next objects with.
 	virtual void BindPipeline(IPipeline* _pipeline) = 0;

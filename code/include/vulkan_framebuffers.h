@@ -16,11 +16,12 @@ private:
 
 	std::vector<VkFramebuffer> framebuffers;
 
+	VkRenderPass renderPass;
 
 	/// Helper functions ///
 
 	// Create framebuffers.
-	void CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VulkanRenderPass& _renderPass);
+	void CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VkRenderPass _renderPass);
 
 public:
 	// Class destructor
@@ -37,4 +38,9 @@ public:
 
 	VulkanFramebuffers& API_Vulkan() override { return (*this); }
 	std::vector<VkFramebuffer> GetVkHandles() const { return framebuffers; }
+
+	/// Class specific methods ///
+
+	// Recreate framebuffers.
+	void Recreate(IDevice* _device, ISwapChain* _swapChain);
 };

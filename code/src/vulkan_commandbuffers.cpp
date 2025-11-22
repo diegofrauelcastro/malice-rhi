@@ -90,7 +90,7 @@ void VulkanCommandBuffers::EndDraw()
 		LOG_THROW("/!\\ Failed to record command buffer!")
 }
 
-void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex)
+void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex)
 {
 	// Submit the commands inside the command buffer.
 	VkSubmitInfo submitInfo{};
@@ -130,8 +130,11 @@ void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapC
 
 	// Handle swap chain recreation if it's out of date (when window resized for example).
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-		//_swapChain->API_Vulkan().RecreateSwapChain(); // TODO Remove the fact that the window can be resized manually.
-		LOG_THROW("/!\\ Swap chain is obsolete/suboptimal!")
+	{
+		LOG_RHI("Swap chain is obsolete/suboptimal! Recreating swap chain...")
+		_swapChain->API_Vulkan().RecreateSwapChain(_device);
+		_framebuffers->API_Vulkan().Recreate(_device, _swapChain);
+	}
 	else if (result != VK_SUCCESS)
 		LOG_THROW("/!\\ Failed to present swap chain image!")
 

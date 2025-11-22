@@ -23,7 +23,7 @@ void Log::Destroy()
 {
     if (f.is_open())
     {
-        std::cout << "[LOGGER] " << PrintClean("Closing log file...") << std::endl;
+        std::cout << "[LOGGER] : " << PrintClean("Closing log file...") << std::endl;
         f.close();
         f.clear();
     }
@@ -49,12 +49,15 @@ void Log::OpenFile(std::string _fileName)
     {
         f.open(_fileName);
         if (!f.is_open()) std::cout << "Couldn't open file " << _fileName << "" << std::endl;
-        else std::cout << "[LOGGER] " << PrintClean("Opened Log file.") << std::endl;
+        else std::cout << "[LOGGER] : " << PrintClean("Opened Log file.") << std::endl;
+        #ifdef NDEBUG
+        std::cout << "[LOGGER] : /!\\ Please be aware that you won't get all the console RHI's logs in real time while being in a release build! You will still have access to the user logs using LOG_DEBUG macro, and also the RHI logs written in the log.txt file.\n\n" << std::endl;
+        #endif
     }
     else
     {
         std::string s = "Tried to open file of name \"" + _fileName + "\", however it seems another program is currently using it.";
-        std::cout << "[LOGGER] " << PrintClean(s.c_str()) << std::endl;
+        std::cout << "[LOGGER] : " << PrintClean(s.c_str()) << std::endl;
     }
 }
 

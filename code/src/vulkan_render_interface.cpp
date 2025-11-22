@@ -32,7 +32,7 @@ VulkanRenderInterface::~VulkanRenderInterface()
 	LOG_CLEAN("\n\n===== TERMINATION =====\n")
 	LOG_RHI("Finalizing Volk for Vulkan RHI...")
 	volkFinalize();
-	LOG_CLEAN("Vulkan RHI cleaned up.\n")
+	LOG_RHI("Vulkan RHI cleaned up.\n")
 }
 
 // Instance

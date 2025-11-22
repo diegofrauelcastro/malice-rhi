@@ -5,30 +5,29 @@
 #include <string>
 
 #ifdef NDEBUG
-// UNUSABLE IF NOT IN DEBUG MODE
-#define LOG_RHI(_str, ...) { }
+// Only write to the log file, without printing to the console.
+#define LOG_RHI(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, __VA_ARGS__); }
 
-// UNUSABLE IF NOT IN DEBUG MODE
-#define LOG_DEBUG(_str, ...) { }
-
-// UNUSABLE IF NOT IN DEBUG MODE
-#define LOG_CLEAN(_str, ...) { }
+// Only write to the log file, without printing to the console.
+#define LOG_CLEAN(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, __VA_ARGS__); }
 #else
 // Used for : MACRO DEBUG_LOG (RHI logs)
 #define LOG_RHI(_str, ...) { std::cout << "[RHI LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, __VA_ARGS__) << std::endl; }
 
 // Used for : MACRO DEBUG_LOG (user logs)
-#define LOG_DEBUG(_str, ...) { std::cout << "[USER DEBUG LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintDebug(_str, __VA_ARGS__) << std::endl; }
-
-// Used for : MACRO DEBUG_LOG (user logs)
 #define LOG_CLEAN(_str, ...) { std::cout << MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, __VA_ARGS__) << std::endl; }
 #endif
 
-// Used for : MACRO THROW EXCEPTION (RHI logs)
+// Used for : MACRO DEBUG_LOG (user logs)
+#define LOG_DEBUG(_str, ...) { std::cout << "[USER DEBUG LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintDebug(_str, __VA_ARGS__) << std::endl; }
+
+// Used for : MACRO THROW EXCEPTION (RHI error logs)
 #define LOG_THROW(_str, ...) { std::string thrownText = MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Throw(_str, __VA_ARGS__); std::cout << "\n\n" << __FILE__ << " (l." << __LINE__ << ") " << "[RHI EXCEPTION] : \n" << thrownText << std::endl; throw std::runtime_error(thrownText); }
+
 
 // Max size of a log.
 #define LOG_MAX_SIZE 1024
+
 
 namespace MaliceRHI
 {

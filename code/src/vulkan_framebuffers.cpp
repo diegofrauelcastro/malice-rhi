@@ -5,9 +5,11 @@
 #include "vulkan_swapchain.h"
 
 
-void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VulkanRenderPass& _renderPass)
+void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VkRenderPass _renderPass)
 {
 	LOG_CLEAN("\n\n===== FRAMEBUFFERS CREATION =====\n")
+
+		renderPass = _renderPass;
 
 	// Resize to hold all framebuffers (one for each ImageView in our swap chain images).
 	framebuffers.resize(_swapChain.GetImageViewsVkHandle().size());
@@ -22,7 +24,7 @@ void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapCha
 		// Info for this framebuffer.
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = _renderPass.GetVkHandle();
+		framebufferInfo.renderPass = _renderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = _swapChain.GetImageExtent().width;
@@ -40,7 +42,7 @@ void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapCha
 
 void VulkanFramebuffers::Create(IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass)
 {
-	CreateFramebuffers(_device->API_Vulkan(), _swapChain->API_Vulkan(), _renderPass->API_Vulkan());
+	CreateFramebuffers(_device->API_Vulkan(), _swapChain->API_Vulkan(), _renderPass->API_Vulkan().GetVkHandle());
 }
 
 void VulkanFramebuffers::Destroy(IDevice* _device)
@@ -56,4 +58,10 @@ void VulkanFramebuffers::Destroy(IDevice* _device)
 
 	framebuffers.clear();
 	framebuffers.shrink_to_fit();
+}
+
+void VulkanFramebuffers::Recreate(IDevice* _device, ISwapChain* _swapChain)
+{
+	Destroy(_device);
+	CreateFramebuffers(_device->API_Vulkan(), _swapChain->API_Vulkan(), renderPass);
 }

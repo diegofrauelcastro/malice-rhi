@@ -46,7 +46,7 @@ public:
 	void EndDraw() override;
 
 	// Submit command buffer.
-	void SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex) override;
+	void SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex) override;
 
 	// Bind a pipeline to draw the next objects with.
 	void BindPipeline(IPipeline* _pipeline) override;

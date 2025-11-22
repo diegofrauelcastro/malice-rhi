@@ -64,6 +64,9 @@ void VulkanSwapChain::SetupSwapChain(VulkanDevice& _device, VkSurfaceKHR _surfac
 {
 	LOG_CLEAN("\n\n===== SWAP CHAIN SETUP =====\n")
 
+	surface = _surface;
+	window = _window;
+
 	LOG_RHI("Configuring the swap chain...")
 	SwapChainSupportDetails swapChainSupport = _device.QuerySwapChainSupport(_device.GetPhysicalDeviceVkHandle(), _surface);
 
@@ -223,14 +226,14 @@ uint32_t VulkanSwapChain::AcquireNextImage(IDevice* _device, uint32_t currentFra
 	return imageIndex;
 }
 
-void VulkanSwapChain::RecreateSwapChain(IDevice* _device, ISurface* _surface, GLFWwindow* _window)
+void VulkanSwapChain::RecreateSwapChain(IDevice* _device)
 {
 	// Handle window minimization.
 	int width = 0, height = 0;
-	glfwGetFramebufferSize(_window, &width, &height);
+	glfwGetFramebufferSize(window, &width, &height);
 	while (width == 0 || height == 0)
 	{
-		glfwGetFramebufferSize(_window, &width, &height);
+		glfwGetFramebufferSize(window, &width, &height);
 		glfwWaitEvents();
 	}
 
@@ -239,7 +242,7 @@ void VulkanSwapChain::RecreateSwapChain(IDevice* _device, ISurface* _surface, GL
 
 	// Cleanup the old swap chain and all its related resources.
 	CleanupSwapChain(_device->API_Vulkan());
-	SetupSwapChain(_device->API_Vulkan(), _surface->API_Vulkan().GetVkHandle(), _window);
+	SetupSwapChain(_device->API_Vulkan(), surface, window);
 	CreateImageViews(_device->API_Vulkan());
 }
 

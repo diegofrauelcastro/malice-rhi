@@ -23,6 +23,9 @@ private:
 	// Extent (resolution) of our swap chain.
 	VkExtent2D swapChainExtent;
 
+	VkSurfaceKHR surface;
+	GLFWwindow* window;
+
 	// Sync objects (semaphores and fences, one per frame).
 
 	// Semaphores (GPU block) to know if an image is available to render.
@@ -59,9 +62,6 @@ private:
 	// Cleanup sync objects.
 	void CleanupSyncObjects(VulkanDevice& _device);
 
-	// Recreate swap chain (if it becomes suboptimal or obsolete).
-	void RecreateSwapChain(IDevice* _device, ISurface* _surface, GLFWwindow* _window);
-
 	// Create sync objects (semaphores and fences).
 	void CreateSyncObjects(VulkanDevice& _device);
 
@@ -93,4 +93,7 @@ public:
 
 	// Gets the next presentable image in the swap chain. Returns i, the index of the retrieved image : i is in range [0, maxFramesInFlight-1] .
 	uint32_t AcquireNextImage(IDevice* _device, uint32_t currentFrameIndex) override;
+
+	// Recreate swap chain (if it becomes suboptimal or obsolete).
+	void RecreateSwapChain(IDevice* _device);
 };
