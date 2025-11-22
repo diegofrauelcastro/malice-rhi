@@ -24,6 +24,10 @@ private:
 	void CreateDescriptorPoolAndSets(VulkanDevice& _device, VulkanPipeline& _pipeline, VulkanSwapChain& _swapChain);
 
 public:
+	// Class destructor
+	virtual ~VulkanDescriptorSetsGroup() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, IPipeline* _pipeline, ISwapChain* _swapChain) override;

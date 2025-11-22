@@ -38,7 +38,7 @@ protected:
 
 public:
 	// Class destructor
-	virtual ~VulkanBuffer() = default;
+	virtual ~VulkanBuffer() override = default;
 
 
 	/// Lifetime methods ///

@@ -35,6 +35,10 @@ private:
 	uint32_t FindMemoryType(VulkanDevice& _device, uint32_t _typeFilter, VkMemoryPropertyFlags _properties);
 
 public:
+	// Class destructor
+	virtual ~VulkanUniformBuffers() override = default;
+
+
 	/// Lifetime methods ///
 	void Create(IDevice* _device, ISwapChain* _swapChain, uint32_t _bufferSize) override;
 	void Destroy(IDevice* _device) override;

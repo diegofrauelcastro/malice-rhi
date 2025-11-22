@@ -66,6 +66,10 @@ private:
 	void CreateSyncObjects(VulkanDevice& _device);
 
 public:
+	// Class destructor
+	virtual ~VulkanSwapChain() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, ISurface* _surface, GLFWwindow* _window) override;

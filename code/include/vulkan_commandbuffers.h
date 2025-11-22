@@ -22,6 +22,10 @@ private:
 	void CreateCommandBuffers(VulkanDevice& _device, VulkanCommandPool& _commandPool, VulkanSwapChain& _swapChain);
 
 public:
+	// Class destructor
+	virtual ~VulkanCommandBuffers() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, ICommandPool* _commandPool, ISwapChain* _swapChain) override;

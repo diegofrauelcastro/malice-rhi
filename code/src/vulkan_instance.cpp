@@ -5,6 +5,7 @@ void VulkanInstance::CreateInstance()
 {
 	LOG_CLEAN("\n\n===== INSTANCE CREATION =====\n")
 
+	LOG_RHI("Creating Vulkan instance...")
 	// Check validation layers if is in debug mode.
 	if (enableValidationLayers && !CheckValidationLayerSupport())
 	{
@@ -115,19 +116,13 @@ bool VulkanInstance::CheckValidationLayerSupport()
 
 void VulkanInstance::Create(const char* _instanceName)
 {
-	LOG_CLEAN("\n\n===== INITIALIZATION =====\n")
-
-	// Init volk since the instance is the first object created. 
-	volkInitialize();
-
-	LOG_RHI("Vulkan and Volk initialized successfully.")
-
 	// Rename the instance.
 	instanceName = _instanceName;
 	// Create the instance.
 	CreateInstance();
 	// Initialize the debug messenger (validation layers).
 	SetupDebugMessenger();
+	LOG_RHI("Vulkan instance and debug messenger initialized successfully.")
 }
 
 void VulkanInstance::Destroy()
@@ -154,12 +149,6 @@ void VulkanInstance::Destroy()
 
 	validationLayers.clear();
 	validationLayers.shrink_to_fit();
-
-	LOG_CLEAN("\n\n===== TERMINATION =====\n")
-
-	// End Volk loader since the instance is the last object destroyed.
-	volkFinalize();
-	LOG_RHI("Vulkan and Volk finalized.")
 }
 
 void VulkanInstance::SetupDebugMessenger()

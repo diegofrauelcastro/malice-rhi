@@ -16,6 +16,25 @@
 #include "vulkan_uniformbuffers.h"
 
 
+// Class constructor
+VulkanRenderInterface::VulkanRenderInterface()
+{
+	LOG_CLEAN("\n\n===== VULKAN RENDER INTERFACE =====\n")
+	LOG_RHI("Initializing Volk for Vulkan RHI...")
+	currentAPI = VULKAN;
+	volkInitialize();
+	LOG_RHI("Vulkan RHI initialized.\n")
+}
+
+// Class destructor
+VulkanRenderInterface::~VulkanRenderInterface()
+{
+	LOG_CLEAN("\n\n===== TERMINATION =====\n")
+	LOG_RHI("Finalizing Volk for Vulkan RHI...")
+	volkFinalize();
+	LOG_CLEAN("Vulkan RHI cleaned up.\n")
+}
+
 // Instance
 IInstance* VulkanRenderInterface::InstantiateInstance()
 {

@@ -29,6 +29,10 @@ private:
 	void CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanShaderModules& _shaders);
 
 public:
+	// Class destructor
+	virtual ~VulkanPipeline() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders) override;

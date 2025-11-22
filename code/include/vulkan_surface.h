@@ -26,7 +26,7 @@ private:
 
 public:
 	// Class destructor
-	~VulkanSurface() = default;
+	virtual ~VulkanSurface() override = default;
 
 
 	/// Lifetime methods ///

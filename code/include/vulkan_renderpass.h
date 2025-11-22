@@ -22,6 +22,10 @@ private:
 	void CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& _swapchain);
 
 public:
+	// Class destructor
+	virtual ~VulkanRenderPass() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, ISwapChain* _swapChain) override;

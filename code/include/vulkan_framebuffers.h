@@ -23,6 +23,10 @@ private:
 	void CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VulkanRenderPass& _renderPass);
 
 public:
+	// Class destructor
+	virtual ~VulkanFramebuffers() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass) override;

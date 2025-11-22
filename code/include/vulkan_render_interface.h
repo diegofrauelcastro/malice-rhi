@@ -5,6 +5,11 @@
 class VulkanRenderInterface : public IRenderInterface
 {
 public:
+	// Constructor
+	VulkanRenderInterface();
+	// Class destructor
+	~VulkanRenderInterface() override;
+
 	// Instance
 	IInstance* InstantiateInstance() override;
 	// Device

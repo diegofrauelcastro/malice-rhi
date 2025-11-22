@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="code\source\application.cpp" />
     <ClCompile Include="code\source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +150,9 @@
     <None Include="resources\mainShader.vert" />
     <None Include="resources\shaders\frag.spv" />
     <None Include="resources\shaders\vert.spv" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\include\application.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

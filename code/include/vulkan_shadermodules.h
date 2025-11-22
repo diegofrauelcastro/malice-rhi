@@ -41,6 +41,10 @@ private:
 	VkFormat DataTypeToVkFormat(EShaderDataType _type);
 
 public:
+	// Class destructor
+	virtual ~VulkanShaderModules() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams) override ;

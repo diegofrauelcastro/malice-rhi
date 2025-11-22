@@ -61,6 +61,10 @@ private:
 	QueueFamilyIndices FindRequiredQueueFamilies(VkPhysicalDevice _device, VkSurfaceKHR _surface) const;	// Find queue families in the given physical device.
 
 public:
+	// Class destructor
+	virtual ~VulkanDevice() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(IInstance* _instance, ISurface* _surface) override;

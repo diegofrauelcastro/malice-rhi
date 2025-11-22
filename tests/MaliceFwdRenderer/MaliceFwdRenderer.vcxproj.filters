@@ -21,6 +21,9 @@
     <ClCompile Include="code\source\main.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="code\source\application.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\compile.bat">
@@ -38,5 +41,10 @@
     <None Include="resources\shaders\frag.spv">
       <Filter>Fichiers de ressources\CompiledShaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\include\application.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -21,7 +21,7 @@ private:
 
 public:
 	// Class destructor
-	virtual ~VulkanCommandPool() = default;
+	virtual ~VulkanCommandPool() override = default;
 
 
 	/// Lifetime methods ///

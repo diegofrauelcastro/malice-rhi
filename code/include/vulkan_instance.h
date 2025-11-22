@@ -45,6 +45,10 @@ private:
 	static void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
 public:
+	// Class destructor
+	virtual ~VulkanInstance() override = default;
+
+
 	/// Lifetime methods ///
 
 	void Create(const char* _instanceName) override;
