@@ -71,6 +71,8 @@ Each interface is implemented exactly once per backend. The user only interacts 
 ![UML Class Diagram](MaliceRHI_UMLdiagram.png "UML Class Diagram of Malice RHI")
 Here is the UML Class Diagram of the project, with most important classes, methods per classes, and some dependencies like Volk and GLFW.
 
+---
+
 ## Most important features
 
 - Runtime selection of rendering backend (dynamic RHI)
@@ -79,6 +81,8 @@ Here is the UML Class Diagram of the project, with most important classes, metho
 - Per-frame resource allocation where appropriate (uniform buffers, descriptor sets)
 - User customizable graphics pipeline, uniforms and vertex input data
 - Resizable window supported.
+
+---
 
 # Classes
 
@@ -118,6 +122,8 @@ Represents the rendering API instance.
 - Validation layers
 - Surface support utilities
 
+---
+
 ## ISurface / VulkanSurface
 
 ### Purpose
@@ -125,6 +131,8 @@ Abstraction of the windowing surface.
 
 ### Vulkan Implementation Contains
 - `VkSurfaceKHR`
+
+---
 
 ## IDevice / VulkanDevice
 
@@ -137,6 +145,8 @@ Encapsulates the physical and logical Vulkan device.
 - Queue family indices
 - Graphics and presentation queues
 
+---
+
 ## ISwapChain / VulkanSwapChain
 
 ### Purpose
@@ -148,6 +158,8 @@ Represents the swap chain and frame presentation infrastructure.
 - Synchronization objects per frame (semaphores, fences)
 - Swap chain configuration utilities
 
+---
+
 ## IRenderPass / VulkanRenderPass
 
 ### Purpose
@@ -157,10 +169,14 @@ Describes the render pass used for draw operations.
 - Currently supports a single color attachment
 - Depth is not yet implemented
 
+---
+
 ## IFramebuffers / VulkanFramebuffers
 
 ### Purpose
 Contains one framebuffer per swap chain image. Created after both swap chain and render pass.
+
+---
 
 ## IShaderModules / VulkanShaderModules
 
@@ -216,6 +232,8 @@ shaders->AddDescriptorBinding(1, 0, 1, ALL);
 ```
 The user can call these methods whenever, as long as it's before the pipeline creation after which the pipeline will record the state of the shaders and will stay fixed unless it is manually recreated.
 
+---
+
 ## IPipeline / VulkanPipeline
 
 ### Purpose
@@ -244,6 +262,8 @@ struct PipelineParams
 };
 ```
 
+---
+
 ## IBuffer / VulkanBuffer
 
 ### Purpose
@@ -256,6 +276,8 @@ General-purpose GPU buffer supporting:
 ### Vulkan Implementation Contains
 - `VkBuffer`
 - `VkDeviceMemory`
+
+---
 
 ## IUniformBuffers / VulkanUniformBuffers
 
@@ -270,6 +292,8 @@ Manages one uniform buffer per frame-in-flight.
 ubo->UploadData(ICommandBuffers* commandBuffers, uint32_t dataSize, const void* dataPtr);
 ```
 
+---
+
 ## IDescriptorSetsGroup / VulkanDescriptorSetsGroup
 
 ### Purpose
@@ -280,10 +304,14 @@ Owns all descriptor sets and the descriptor pool for a given pipeline.
 - Allocate descriptor sets per frame
 - Used during commands recording to update/bind uniform buffers and send them to the GPU.
 
+---
+
 ## ICommandPool / VulkanCommandPool
 
 ### Purpose
 Owns and manages the Vulkan command pool from which command buffers are allocated.
+
+---
 
 ## ICommandBuffers / VulkanCommandBuffers
 
@@ -307,6 +335,8 @@ commands->BindUniformBuffer(device, descriptorSets, viewMat, 0, 1, 1);        //
 commands->BindUniformBuffer(device, descriptorSets, projMat, 0, 2, 1);        // Set 0, binding 2, count = 1.
 commands->BindUniformBuffer(device, descriptorSets, mvpMatsStruct, 1, 0, 1);  // Set 1, binding 0, count = 1, even for a struct with several data inside.
 ```
+
+---
 
 # Example of User-Side Initialization
 
@@ -358,6 +388,8 @@ commands->SubmitAndPresent(device, swapChain, framebuffers, imageIndex);
 ```
 
 For a full demo, look inside the folder `./tests/MaliceFwdRenderer/` to see more code.
+
+---
 
 # Known issues
 
