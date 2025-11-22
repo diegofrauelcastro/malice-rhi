@@ -68,7 +68,7 @@ Each interface is implemented exactly once per backend. The user only interacts 
 
 ---
 
-![UML Class Diagram](MaliceRHI_UMLdiagram.png "UML Class Diagram of Malice RHI")
+![UML Class Diagram](docs/MaliceRHI_UMLdiagram.png "UML Class Diagram of Malice RHI")
 Here is the UML Class Diagram of the project, with most important classes, methods per classes, and some dependencies like Volk and GLFW.
 
 ---
