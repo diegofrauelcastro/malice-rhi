@@ -13,7 +13,7 @@
 
 void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCommandPool& _commandPool, VulkanSwapChain& _swapChain)
 {
-	LOG_CLEAN("\n\n===== COMMAND BUFFERS CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== COMMAND BUFFERS CREATION =====\n")
 
 	commandBuffers.resize(_swapChain.GetMaxFramesInFlight());
 
@@ -28,7 +28,7 @@ void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCom
 	// Create the command buffer and ensure it succeeded.
 	VkResult result = vkAllocateCommandBuffers(_device.GetLogicalDeviceVkHandle(), &allocInfo, commandBuffers.data());
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to allocate command buffers!")
+		LOG_RHI_THROW("/!\\ Failed to allocate command buffers!")
 	else
 		LOG_RHI("Command buffers allocated successfully.")
 }
@@ -48,7 +48,7 @@ void VulkanCommandBuffers::BeginDraw(IRenderPass* _renderPass, ISwapChain* _swap
 	// Begin the command buffer recording and ensure it succeeded.
 	VkResult resultBeginCommandBuffer = vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo);
 	if (resultBeginCommandBuffer != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to begin recording command buffer!")
+		LOG_RHI_THROW("/!\\ Failed to begin recording command buffer!")
 
 	// Info about the render pass.
 	VkRenderPassBeginInfo renderPassInfo{};
@@ -73,7 +73,7 @@ void VulkanCommandBuffers::EndDraw()
 	// Finish recording the command buffer.
 	VkResult resultEndCommandBuffer = vkEndCommandBuffer(commandBuffers[currentFrame]);
 	if (resultEndCommandBuffer != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to record command buffer!")
+		LOG_RHI_THROW("/!\\ Failed to record command buffer!")
 }
 
 void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex)
@@ -97,7 +97,7 @@ void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapC
 	// Submit to the graphics queue and ensure it succeeded.
 	VkResult result = vkQueueSubmit(_device->API_Vulkan().GetGraphicsQueueVkHandle(), 1, &submitInfo, _swapChain->API_Vulkan().GetInFlightFencesVkHandles()[currentFrame]);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to submit draw command buffer!")
+		LOG_RHI_THROW("/!\\ Failed to submit draw command buffer!")
 
 	// Present the rendered image to the screen.
 	VkPresentInfoKHR presentInfo{};
@@ -122,7 +122,7 @@ void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapC
 		_framebuffers->API_Vulkan().Recreate(_device, _swapChain);
 	}
 	else if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to present swap chain image!")
+		LOG_RHI_THROW("/!\\ Failed to present swap chain image!")
 
 	// Advance to the next frame.
 	currentFrame = (currentFrame + 1) % _swapChain->GetMaxFramesInFlight();
@@ -180,7 +180,7 @@ void VulkanCommandBuffers::Create(IDevice* _device, ICommandPool* _commandPool, 
 
 void VulkanCommandBuffers::Destroy(IDevice* _device, ICommandPool* _commandPool)
 {
-	LOG_CLEAN("\n\n===== COMMAND BUFFERS DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== COMMAND BUFFERS DESTRUCTION =====\n")
 
 	vkFreeCommandBuffers(_device->API_Vulkan().GetLogicalDeviceVkHandle(), _commandPool->API_Vulkan().GetVkHandle(), (uint32_t)commandBuffers.size(), commandBuffers.data());
 

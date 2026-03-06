@@ -6,23 +6,23 @@
 
 #ifdef NDEBUG
 // Only write to the log file, without printing to the console.
-#define LOG_RHI(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, __VA_ARGS__); }
+#define LOG_RHI(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, ##__VA_ARGS__); }
 
 // Only write to the log file, without printing to the console.
-#define LOG_CLEAN(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, __VA_ARGS__); }
+#define LOG_CLEAN(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, ##__VA_ARGS__); }
 #else
-// Used for : MACRO DEBUG_LOG (RHI logs)
-#define LOG_RHI(_str, ...) { std::cout << "[RHI LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, __VA_ARGS__) << std::endl; }
+// Used for : MACRO LOG_RHI (RHI logs)
+#define LOG_RHI(_str, ...) { std::cout << "[RHI LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, ##__VA_ARGS__) << std::endl; }
 
-// Used for : MACRO DEBUG_LOG (user logs)
-#define LOG_CLEAN(_str, ...) { std::cout << MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, __VA_ARGS__) << std::endl; }
+// Used for : clean logs.
+#define LOG_RHI_CLEAN(_str, ...) { std::cout << MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, ##__VA_ARGS__) << std::endl; }
 #endif
 
-// Used for : MACRO DEBUG_LOG (user logs)
-#define LOG_DEBUG(_str, ...) { std::cout << "[USER DEBUG LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintDebug(_str, __VA_ARGS__) << std::endl; }
+// Used for : MACRO DEBUG_LOG (user debug logs)
+#define LOG_RHI_DEBUG(_str, ...) { std::cout << "[USER RHI LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintDebug(_str, ##__VA_ARGS__) << std::endl; }
 
 // Used for : MACRO THROW EXCEPTION (RHI error logs)
-#define LOG_THROW(_str, ...) { std::string thrownText = MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Throw(_str, __VA_ARGS__); std::cout << "\n\n" << __FILE__ << " (l." << __LINE__ << ") " << "[RHI EXCEPTION] : \n" << thrownText << std::endl; throw std::runtime_error(thrownText); }
+#define LOG_RHI_THROW(_str, ...) { std::string thrownText = MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Throw(_str, ##__VA_ARGS__); std::cout << "\n\n" << __FILE__ << " (l." << __LINE__ << ") " << "[RHI EXCEPTION] : \n" << thrownText << std::endl; throw std::runtime_error(thrownText); }
 
 
 // Max size of a log.
@@ -45,7 +45,7 @@ namespace MaliceRHI
         class Log
 		{
         private:
-			Log(std::string _fileName="log.txt");
+			Log(std::string _fileName="rhi_log.txt");
 
             static Log* singleton;
 			std::ofstream f;

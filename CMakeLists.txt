@@ -12,10 +12,19 @@ add_subdirectory(external/volk)
 add_subdirectory(external/glfw)
 
 # Add MaliceRHI lib
-add_subdirectory(code/src)
+add_subdirectory(code)
 
 # Add tests
 if(BUILD_TESTS)
+    include(FetchContent)
+
+    FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 0.9.9.8
+    )
+    FetchContent_MakeAvailable(glm)
+
     enable_testing()
-    add_subdirectory(tests/MaliceFwdRenderer/)
+    add_subdirectory(tests/MaliceFwdRenderer/code/)
 endif()

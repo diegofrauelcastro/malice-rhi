@@ -6,7 +6,7 @@
 
 void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderPass& _renderPass, VulkanShaderModules& _shaders, PipelineParams& _params)
 {
-	LOG_CLEAN("\n\n===== GRAPHICS PIPELINE CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== GRAPHICS PIPELINE CREATION =====\n")
 
 	// Create info for the vertex shader.
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -113,7 +113,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	// Create the pipeline and ensure it was created successfully.
 	VkResult pipelineLayoutResult = vkCreatePipelineLayout(_device.GetLogicalDeviceVkHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout);
 	if (pipelineLayoutResult != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create pipeline layout!")
+		LOG_RHI_THROW("/!\\ Failed to create pipeline layout!")
 	else
 		LOG_RHI("Pipeline layout created successfully.")
 
@@ -149,7 +149,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	// Create the graphics pipeline and ensure it succeeded.
 	VkResult pipelineResult = vkCreateGraphicsPipelines(_device.GetLogicalDeviceVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
 	if (pipelineResult != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create graphics pipeline!")
+		LOG_RHI_THROW("/!\\ Failed to create graphics pipeline!")
 	else
 		LOG_RHI("Graphics pipeline created successfully.")
 }
@@ -168,13 +168,13 @@ void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanSha
 	// Also prepare to store the descriptor set layout bindings per set for later use.
 	descriptorSetLayoutBindingsPerSet.resize(existingSetIndices.size());
 
-	LOG_CLEAN("")
+	LOG_RHI_CLEAN("")
 	LOG_RHI("Creating descriptor set layouts for each descriptor set...")
 	for (uint32_t i = 0; i < existingSetIndices.size(); i++)
 	{
 		// Throw an error if for example the user defined set 0 and 2 but forgot set 1.
 		if (i != existingSetIndices[i])
-			LOG_THROW("/!\\ There seems to be a missing index for the descriptor sets? Last recorded index is %d, current index %d <- fix this one please.\n/!\\ If last recorded index is -1, it means descriptor set 0 is missing.", (int)(i-1), (int)existingSetIndices[i])
+			LOG_RHI_THROW("/!\\ There seems to be a missing index for the descriptor sets? Last recorded index is %d, current index %d <- fix this one please.\n/!\\ If last recorded index is -1, it means descriptor set 0 is missing.", (int)(i-1), (int)existingSetIndices[i])
 
 		// Create info about the descriptor set layout.
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
@@ -185,7 +185,7 @@ void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanSha
 		// Create the descriptor set layout and ensure it succeeded.
 		VkResult result = vkCreateDescriptorSetLayout(_device.GetLogicalDeviceVkHandle(), &layoutInfo, nullptr, &descriptorSetLayouts[i]);
 		if (result != VK_SUCCESS)
-			LOG_THROW("/!\\ Failed to create descriptor set layout for descriptor set number %d!", (int)i)
+			LOG_RHI_THROW("/!\\ Failed to create descriptor set layout for descriptor set number %d!", (int)i)
 		else
 			LOG_RHI("Descriptor set %d's layout created successfully.", (int)i)
 		
@@ -201,7 +201,7 @@ void VulkanPipeline::CreateDescriptorSetLayouts(VulkanDevice& _device, VulkanSha
 	mapTemp.clear();
 
 	LOG_RHI("Finished creating descriptor set layouts.")
-	LOG_CLEAN("")
+	LOG_RHI_CLEAN("")
 }
 
 VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParameters(PipelineParams _params)

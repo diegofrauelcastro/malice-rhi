@@ -5,14 +5,14 @@
 
 void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _device, VulkanPipeline& _pipeline, VulkanSwapChain& _swapChain)
 {
-    LOG_CLEAN("\n\n===== DESCRIPTOR POOL CREATION =====\n")
+    LOG_RHI_CLEAN("\n\n===== DESCRIPTOR POOL CREATION =====\n")
 
         const std::vector<VkDescriptorSetLayout> setLayouts = _pipeline.GetDescriptorSetLayoutsVkHandles();
     const uint32_t setCount = (uint32_t)(setLayouts.size());
 
     // Ensure that there is at least one descriptor set layout.
     if (setCount == 0)
-        LOG_THROW("Pipeline has no descriptor set layouts.")
+        LOG_RHI_THROW("Pipeline has no descriptor set layouts.")
     else
         LOG_RHI("Creating descriptor pool...")
 
@@ -39,10 +39,10 @@ void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _devic
     // Create the descriptor pool and ensure it succeeded.
     VkResult result = vkCreateDescriptorPool(_device.GetLogicalDeviceVkHandle(), &poolInfo, nullptr, &descriptorPool);
     if (result != VK_SUCCESS)
-        LOG_THROW("/!\\ Failed to create descriptor pool!")
+        LOG_RHI_THROW("/!\\ Failed to create descriptor pool!")
     else
         LOG_RHI("Descriptor pool created successfully.")
-        LOG_CLEAN("")
+        LOG_RHI_CLEAN("")
 
         // Allocate descriptor sets for each frame in flight.
         descriptorSets.resize(_swapChain.GetMaxFramesInFlight());
@@ -58,7 +58,7 @@ void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _devic
 
         result = vkAllocateDescriptorSets(_device.GetLogicalDeviceVkHandle(), &alloc, descriptorSets[i].data());
         if (result != VK_SUCCESS)
-            LOG_THROW("/!\\ Failed to allocate descriptor sets for frame %d!", (int)i)
+            LOG_RHI_THROW("/!\\ Failed to allocate descriptor sets for frame %d!", (int)i)
         else
             LOG_RHI("Descriptor sets allocated successfully for frame %d.", (int)i)
     }
@@ -72,7 +72,7 @@ void VulkanDescriptorSetsGroup::Create(IDevice* _device, IPipeline* _pipeline, I
 
 void VulkanDescriptorSetsGroup::Destroy(IDevice* _device)
 {
-    LOG_CLEAN("\n\n===== DESCRIPTOR POOL DESTRUCTION =====\n")
+    LOG_RHI_CLEAN("\n\n===== DESCRIPTOR POOL DESTRUCTION =====\n")
 
         // Destroy descriptor pool.
         if (descriptorPool != VK_NULL_HANDLE)

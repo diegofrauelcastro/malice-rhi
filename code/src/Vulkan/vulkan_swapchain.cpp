@@ -3,11 +3,13 @@
 #include "Vulkan/vulkan_surface.h"
 #include "Vulkan/vulkan_device.h"
 
+#include <limits>
+
 
 VkSurfaceFormatKHR VulkanSwapChain::ChoosePreferredSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _availableFormats)
 {
 	if (_availableFormats.size() == 0)
-		LOG_THROW("/!\\ There are no available surface formats to choose from.")
+		LOG_RHI_THROW("/!\\ There are no available surface formats to choose from.")
 
 	// We prefer the 32 bits BGR format, with sRGB color space.
 	for (const VkSurfaceFormatKHR& availableFormat : _availableFormats) {
@@ -42,7 +44,7 @@ VkExtent2D VulkanSwapChain::ChoosePreferredSwapExtent(const VkSurfaceCapabilitie
 	else
 	{
 		if (!_window)
-			LOG_THROW("/!\\ Window is null when trying to get the preferred swap extent.")
+			LOG_RHI_THROW("/!\\ Window is null when trying to get the preferred swap extent.")
 
 		// Fetch the glfw's framebuffer width and height for the current window.
 		int width, height;
@@ -62,7 +64,7 @@ VkExtent2D VulkanSwapChain::ChoosePreferredSwapExtent(const VkSurfaceCapabilitie
 }
 void VulkanSwapChain::SetupSwapChain(VulkanDevice& _device, VkSurfaceKHR _surface, GLFWwindow* _window)
 {
-	LOG_CLEAN("\n\n===== SWAP CHAIN SETUP =====\n")
+	LOG_RHI_CLEAN("\n\n===== SWAP CHAIN SETUP =====\n")
 
 	surface = _surface;
 	window = _window;
@@ -119,7 +121,7 @@ void VulkanSwapChain::SetupSwapChain(VulkanDevice& _device, VkSurfaceKHR _surfac
 	// Create the swapchain and ensure it succeeded.
 	VkResult result = vkCreateSwapchainKHR(_device.GetLogicalDeviceVkHandle(), &createInfo, nullptr, &swapChain);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create swap chain!")
+		LOG_RHI_THROW("/!\\ Failed to create swap chain!")
 	else
 		LOG_RHI("Created swap chain successfully.")
 
@@ -158,7 +160,7 @@ void VulkanSwapChain::CreateImageViews(VulkanDevice& _device)
 		// Create the image view and ensure it succeeded.
 		VkResult result = vkCreateImageView(_device.GetLogicalDeviceVkHandle(), &createInfo, nullptr, &swapChainImageViews[i]);
 		if (result != VK_SUCCESS)
-			LOG_THROW("/!\\ Failed to create one of the image views. Image number %d", (int)i)
+			LOG_RHI_THROW("/!\\ Failed to create one of the image views. Image number %d", (int)i)
 		else
 			LOG_RHI("Successfully created image view %d", (int)i)
 	}
@@ -171,7 +173,7 @@ uint32_t VulkanSwapChain::Clamp(uint32_t value, uint32_t min, uint32_t max)
 
 void VulkanSwapChain::CleanupSwapChain(VulkanDevice& _device)
 {
-	LOG_CLEAN("\n\n===== SWAP CHAIN CLEANUP =====\n")
+	LOG_RHI_CLEAN("\n\n===== SWAP CHAIN CLEANUP =====\n")
 
 	VkDevice device = _device.GetLogicalDeviceVkHandle();
 
@@ -216,9 +218,9 @@ uint32_t VulkanSwapChain::AcquireNextImage(IDevice* _device, uint32_t currentFra
 	// Handle swap chain recreation if it's out of date (when window resized for example).
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		//RecreateSwapChain();
-		LOG_THROW("/!\\ Swap chain is obsolete/suboptimal!")
+		LOG_RHI_THROW("/!\\ Swap chain is obsolete/suboptimal!")
 	else if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to acquire swap chain image!")
+		LOG_RHI_THROW("/!\\ Failed to acquire swap chain image!")
 
 	// Only reset the fence if we are submitting work.
 	vkResetFences(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &inFlightFences[currentFrameIndex]);
@@ -270,7 +272,7 @@ void VulkanSwapChain::CreateSyncObjects(VulkanDevice& _device)
 		VkResult semaphoreRenderFinishedResult = vkCreateSemaphore(_device.GetLogicalDeviceVkHandle(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]);
 		VkResult fenceInFlightResult = vkCreateFence(_device.GetLogicalDeviceVkHandle(), &fenceInfo, nullptr, &inFlightFences[i]);
 		if (semaphoreImageAvailableResult != VK_SUCCESS || semaphoreRenderFinishedResult != VK_SUCCESS || fenceInFlightResult != VK_SUCCESS)
-			LOG_THROW("/!\\ Failed to create semaphores/fences!")
+			LOG_RHI_THROW("/!\\ Failed to create semaphores/fences!")
 	}
 }
 

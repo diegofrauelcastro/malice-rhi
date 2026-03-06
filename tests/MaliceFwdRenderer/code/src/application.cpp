@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "application.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -174,8 +174,8 @@ void Application::Draw()
 
 void Application::Run()
 {
-	LOG_CLEAN("\n\n===== LOOP =====\n")
-	LOG_DEBUG("User loop start...")
+	LOG_RHI_CLEAN("\n\n===== LOOP =====\n")
+	LOG_RHI_DEBUG("User loop start...")
 
 	// Main loop.
 	while (!glfwWindowShouldClose(m_Window))
@@ -185,9 +185,9 @@ void Application::Run()
 		Draw();
 	}
 	// Wait for the device to be idle before cleanup.
-	LOG_DEBUG("User loop end. Waiting for device to be idle...")
+	LOG_RHI_DEBUG("User loop end. Waiting for device to be idle...")
 	m_Device->WaitIdle();
-	LOG_DEBUG("Device is idle. Resuming.")
+	LOG_RHI_DEBUG("Device is idle. Resuming.")
 }
 
 void Application::Cleanup()

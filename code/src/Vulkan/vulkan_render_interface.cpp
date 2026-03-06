@@ -18,7 +18,7 @@
 // Class constructor
 VulkanRenderInterface::VulkanRenderInterface()
 {
-	LOG_CLEAN("\n\n===== VULKAN RENDER INTERFACE =====\n")
+	LOG_RHI_CLEAN("\n\n===== VULKAN RENDER INTERFACE =====\n")
 	LOG_RHI("Initializing Volk for Vulkan RHI...")
 	currentAPI = VULKAN;
 	volkInitialize();
@@ -28,7 +28,7 @@ VulkanRenderInterface::VulkanRenderInterface()
 // Class destructor
 VulkanRenderInterface::~VulkanRenderInterface()
 {
-	LOG_CLEAN("\n\n===== TERMINATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== TERMINATION =====\n")
 	LOG_RHI("Finalizing Volk for Vulkan RHI...")
 	volkFinalize();
 	LOG_RHI("Vulkan RHI cleaned up.\n")

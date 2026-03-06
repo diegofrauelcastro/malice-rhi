@@ -3,6 +3,7 @@
 #include "Vulkan/vulkan_device.h"
 #include "Vulkan/vulkan_commandpool.h"
 
+#include <cstring>
 
 void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer& _buffer, VkDeviceMemory& _bufferMemory)
 {
@@ -18,7 +19,7 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 	// Create the buffer and ensure it succeeded.
 	VkResult result = vkCreateBuffer(_device.GetLogicalDeviceVkHandle(), &bufferInfo, nullptr, &_buffer);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create buffer!")
+		LOG_RHI_THROW("/!\\ Failed to create buffer!")
 	else
 		LOG_RHI("Buffer created successfully.")
 
@@ -35,7 +36,7 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 	// Allocate the memory and ensure it succeeded.
 	result = vkAllocateMemory(_device.GetLogicalDeviceVkHandle(), &allocInfo, nullptr, &_bufferMemory);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to allocate buffer memory!")
+		LOG_RHI_THROW("/!\\ Failed to allocate buffer memory!")
 	else
 		LOG_RHI("Buffer memory allocated successfully.\n")
 
@@ -45,7 +46,7 @@ void VulkanBuffer::CreateBuffer(VulkanDevice& _device, uint64_t _size, VkBufferU
 
 void VulkanBuffer::CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, const void* _src)
 {
-	LOG_CLEAN("\n\n===== VERTEX BUFFER CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== VERTEX BUFFER CREATION =====\n")
 
 	// Create a staging buffer that is host visible to upload the vertex data to it.
 	VkBuffer stagingBuffer;
@@ -71,7 +72,7 @@ void VulkanBuffer::CreateVertexBuffer(VulkanDevice& _device, VulkanCommandPool& 
 
 void VulkanBuffer::CreateIndexBuffer(VulkanDevice& _device, VulkanCommandPool& _commandPool, uint64_t _size, const void* _src)
 {
-	LOG_CLEAN("\n\n===== INDEX BUFFER CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== INDEX BUFFER CREATION =====\n")
 
 	// Create a staging buffer that is host visible to upload the index data to it.
 	VkBuffer stagingBuffer;
@@ -153,7 +154,7 @@ uint32_t VulkanBuffer::FindMemoryType(VulkanDevice& _device, uint32_t _typeFilte
 			return i;
 		}
 	}
-	LOG_THROW("/!\\ Failed to find suitable memory type!")
+	LOG_RHI_THROW("/!\\ Failed to find suitable memory type!")
 }
 
 void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferUsage _usage, uint64_t _size, const void* _data)
@@ -170,7 +171,7 @@ void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferU
 		CreateIndexBuffer(_device->API_Vulkan(), _commandPool->API_Vulkan(), _size, _data);
 		break;
 	default:
-		LOG_THROW("/!\\ Creation of an invalid type of buffer!")
+		LOG_RHI_THROW("/!\\ Creation of an invalid type of buffer!")
 	}
 }
 
@@ -179,13 +180,13 @@ void VulkanBuffer::Destroy(IDevice* _device)
 	switch (bufferType)
 	{
 	case VERTEX_BUFFER:
-		LOG_CLEAN("\n\n===== VERTEX BUFFER DESTRUCTION =====\n")
+		LOG_RHI_CLEAN("\n\n===== VERTEX BUFFER DESTRUCTION =====\n")
 		break;
 	case INDEX_BUFFER:
-		LOG_CLEAN("\n\n===== INDEX BUFFER DESTRUCTION =====\n")
+		LOG_RHI_CLEAN("\n\n===== INDEX BUFFER DESTRUCTION =====\n")
 		break;
 	default:
-		LOG_CLEAN("\n\n===== UNDEFINED BUFFER DESTRUCTION =====\n")
+		LOG_RHI_CLEAN("\n\n===== UNDEFINED BUFFER DESTRUCTION =====\n")
 		break;
 	}
 

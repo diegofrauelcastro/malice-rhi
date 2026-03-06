@@ -134,10 +134,15 @@ void Log::WriteInFile(const char* _format, LogType _type, bool _showTimestamp)
         auto now = std::chrono::system_clock::now();
         std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
         std::tm now_tm;
+        #if defined(_WIN32)
         localtime_s(&now_tm, &now_time_t);
+        #else
+        localtime_r(&now_time_t, &now_tm);
+        #endif
         std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
         f << "[" << std::put_time(&now_tm, "%H:%M:%S") << '.' << std::setfill('0') << std::setw(3) << ms.count() << "] ";
     }
+    
     // Log type
     f << logType;
     // Text

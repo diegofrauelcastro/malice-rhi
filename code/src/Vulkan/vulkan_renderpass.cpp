@@ -6,7 +6,7 @@
 
 void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& _swapChain)
 {
-	LOG_CLEAN("\n\n===== RENDER PASS CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== RENDER PASS CREATION =====\n")
 
 	// Single color buffer, same format as the images in our swap chain.
 	VkAttachmentDescription colorAttachment{};
@@ -56,7 +56,7 @@ void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& 
 	// Finally, create the render pass and ensure it succeeded.
 	VkResult result = vkCreateRenderPass(_device.GetLogicalDeviceVkHandle(), &renderPassInfo, nullptr, &renderPass);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create render pass!")
+		LOG_RHI_THROW("/!\\ Failed to create render pass!")
 	else
 		LOG_RHI("Render pass created successfully.")
 }
@@ -68,7 +68,7 @@ void VulkanRenderPass::Create(IDevice* _device, ISwapChain* _swapChain)
 
 void VulkanRenderPass::Destroy(IDevice* _device)
 {
-	LOG_CLEAN("\n\n===== RENDER PASS DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== RENDER PASS DESTRUCTION =====\n")
 
 	// Destroy the render pass.
 	if (renderPass != VK_NULL_HANDLE)

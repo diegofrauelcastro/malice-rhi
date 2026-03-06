@@ -16,7 +16,7 @@ protected:
 	/// Class properties ///
 
 	// Maximum number of frames that can be modified in parallel during execution of the application with this swap chain.
-	uint32_t maxFramesInFlight = 2;
+	uint32_t maxFramesInFlight = 1;
 
 public:
 	// Class destructor

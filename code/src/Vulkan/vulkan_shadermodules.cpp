@@ -10,7 +10,7 @@ std::vector<char> VulkanShaderModules::ReadFile(const std::string& _filename)
 	LOG_RHI("Reading %s", _filename.c_str())
 
 	if (!file.is_open())
-		LOG_THROW("/!\\ Failed to open \"%s\" file!", _filename.c_str())
+		LOG_RHI_THROW("/!\\ Failed to open \"%s\" file!", _filename.c_str())
 
 
 	// Get the file size and allocate a buffer accordingly.
@@ -36,7 +36,7 @@ VkShaderModule VulkanShaderModules::CreateShaderModule(VulkanDevice& _device, co
 	VkShaderModule shaderModule;
 	VkResult result = vkCreateShaderModule(_device.GetLogicalDeviceVkHandle(), &createInfo, nullptr, &shaderModule);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create shader module!")
+		LOG_RHI_THROW("/!\\ Failed to create shader module!")
 	else
 		LOG_RHI("Shader module created successfully.")
 	return shaderModule;
@@ -109,7 +109,7 @@ void VulkanShaderModules::AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _
 
 void VulkanShaderModules::Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams)
 {
-	LOG_CLEAN("\n\n===== SHADER MODULES CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== SHADER MODULES CREATION =====\n")
 
 	// Read both precompiled shader files.
 	std::vector<char> vertexShaderCode = ReadFile(_vertPath);
@@ -123,15 +123,15 @@ void VulkanShaderModules::Create(IDevice* _device, const char* _vertPath, const 
 
 	// Initialize vertex input locations.
 	vertexInputTotalSize = _vertexTotalSize;
-	LOG_CLEAN("")
+	LOG_RHI_CLEAN("")
 	LOG_RHI("Initializing vertex input...")
 	CreateInputAttributeDescriptions(_vertexInputParams);
-	LOG_CLEAN("")
+	LOG_RHI_CLEAN("")
 }
 
 void VulkanShaderModules::Destroy(IDevice* _device)
 {
-	LOG_CLEAN("\n\n===== SHADER MODULES DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== SHADER MODULES DESTRUCTION =====\n")
 
 	// Destroy both modules.
 

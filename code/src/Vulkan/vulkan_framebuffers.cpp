@@ -7,7 +7,7 @@
 
 void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VkRenderPass _renderPass)
 {
-	LOG_CLEAN("\n\n===== FRAMEBUFFERS CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== FRAMEBUFFERS CREATION =====\n")
 
 		renderPass = _renderPass;
 
@@ -34,7 +34,7 @@ void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapCha
 		// Create the framebuffer.
 		VkResult result = vkCreateFramebuffer(_device.GetLogicalDeviceVkHandle(), &framebufferInfo, nullptr, &framebuffers[i]);
 		if (result != VK_SUCCESS)
-			LOG_THROW("/!\\ Failed to create framebuffer!")
+			LOG_RHI_THROW("/!\\ Failed to create framebuffer!")
 		else
 			LOG_RHI("Framebuffer %d created successfully.", (int)i)
 	}
@@ -47,7 +47,7 @@ void VulkanFramebuffers::Create(IDevice* _device, ISwapChain* _swapChain, IRende
 
 void VulkanFramebuffers::Destroy(IDevice* _device)
 {
-	LOG_CLEAN("\n\n===== FRAMEBUFFERS DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== FRAMEBUFFERS DESTRUCTION =====\n")
 
 	// Destroy framebuffers.
 	for (size_t i = 0; i < framebuffers.size(); i++)

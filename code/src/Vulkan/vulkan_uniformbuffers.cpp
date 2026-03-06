@@ -4,9 +4,11 @@
 #include "Vulkan/vulkan_swapchain.h"
 #include "Vulkan/vulkan_commandbuffers.h"
 
+#include <cstring>
+
 void VulkanUniformBuffers::CreateUniformBuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain)
 {
-	LOG_CLEAN("\n\n===== UNIFORM BUFFERS CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== UNIFORM BUFFERS CREATION =====\n")
 
 	// Resize the buffers vector to hold a uniform buffer for each frame.
 	buffers.resize(_swapChain.GetMaxFramesInFlight());
@@ -24,7 +26,7 @@ void VulkanUniformBuffers::CreateUniformBuffers(VulkanDevice& _device, VulkanSwa
 		// Create the buffer and ensure it succeeded.
 		VkResult resultBufferCreate = vkCreateBuffer(_device.GetLogicalDeviceVkHandle(), &bufferInfo, nullptr, &buffers[i].buffer);
 		if (resultBufferCreate != VK_SUCCESS)
-			LOG_THROW("/!\\ Failed to create uniform buffer!")
+			LOG_RHI_THROW("/!\\ Failed to create uniform buffer!")
 		else
 			LOG_RHI("Uniform buffer %d created successfully.", (int)i)
 		
@@ -41,14 +43,14 @@ void VulkanUniformBuffers::CreateUniformBuffers(VulkanDevice& _device, VulkanSwa
 		// Allocate the memory and ensure it succeeded.
 		VkResult resultAlloc = vkAllocateMemory(_device.GetLogicalDeviceVkHandle(), &allocInfo, nullptr, &buffers[i].memory);
 		if (resultAlloc != VK_SUCCESS)
-			LOG_THROW("/!\\ Failed to allocate uniform buffer memory!")
+			LOG_RHI_THROW("/!\\ Failed to allocate uniform buffer memory!")
 
 		// Bind the buffer with the allocated memory.
 		vkBindBufferMemory(_device.GetLogicalDeviceVkHandle(), buffers[i].buffer, buffers[i].memory, 0);
 		// Map the buffer memory.
 		vkMapMemory(_device.GetLogicalDeviceVkHandle(), buffers[i].memory, 0, bufferSize, 0, &buffers[i].mappedData);
 		LOG_RHI("Uniform buffer %d memory allocated and bound successfully.", (int)i)
-		LOG_CLEAN("")
+		LOG_RHI_CLEAN("")
 	}
 }
 
@@ -68,7 +70,7 @@ uint32_t VulkanUniformBuffers::FindMemoryType(VulkanDevice& _device, uint32_t _t
 			return i;
 		}
 	}
-	LOG_THROW("/!\\ Failed to find suitable memory type for the uniform buffer!")
+	LOG_RHI_THROW("/!\\ Failed to find suitable memory type for the uniform buffer!")
 }
 
 void VulkanUniformBuffers::UploadData(ICommandBuffers* _commandBuffers, uint32_t _size, const void* _data)
@@ -87,7 +89,7 @@ void VulkanUniformBuffers::Create(IDevice* _device, ISwapChain* _swapChain, uint
 
 void VulkanUniformBuffers::Destroy(IDevice* _device)
 {
-	LOG_CLEAN("\n\n===== UNIFORM BUFFER DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== UNIFORM BUFFER DESTRUCTION =====\n")
 
 	VulkanDevice& device = _device->API_Vulkan();
 
@@ -118,7 +120,7 @@ void VulkanUniformBuffers::Destroy(IDevice* _device)
 		}
 		else
 			LOG_RHI("Something went wrong trying to free uniform buffer %d memory...", (int)i)
-		LOG_CLEAN("")
+		LOG_RHI_CLEAN("")
 	}
 
 	// Clear buffers vector.

@@ -5,11 +5,11 @@
 
 void VulkanSurface::CreateSurface(IInstance* _instance, GLFWwindow* _window)
 {
-	LOG_CLEAN("\n\n===== SURFACE CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== SURFACE CREATION =====\n")
 
 	VkResult result = glfwCreateWindowSurface(_instance->API_Vulkan().GetVkHandle(), _window, nullptr, &surface);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create surface!")
+		LOG_RHI_THROW("/!\\ Failed to create surface!")
 	else
 		LOG_RHI("Created surface successfully.")
 }
@@ -22,7 +22,7 @@ void VulkanSurface::Create(IInstance* _instance, GLFWwindow* _window)
 
 void VulkanSurface::Destroy(IInstance* _instance)
 {
-	LOG_CLEAN("\n\n===== SURFACE DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== SURFACE DESTRUCTION =====\n")
 
 	// Destroy surface.
 	if (surface != VK_NULL_HANDLE)

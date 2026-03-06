@@ -3,14 +3,14 @@
 
 void VulkanInstance::CreateInstance()
 {
-	LOG_CLEAN("\n\n===== INSTANCE CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== INSTANCE CREATION =====\n")
 
 	LOG_RHI("Creating Vulkan instance... Warning: this may take several seconds and freeze the application.")
 	// Check validation layers if is in debug mode.
 	if (enableValidationLayers && !CheckValidationLayerSupport())
 	{
 		if (!CheckValidationLayerSupport())
-			LOG_THROW("/!\\ Validation layers requested, but not available!")
+			LOG_RHI_THROW("/!\\ Validation layers requested, but not available!")
 		else
 			LOG_RHI("Validation layers enabled successfully.")
 	}
@@ -44,7 +44,7 @@ void VulkanInstance::CreateInstance()
 	// Create and verify instance.
 	VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create Vulkan instance!")
+		LOG_RHI_THROW("/!\\ Failed to create Vulkan instance!")
 	else
 		LOG_RHI("Vulkan instance created successfully.")
 	volkLoadInstance(instance);
@@ -72,17 +72,17 @@ std::vector<const char*> VulkanInstance::GetRequiredExtensions()
 		for (const VkExtensionProperties& extension : extensionsProperties)
 		{
 			std::string name = extension.extensionName;
-			LOG_CLEAN("\t%s", name.c_str())
+			LOG_RHI_CLEAN("\t%s", name.c_str())
 		}
 		// List all required extensions.
 		LOG_RHI("Required extensions:")
 		for (const char* extension : extensions)
 		{
 			std::string name = extension;
-			LOG_CLEAN("\t%s", name.c_str())
+			LOG_RHI_CLEAN("\t%s", name.c_str())
 		}
 	}
-	LOG_CLEAN("")
+	LOG_RHI_CLEAN("")
 	return extensions;
 }
 
@@ -127,7 +127,7 @@ void VulkanInstance::Create(const char* _instanceName)
 
 void VulkanInstance::Destroy()
 {
-	LOG_CLEAN("\n\n===== INSTANCE DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== INSTANCE DESTRUCTION =====\n")
 
 	// Destroy debug utils if necessary.
 	if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
@@ -159,7 +159,7 @@ void VulkanInstance::SetupDebugMessenger()
 	PopulateDebugMessengerCreateInfo(createInfo);
 
 	if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to set up debug messenger!")
+		LOG_RHI_THROW("/!\\ Failed to set up debug messenger!")
 	else
 		LOG_RHI("Debug messenger created successfully.")
 }
@@ -175,7 +175,7 @@ void VulkanInstance::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreat
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanInstance::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
-	LOG_CLEAN("")
+	LOG_RHI_CLEAN("")
 	LOG_RHI("\n\n* /!\\ Validation layer --> %s\n", pCallbackData->pMessage)
 	return VK_FALSE;
 }

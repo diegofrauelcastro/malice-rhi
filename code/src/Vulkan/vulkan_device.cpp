@@ -11,7 +11,7 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 	if (deviceCount == 0)
-		LOG_THROW("/!\\ Failed to find GPUs with Vulkan support!")
+		LOG_RHI_THROW("/!\\ Failed to find GPUs with Vulkan support!")
 	else
 		LOG_RHI("Picking a GPU to use...")
 
@@ -38,7 +38,7 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 
 	// If no suitable device was found, throw an exception.
 	if (physicalDevice == VK_NULL_HANDLE)
-		LOG_THROW("/!\\ Failed to find a suitable GPU!")
+		LOG_RHI_THROW("/!\\ Failed to find a suitable GPU!")
 }
 
 bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surface)
@@ -46,8 +46,8 @@ bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surf
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(_device, &deviceProperties);
 
-	// Checks if the device is a discrete GPU (dedicated graphics card).
 	bool bIsDiscreteGPU = (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
+	bIsDiscreteGPU = true; // TEMPORARILY USE ALL GPU FOR LINUX/WSL COMPATIBILITY.
 
 	// Find queue families in this physical device.
 	QueueFamilyIndices familyIndices = FindRequiredQueueFamilies(_device, _surface);
@@ -176,7 +176,7 @@ void VulkanDevice::CreateLogicalDevice(VkSurfaceKHR _surface)
 	// Create logical device and verify.
 	VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create device!")
+		LOG_RHI_THROW("/!\\ Failed to create device!")
 	else
 		LOG_RHI("Device created successfully.")
 	volkLoadDevice(logicalDevice);
@@ -219,7 +219,7 @@ SwapChainSupportDetails VulkanDevice::QuerySwapChainSupport(VkPhysicalDevice _de
 
 void VulkanDevice::Create(IInstance* _instance, ISurface* _surface)
 {
-	LOG_CLEAN("\n\n===== DEVICE CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== DEVICE CREATION =====\n")
 
 	VulkanInstance& vulkanInstance = _instance->API_Vulkan();
 	VulkanSurface& vulkanSurface = _surface->API_Vulkan();
@@ -235,7 +235,7 @@ void VulkanDevice::Create(IInstance* _instance, ISurface* _surface)
 
 void VulkanDevice::Destroy()
 {
-	LOG_CLEAN("\n\n===== DEVICE DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== DEVICE DESTRUCTION =====\n")
 
 	// Destroy logical device. Physical device is destroyed automatically on instance destruction.
 	if (logicalDevice != VK_NULL_HANDLE)
@@ -257,5 +257,5 @@ void VulkanDevice::WaitIdle()
 	if (logicalDevice != VK_NULL_HANDLE)
 		vkDeviceWaitIdle(logicalDevice);
 	else
-		LOG_THROW("Trying to wait for unexistent device : object is VK_NULL_HANDLE.")
+		LOG_RHI_THROW("Trying to wait for unexistent device : object is VK_NULL_HANDLE.")
 }

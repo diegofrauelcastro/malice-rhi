@@ -19,7 +19,6 @@ endif()
 # Link libraries.
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC
-    #Vulkan::Vulkan
 	volk
 	glfw
 )

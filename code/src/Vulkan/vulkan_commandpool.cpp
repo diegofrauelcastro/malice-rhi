@@ -4,7 +4,7 @@
 
 void VulkanCommandPool::CreateCommandPool(VulkanDevice& _device)
 {
-	LOG_CLEAN("\n\n===== COMMAND POOL CREATION =====\n")
+	LOG_RHI_CLEAN("\n\n===== COMMAND POOL CREATION =====\n")
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -14,7 +14,7 @@ void VulkanCommandPool::CreateCommandPool(VulkanDevice& _device)
 	// Create the command pool for the drawing commands.
 	VkResult result = vkCreateCommandPool(_device.GetLogicalDeviceVkHandle(), &poolInfo, nullptr, &commandPool);
 	if (result != VK_SUCCESS)
-		LOG_THROW("/!\\ Failed to create command pool!")
+		LOG_RHI_THROW("/!\\ Failed to create command pool!")
 	else
 		LOG_RHI("Command pool created successfully.")
 }
@@ -26,7 +26,7 @@ void VulkanCommandPool::Create(IDevice* _device)
 
 void VulkanCommandPool::Destroy(IDevice* _device)
 {
-	LOG_CLEAN("\n\n===== COMMAND POOL DESTRUCTION =====\n")
+	LOG_RHI_CLEAN("\n\n===== COMMAND POOL DESTRUCTION =====\n")
 
 	// Destroy command pool.
 	if (commandPool != VK_NULL_HANDLE)
