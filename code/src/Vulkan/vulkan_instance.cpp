@@ -1,5 +1,6 @@
 #include "Vulkan/vulkan_instance.h"
 
+#include <cstring>
 
 void VulkanInstance::CreateInstance()
 {
