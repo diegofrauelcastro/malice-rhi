@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <malice_rhi/malice_rhi.h>
+#include <MaliceRHI/malice_rhi.h>
 #include <glm/glm.hpp>
 #include <vector>
 #include <chrono>
