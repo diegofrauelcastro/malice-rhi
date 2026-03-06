@@ -1,7 +1,7 @@
 #pragma once
 
 // Vulkan
-#define VK_NO_PROTOTYPES
+//#define VK_NO_PROTOTYPES
 #include "Volk/volk.h"
 
 // Common C++ includes
