@@ -131,9 +131,10 @@ Application::UniformBufferObject Application::UpdateUniforms()
 	glfwGetFramebufferSize(m_Window, &m_Width, &m_Height);
 
 	UniformBufferObject ubo{};
-	ubo.model = glm::rotate(glm::mat4(1.f), t, glm::vec3(0, 0, 1));
-	ubo.view = glm::lookAt(glm::vec3(2, 2, 2), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
-	std::vector<float> projMatVec = m_RHI->GetPerspectiveProjectionMatrix(m_Width, m_Height, 0.1f, 10.f, 45.f);
+	ubo.model = glm::rotate(glm::mat4(1.f), t, glm::vec3(0.f, 0.f, 1.f));
+	ubo.view = glm::lookAt(glm::vec3(0.f, 2.f, 2.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
+	std::vector<float> projMatVec = m_RHI->GetPerspectiveProjectionMatrix(m_Width, m_Height, 0.1f, 100.f, 45.f);
+	//std::vector<float> projMatVec = m_RHI->GetOrthographicProjectionMatrix(m_Width, m_Height, 0.1f, 100.f);
 	glm::mat4 projMat;
 	for (int i = 0; i < projMatVec.size() || i < 16; i++)
 		projMat[i%4][i/4] = projMatVec[i];
