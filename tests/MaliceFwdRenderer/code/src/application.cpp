@@ -127,6 +127,9 @@ Application::UniformBufferObject Application::UpdateUniforms()
 	static auto start = std::chrono::high_resolution_clock::now();
 	float t = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
 
+	// Update the screen size.
+	glfwGetFramebufferSize(m_Window, &m_Width, &m_Height);
+
 	UniformBufferObject ubo{};
 	ubo.model = glm::rotate(glm::mat4(1.f), t, glm::vec3(0, 0, 1));
 	ubo.view = glm::lookAt(glm::vec3(2, 2, 2), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));

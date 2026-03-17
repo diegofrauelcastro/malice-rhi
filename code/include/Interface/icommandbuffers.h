@@ -1,5 +1,6 @@
 #pragma once
 
+#include "color.h"
 #include <iostream>
 
 
@@ -14,14 +15,6 @@ class IFramebuffers;
 class ISwapChain;
 class IDescriptorSetsGroup;
 class IUniformBuffers;
-
-struct Color
-{
-	float r = 0.0f;
-	float g = 0.0f;
-	float b = 0.0f;
-	float a = 0.0f;
-};
 
 // Swap chain interface
 class ICommandBuffers
