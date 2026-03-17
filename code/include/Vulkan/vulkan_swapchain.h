@@ -92,7 +92,7 @@ public:
 	/// Class specific methods ///
 
 	// Gets the next presentable image in the swap chain. Returns i, the index of the retrieved image : i is in range [0, maxFramesInFlight-1] .
-	uint32_t AcquireNextImage(IDevice* _device, uint32_t currentFrameIndex) override;
+	bool AcquireNextImage(IDevice* _device, uint32_t currentFrameIndex, uint32_t* _nextImageIndex) override;
 
 	// Recreate swap chain (if it becomes suboptimal or obsolete).
 	void RecreateSwapChain(IDevice* _device);

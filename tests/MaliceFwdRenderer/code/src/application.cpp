@@ -153,7 +153,10 @@ void Application::Draw()
 {
 	// Acquire next image from the swap chain.
 	uint32_t frame = m_Commands->GetCurrentFrame();
-	uint32_t img = m_SwapChain->AcquireNextImage(m_Device, frame);
+	uint32_t img;
+	bool bSuccessfulAcquire = m_SwapChain->AcquireNextImage(m_Device, frame, &img);
+	if (!bSuccessfulAcquire)
+		return;
 
 	// Recording commands.
 	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 0.0f });
@@ -174,9 +177,6 @@ void Application::Draw()
 
 void Application::Run()
 {
-	LOG_RHI_CLEAN("\n\n===== LOOP =====\n")
-	LOG_RHI_DEBUG("User loop start...")
-
 	// Main loop.
 	while (!glfwWindowShouldClose(m_Window))
 	{
@@ -185,14 +185,12 @@ void Application::Run()
 		Draw();
 	}
 	// Wait for the device to be idle before cleanup.
-	LOG_RHI_DEBUG("User loop end. Waiting for device to be idle...")
 	m_Device->WaitIdle();
-	LOG_RHI_DEBUG("Device is idle. Resuming.")
 }
 
 void Application::Cleanup()
 {
-	/// Cleanup in reverse order of creation.
+	// Cleanup in reverse order of creation.
 
 	// Uniform buffers.
 	m_CamBuffer->Destroy(m_Device);
