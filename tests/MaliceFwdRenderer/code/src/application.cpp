@@ -133,7 +133,11 @@ Application::UniformBufferObject Application::UpdateUniforms()
 	UniformBufferObject ubo{};
 	ubo.model = glm::rotate(glm::mat4(1.f), t, glm::vec3(0, 0, 1));
 	ubo.view = glm::lookAt(glm::vec3(2, 2, 2), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
-	ubo.proj = glm::perspective(glm::radians(45.f), (float)m_Width / m_Height, 0.1f, 10.f);
+	std::vector<float> projMatVec = m_RHI->GetPerspectiveProjectionMatrix(m_Width, m_Height, 0.1f, 10.f, 45.f);
+	glm::mat4 projMat;
+	for (int i = 0; i < projMatVec.size() || i < 16; i++)
+		projMat[i%4][i/4] = projMatVec[i];
+	ubo.proj = projMat;
 	ubo.proj[1][1] *= -1;
 
 	return ubo;
