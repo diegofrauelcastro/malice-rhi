@@ -16,8 +16,8 @@ void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _devic
     else
         LOG_RHI("Creating descriptor pool...")
 
-        // Get binding descriptions per set from the pipeline to adjust the size.
-        std::vector<VkDescriptorPoolSize> poolSizes;
+    // Get binding descriptions per set from the pipeline to adjust the size.
+    std::vector<VkDescriptorPoolSize> poolSizes;
     for (const std::vector<VkDescriptorSetLayoutBinding>& setBinding : _pipeline.API_Vulkan().GetDescriptorSetLayoutBindingsPerSet())
     {
         for (const VkDescriptorSetLayoutBinding& binding : setBinding)
@@ -42,7 +42,7 @@ void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _devic
         LOG_RHI_THROW("/!\\ Failed to create descriptor pool!")
     else
         LOG_RHI("Descriptor pool created successfully.")
-        LOG_RHI_CLEAN("")
+    LOG_RHI_CLEAN("")
 
         // Allocate descriptor sets for each frame in flight.
         descriptorSets.resize(_swapChain.GetMaxFramesInFlight());
@@ -74,16 +74,16 @@ void VulkanDescriptorSetsGroup::Destroy(IDevice* _device)
 {
     LOG_RHI_CLEAN("\n\n===== DESCRIPTOR POOL DESTRUCTION =====\n")
 
-        // Destroy descriptor pool.
-        if (descriptorPool != VK_NULL_HANDLE)
-        {
-            vkDestroyDescriptorPool(_device->API_Vulkan().GetLogicalDeviceVkHandle(), descriptorPool, nullptr);
-            LOG_RHI("Descriptor pool destroyed successfully.")
-        }
-        else
-            LOG_RHI("Something went wrong trying to destroy a descriptor pool...")
+    // Destroy descriptor pool.
+    if (descriptorPool != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorPool(_device->API_Vulkan().GetLogicalDeviceVkHandle(), descriptorPool, nullptr);
+        LOG_RHI("Descriptor pool destroyed successfully.")
+    }
+    else
+        LOG_RHI("Something went wrong trying to destroy a descriptor pool...")
 
-            // Clear descriptor sets.
-            descriptorSets.clear();
+    // Clear descriptor sets.
+    descriptorSets.clear();
     descriptorSets.shrink_to_fit();
 }

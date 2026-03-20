@@ -15,6 +15,7 @@ class IFramebuffers;
 class ISwapChain;
 class IDescriptorSetsGroup;
 class IUniformBuffers;
+class ITexture;
 
 // Swap chain interface
 class ICommandBuffers
@@ -71,6 +72,9 @@ public:
 	// Draw a specified number of vertices from a given set of vertex/index buffers.
 	virtual void DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer* vertexBuffer, IBuffer* indexBuffer) = 0;
 
-	// Update the uniform buffer descriptor in the given descriptor set.
+	// Update the uniform buffer descriptor in the given descriptor set, at the indicated set and binding indices.
 	virtual void UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount) = 0;
+
+	// Update the bound texture in the given descriptor set, at the indicated set and binding indices.
+	virtual void UpdateTexture(IDevice* _device, IDescriptorSetsGroup* _descSets, ITexture* _tex, uint32_t _setIndex, uint32_t _binding) = 0;
 };
