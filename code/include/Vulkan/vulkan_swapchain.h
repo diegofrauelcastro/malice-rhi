@@ -22,9 +22,13 @@ private:
 	VkFormat swapChainImageFormat;
 	// Extent (resolution) of our swap chain.
 	VkExtent2D swapChainExtent;
+	// Swapchain image count capabilities.
+	uint32_t minImageCount = 0;
+	uint32_t imageCount = 0;
 
 	VkSurfaceKHR surface;
 	GLFWwindow* window;
+
 
 	// Sync objects (semaphores and fences, one per frame).
 
@@ -87,6 +91,8 @@ public:
 	std::vector<VkSemaphore> GetImageAvailableSemaphoresVkHandles() { return imageAvailableSemaphores; }
 	std::vector<VkSemaphore> GetRenderFinishedSemaphoresVkHandles() { return renderFinishedSemaphores; }
 	std::vector<VkFence> GetInFlightFencesVkHandles() { return inFlightFences; }
+	uint32_t GetMinImageCount() const { return minImageCount; }
+	uint32_t GetImageCount() const { return imageCount; }
 
 
 	/// Class specific methods ///

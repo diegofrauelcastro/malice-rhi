@@ -14,6 +14,7 @@
 #include "Vulkan/vulkan_descriptorsetsgroup.h"
 #include "Vulkan/vulkan_uniformbuffers.h"
 #include "Vulkan/vulkan_texture.h"
+#include "Vulkan/vulkan_imgui_support.h"
 
 
 // Class constructor
@@ -153,4 +154,10 @@ IUniformBuffers* VulkanRenderInterface::InstantiateUniformBuffers()
 ITexture* VulkanRenderInterface::InstantiateTexture()
 {
 	return new VulkanTexture();
+}
+
+// MaliceRHI to ImGui bridge class
+IMaliceToImGuiBridge* VulkanRenderInterface::InstantiateMaliceToImGuiBridge()
+{
+	return new VulkanMaliceToImGuiBridge();
 }

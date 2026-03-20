@@ -63,4 +63,7 @@ public:
 
 	// Update the bound texture in the given descriptor set, at the indicated set and binding indices.
 	void UpdateTexture(IDevice* _device, IDescriptorSetsGroup* _descSets, ITexture* _tex, uint32_t _setIndex, uint32_t _binding) override;
+
+	// Get handle to the current command buffer.
+	VkCommandBuffer GetCurrentCommandBuffer() const { return commandBuffers[currentFrame]; }
 };

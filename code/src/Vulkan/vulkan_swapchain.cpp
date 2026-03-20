@@ -78,7 +78,8 @@ void VulkanSwapChain::SetupSwapChain(VulkanDevice& _device, VkSurfaceKHR _surfac
 	VkExtent2D extent = ChoosePreferredSwapExtent(swapChainSupport.capabilities, _window);
 
 	// Get the maximum number of images we are going to store in the swap chain queue. By default, we take the minimum number of images required to function, plus one.
-	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+	minImageCount = swapChainSupport.capabilities.minImageCount;
+	imageCount = minImageCount + 1;
 	// However, if that number is too high (for whatever reason), we set it directly to the maximum number of images that our swap chain supports.
 	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 		imageCount = swapChainSupport.capabilities.maxImageCount;
