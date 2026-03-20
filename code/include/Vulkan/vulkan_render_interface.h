@@ -42,4 +42,6 @@ public:
 	IDescriptorSetsGroup* InstantiateDescriptorSetsBundle() override;
 	// Uniform buffers
 	IUniformBuffers* InstantiateUniformBuffers() override;
+	// Texture
+	ITexture* InstantiateTexture() override;
 };

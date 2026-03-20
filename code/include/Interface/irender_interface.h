@@ -16,6 +16,7 @@ class IShaderModules;
 class IPipeline;
 class IUniformBuffers;
 class IDescriptorSetsGroup;
+class ITexture;
 
 // Available rendering APIs.
 enum ERenderingAPI
@@ -95,4 +96,8 @@ public:
 	// Uniform buffer
 	virtual IUniformBuffers* InstantiateUniformBuffers() = 0;
 	virtual void DeleteUniformBuffers(IUniformBuffers* _uniformBuffer) { delete _uniformBuffer; }
+
+	// Texture
+	virtual ITexture* InstantiateTexture() = 0;
+	virtual void DeleteTexture(ITexture* _texture) { delete _texture; }
 };
