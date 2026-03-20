@@ -232,7 +232,7 @@ bool VulkanSwapChain::AcquireNextImage(IDevice* _device, uint32_t currentFrameIn
 	if (bRes)
 	{
 		vkResetFences(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &inFlightFences[currentFrameIndex]);
-		*_nextImageIndex = imageIndex;
+		if (_nextImageIndex) *_nextImageIndex = imageIndex;
 	}
 
 	return bRes;
