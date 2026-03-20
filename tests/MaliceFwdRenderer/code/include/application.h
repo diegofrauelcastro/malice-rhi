@@ -57,6 +57,7 @@ private:
 	ICommandPool* m_CommandPool = nullptr;
 	ICommandBuffers* m_Commands = nullptr;
 	IDescriptorSetsGroup* m_DescriptorSets = nullptr;
+	ITexture* m_Texture = nullptr;
 
 	IBuffer* m_VertexBuffer = nullptr;
 	IBuffer* m_IndexBuffer = nullptr;
@@ -70,8 +71,9 @@ private:
 	// User-defined vertex structure.
 	struct UserVertex
 	{
-		glm::vec2 pos;
+		glm::vec3 pos;
 		glm::vec3 color;
+		glm::vec2 uv;
 	};
 
 	// Uniform buffer object structure.
@@ -84,10 +86,10 @@ private:
 
 	// Vertex data for a simple square.
 	std::vector<UserVertex> userVertices = {
-		{{-0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-		{{0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-		{{0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+		{{-0.5f, -0.5f, 0.f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+		{{0.5f, -0.5f, 0.f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 	};
 	// Index data for the square (two triangles).
 	std::vector<uint16_t> userIndices = {
