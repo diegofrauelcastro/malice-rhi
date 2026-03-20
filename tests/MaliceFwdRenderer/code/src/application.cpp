@@ -3,6 +3,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 Application::Application(const char* _appName, int _width, int _height)
 	: m_Width(_width), m_Height(_height)
 {
@@ -61,13 +64,17 @@ void Application::InitScene()
     uint32_t vertexTotalSize = sizeof(UserVertex);
     VertexInputLocationParams posParams;
     posParams.location = 0;
-    posParams.type = VEC2;
+    posParams.type = VEC3;
     posParams.memoryOffset = offsetof(UserVertex, UserVertex::pos);
     VertexInputLocationParams colorParams;
     colorParams.location = 1;
     colorParams.type = VEC3;
     colorParams.memoryOffset = offsetof(UserVertex, UserVertex::color);
-	std::vector<VertexInputLocationParams> params = { posParams, colorParams };
+	VertexInputLocationParams uvParams;
+	uvParams.location = 2;
+	uvParams.type = VEC2;
+	uvParams.memoryOffset = offsetof(UserVertex, UserVertex::uv);
+	std::vector<VertexInputLocationParams> params = { posParams, colorParams, uvParams };
 
 	// Shader modules.
 	m_Shaders = m_RHI->InstantiateShaderModules();
@@ -77,6 +84,7 @@ void Application::InitScene()
 	m_Shaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);
 	m_Shaders->AddDescriptorSetBinding(0, 1, 1, VERTEX_SHADER);
 	m_Shaders->AddDescriptorSetBinding(1, 0, 1, FRAGMENT_SHADER);
+	m_Shaders->AddDescriptorSetBinding(1, 1, 1, FRAGMENT_SHADER, true);
 
 	// Graphics pipeline.
 	m_Pipeline = m_RHI->InstantiatePipeline();
@@ -120,6 +128,13 @@ void Application::InitScene()
 	m_CamBuffer->Create(m_Device, m_SwapChain, sizeof(glm::mat4) * 2);
 	m_ModelBuffer->Create(m_Device, m_SwapChain, sizeof(glm::mat4));
 	m_ColorBuffer->Create(m_Device, m_SwapChain, sizeof(glm::vec4));
+
+	// Texture
+	int texWidth, texHeight, texChannels;
+	stbi_uc* imgData = stbi_load("resources/textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	m_Texture = m_RHI->InstantiateTexture();
+	m_Texture->Create(m_Device, m_CommandPool, texWidth, texHeight, ETextureFormat::RGBA8, ETextureUsage::Sampled, imgData);
+	stbi_image_free(imgData);
 }
 
 Application::UniformBufferObject Application::UpdateUniforms()
@@ -176,6 +191,7 @@ void Application::Draw()
 		m_Commands->UpdateUniformBuffer(m_Device, m_DescriptorSets, m_ModelBuffer, 0, 0, 1);
 		m_Commands->UpdateUniformBuffer(m_Device, m_DescriptorSets, m_CamBuffer, 0, 1, 1);
 		m_Commands->UpdateUniformBuffer(m_Device, m_DescriptorSets, m_ColorBuffer, 1, 0, 1);
+		m_Commands->UpdateTexture(m_Device, m_DescriptorSets, m_Texture, 1, 1);
 
 		m_Commands->DrawVerticesByIndices((uint32_t)userIndices.size(), m_VertexBuffer, m_IndexBuffer);
 	m_Commands->EndDraw();
@@ -199,6 +215,9 @@ void Application::Run()
 void Application::Cleanup()
 {
 	// Cleanup in reverse order of creation.
+
+	// Texture
+	m_Texture->Destroy(m_Device);
 
 	// Uniform buffers.
 	m_CamBuffer->Destroy(m_Device);

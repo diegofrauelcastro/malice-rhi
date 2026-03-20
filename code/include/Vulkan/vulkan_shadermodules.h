@@ -60,8 +60,9 @@ public:
 	std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptorsVkHandles() const { return attributeDescriptions; }
 	std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> GetMapDescSetLayoutBindingsPerSetIndex() const { return mapDescriptorSetLayoutDescsPerSetIndex; }
 
+
 	/// Class specfic methods ///
 
 	// Create the parameters for a descriptor set layout binding for a specified set.
-	void AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage) override;
+	void AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage, bool _bIsTextureSampler = false) override;
 };

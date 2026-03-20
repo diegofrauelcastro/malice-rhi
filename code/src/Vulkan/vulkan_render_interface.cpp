@@ -13,6 +13,7 @@
 #include "Vulkan/vulkan_buffer.h"
 #include "Vulkan/vulkan_descriptorsetsgroup.h"
 #include "Vulkan/vulkan_uniformbuffers.h"
+#include "Vulkan/vulkan_texture.h"
 
 
 // Class constructor
@@ -146,4 +147,10 @@ IDescriptorSetsGroup* VulkanRenderInterface::InstantiateDescriptorSetsBundle()
 IUniformBuffers* VulkanRenderInterface::InstantiateUniformBuffers()
 {
 	return new VulkanUniformBuffers();
+}
+
+// Texture
+ITexture* VulkanRenderInterface::InstantiateTexture()
+{
+	return new VulkanTexture();
 }

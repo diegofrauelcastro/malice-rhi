@@ -58,6 +58,9 @@ public:
 	// Bind descriptor sets.
 	void BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets) override;
 
-	// Update the uniform buffer descriptor in the given descriptor set.
+	// Update the uniform buffer descriptor in the given descriptor set, at the indicated set and binding indices.
 	void UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount) override;
+
+	// Update the bound texture in the given descriptor set, at the indicated set and binding indices.
+	void UpdateTexture(IDevice* _device, IDescriptorSetsGroup* _descSets, ITexture* _tex, uint32_t _setIndex, uint32_t _binding) override;
 };

@@ -15,6 +15,7 @@
 #include "Interface/ibuffer.h"
 #include "Interface/idescriptorsetsgroup.h"
 #include "Interface/iuniformbuffers.h"
+#include "Interface/itexture.h"
 
 // Include render interface implementations
 #include "Vulkan/vulkan_render_interface.h"
