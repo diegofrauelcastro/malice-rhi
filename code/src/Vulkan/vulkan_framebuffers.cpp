@@ -43,6 +43,7 @@ void VulkanFramebuffers::CreateFramebuffers(VulkanDevice& _device, VulkanSwapCha
 void VulkanFramebuffers::Create(IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass)
 {
 	CreateFramebuffers(_device->API_Vulkan(), _swapChain->API_Vulkan(), _renderPass->API_Vulkan().GetVkHandle());
+	_swapChain->BindResizeCallback([&](IDevice* _d, ISwapChain* _sc) { return Recreate(_d, _sc); });
 }
 
 void VulkanFramebuffers::Destroy(IDevice* _device)
@@ -62,6 +63,7 @@ void VulkanFramebuffers::Destroy(IDevice* _device)
 
 void VulkanFramebuffers::Recreate(IDevice* _device, ISwapChain* _swapChain)
 {
+	LOG_RHI("Recreating framebuffers...")
 	Destroy(_device);
 	CreateFramebuffers(_device->API_Vulkan(), _swapChain->API_Vulkan(), renderPass);
 }

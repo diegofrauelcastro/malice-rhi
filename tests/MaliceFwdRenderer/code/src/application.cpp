@@ -127,10 +127,18 @@ Application::UniformBufferObject Application::UpdateUniforms()
 	static auto start = std::chrono::high_resolution_clock::now();
 	float t = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
 
+	// Update the screen size.
+	glfwGetFramebufferSize(m_Window, &m_Width, &m_Height);
+
 	UniformBufferObject ubo{};
-	ubo.model = glm::rotate(glm::mat4(1.f), t, glm::vec3(0, 0, 1));
-	ubo.view = glm::lookAt(glm::vec3(2, 2, 2), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
-	ubo.proj = glm::perspective(glm::radians(45.f), (float)m_Width / m_Height, 0.1f, 10.f);
+	ubo.model = glm::rotate(glm::mat4(1.f), t, glm::vec3(0.f, 0.f, 1.f));
+	ubo.view = glm::lookAt(glm::vec3(0.f, 2.f, 2.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
+	std::vector<float> projMatVec = m_RHI->GetPerspectiveProjectionMatrix(m_Width, m_Height, 0.1f, 100.f, 45.f);
+	//std::vector<float> projMatVec = m_RHI->GetOrthographicProjectionMatrix(m_Width, m_Height, 0.1f, 100.f);
+	glm::mat4 projMat;
+	for (int i = 0; i < projMatVec.size() || i < 16; i++)
+		projMat[i%4][i/4] = projMatVec[i];
+	ubo.proj = projMat;
 	ubo.proj[1][1] *= -1;
 
 	return ubo;
@@ -153,7 +161,10 @@ void Application::Draw()
 {
 	// Acquire next image from the swap chain.
 	uint32_t frame = m_Commands->GetCurrentFrame();
-	uint32_t img = m_SwapChain->AcquireNextImage(m_Device, frame);
+	uint32_t img;
+	bool bSuccessfulAcquire = m_SwapChain->AcquireNextImage(m_Device, frame, &img);
+	if (!bSuccessfulAcquire)
+		return;
 
 	// Recording commands.
 	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 0.0f });
@@ -174,9 +185,6 @@ void Application::Draw()
 
 void Application::Run()
 {
-	LOG_RHI_CLEAN("\n\n===== LOOP =====\n")
-	LOG_RHI_DEBUG("User loop start...")
-
 	// Main loop.
 	while (!glfwWindowShouldClose(m_Window))
 	{
@@ -185,14 +193,12 @@ void Application::Run()
 		Draw();
 	}
 	// Wait for the device to be idle before cleanup.
-	LOG_RHI_DEBUG("User loop end. Waiting for device to be idle...")
 	m_Device->WaitIdle();
-	LOG_RHI_DEBUG("Device is idle. Resuming.")
 }
 
 void Application::Cleanup()
 {
-	/// Cleanup in reverse order of creation.
+	// Cleanup in reverse order of creation.
 
 	// Uniform buffers.
 	m_CamBuffer->Destroy(m_Device);

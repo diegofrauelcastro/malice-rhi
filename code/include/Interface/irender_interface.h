@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 // Forward declarations.
 class IInstance;
 class IDevice;
@@ -35,6 +37,12 @@ public:
 
 	// Get current rendering API.
 	ERenderingAPI GetCurrentAPI() const { return currentAPI; }
+
+	// Get Perspective Projection Matrix, in the form of a row-major vector of 16 floats (Matrix4x4).
+	virtual std::vector<float> GetPerspectiveProjectionMatrix(unsigned int _width, unsigned int _height, float _near, float _far, float _fovYDeg) = 0;
+
+	// Get Orthographic Projection Matrix, in the form of a row-major vector of 16 floats (Matrix4x4).
+	virtual std::vector<float> GetOrthographicProjectionMatrix(unsigned int _width, unsigned int _height, float _near, float _far) = 0;
 
 	// Instance
 	virtual IInstance* InstantiateInstance() = 0;

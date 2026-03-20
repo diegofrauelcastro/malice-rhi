@@ -10,6 +10,12 @@ public:
 	// Class destructor
 	~VulkanRenderInterface() override;
 
+	// Get Perspective Projection Matrix, in the form of a row-major vector of 16 floats (Matrix4x4).
+	std::vector<float> GetPerspectiveProjectionMatrix(unsigned int _width, unsigned int _height, float _near, float _far, float _fovYDeg) override;
+
+	// Get Orthographic Projection Matrix, in the form of a row-major vector of 16 floats (Matrix4x4).
+	std::vector<float> GetOrthographicProjectionMatrix(unsigned int _width, unsigned int _height, float _near, float _far) override;
+
 	// Instance
 	IInstance* InstantiateInstance() override;
 	// Device

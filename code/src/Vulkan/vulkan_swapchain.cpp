@@ -206,30 +206,42 @@ void VulkanSwapChain::CleanupSyncObjects(VulkanDevice& _device)
 	}
 }
 
-uint32_t VulkanSwapChain::AcquireNextImage(IDevice* _device, uint32_t currentFrameIndex)
+bool VulkanSwapChain::AcquireNextImage(IDevice* _device, uint32_t currentFrameIndex, uint32_t* _nextImageIndex)
 {
 	// Wait until the previous frame has finished.
 	vkWaitForFences(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &inFlightFences[currentFrameIndex], VK_TRUE, UINT64_MAX);
 
 	// Fetch the next image from the swap chain.
 	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(_device->API_Vulkan().GetLogicalDeviceVkHandle(), swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrameIndex], VK_NULL_HANDLE, &imageIndex);
+	VkResult acquireResult = vkAcquireNextImageKHR(_device->API_Vulkan().GetLogicalDeviceVkHandle(), swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrameIndex], VK_NULL_HANDLE, &imageIndex);
+	bool bRes = true;
 
 	// Handle swap chain recreation if it's out of date (when window resized for example).
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-		//RecreateSwapChain();
-		LOG_RHI_THROW("/!\\ Swap chain is obsolete/suboptimal!")
-	else if (result != VK_SUCCESS)
-		LOG_RHI_THROW("/!\\ Failed to acquire swap chain image!")
+	if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR || acquireResult == VK_SUBOPTIMAL_KHR)
+	{
+		RecreateSwapChain(_device);
+		bRes = false;		
+	}
+	else if (acquireResult != VK_SUCCESS)
+	{
+		LOG_RHI("/!\\ Failed to acquire swap chain image!")
+		bRes = false;
+	}
 
 	// Only reset the fence if we are submitting work.
-	vkResetFences(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &inFlightFences[currentFrameIndex]);
+	if (bRes)
+	{
+		vkResetFences(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &inFlightFences[currentFrameIndex]);
+		if (_nextImageIndex) *_nextImageIndex = imageIndex;
+	}
 
-	return imageIndex;
+	return bRes;
 }
 
 void VulkanSwapChain::RecreateSwapChain(IDevice* _device)
 {
+	bResizeRequested = true;
+
 	// Handle window minimization.
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -246,6 +258,14 @@ void VulkanSwapChain::RecreateSwapChain(IDevice* _device)
 	CleanupSwapChain(_device->API_Vulkan());
 	SetupSwapChain(_device->API_Vulkan(), surface, window);
 	CreateImageViews(_device->API_Vulkan());
+	// Get a new set of sync objects.
+	CleanupSyncObjects(_device->API_Vulkan());
+	CreateSyncObjects(_device->API_Vulkan());
+	// Call the framebuffer resize.
+	if (framebufferResizeCallback)
+		framebufferResizeCallback(_device, this);
+
+	bResizeRequested = true;
 }
 
 void VulkanSwapChain::CreateSyncObjects(VulkanDevice& _device)
