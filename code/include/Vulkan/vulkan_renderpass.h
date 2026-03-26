@@ -14,12 +14,13 @@ private:
 	/// Class properties ///
 	
 	VkRenderPass renderPass;
+	VulkanSwapChain* sc = nullptr;
 
 
 	/// Helper functions ///
 
 	// Create Render Pass.
-	void CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& _swapchain);
+	void CreateRenderPass(VulkanDevice& _device);
 
 public:
 	// Class destructor
@@ -28,7 +29,10 @@ public:
 
 	/// Lifetime methods ///
 
-	void Create(IDevice* _device, ISwapChain* _swapChain) override;
+	// Create a RenderPass with a SwapChain to present on screen. To create an offscreen RenderPass, use Create() with RenderPassParams instead of a SwapChain.
+	void Create(IDevice* _device, ISwapChain* _swapChain, bool _hasDepth) override;
+	// Create a RenderPass manually to be able to render offscreen.
+	void Create(IDevice* _device, const RenderPassParams& _params) override;
 	void Destroy(IDevice* _device) override;
 
 

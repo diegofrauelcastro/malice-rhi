@@ -9,17 +9,21 @@ class IDevice;
 class ISwapChain;
 enum class ETextureFormat;
 
-struct RenderPassDesc
+struct RenderPassParams
 {
 	std::vector<ETextureFormat> colorFormats;
 	ETextureFormat depthFormat;
 	bool hasDepth = false;
-	bool forPresent = false;
 };
 
 // Render pass interface
 class IRenderPass
 {
+protected:
+	// Class properties
+
+	RenderPassParams params;
+
 public:
 	// Class destructor
 	virtual ~IRenderPass() = default;
@@ -27,7 +31,10 @@ public:
 
 	/// Lifetime methods ///
 
-	virtual void Create(IDevice* _device, ISwapChain* _swapChain) = 0;
+	// Create a RenderPass with a SwapChain to present on screen. To create an offscreen RenderPass, use Create() with RenderPassParams instead of a SwapChain.
+	virtual void Create(IDevice* _device, ISwapChain* _swapChain, bool _hasDepth) = 0;
+	// Create a RenderPass manually to be able to render offscreen.
+	virtual void Create(IDevice* _device, const RenderPassParams& _params) = 0;
 	virtual void Destroy(IDevice* _device) = 0;
 
 
