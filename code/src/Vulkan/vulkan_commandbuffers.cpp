@@ -34,17 +34,6 @@ void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCom
 		LOG_RHI("Command buffers allocated successfully.")
 }
 
-void VulkanCommandBuffers::BeginRenderTarget(ITexture* _renderTex)
-{
-	_renderTex->API_Vulkan().TransitionImageLayout();
-}
-
-void VulkanCommandBuffers::EndRenderTarget(ITexture* _renderTex)
-{
-
-}
-
-
 void VulkanCommandBuffers::BeginDraw(IRenderPass* _renderPass, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex)
 {
 	swapChainExtent = _swapChain->API_Vulkan().GetImageExtent();

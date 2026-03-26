@@ -40,17 +40,11 @@ public:
 
 	/// Class specific methods ///
 
-	// Start to render on a render target.
-	virtual void BeginRenderTarget(ITexture* _renderTex);
-
 	// Start the drawing cycle.
 	void BeginDraw(IRenderPass* _renderPass, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex) override;
 
 	// End the drawing cycle.
 	void EndDraw() override;
-
-	// End the render on the render target.
-	virtual void EndRenderTarget(ITexture* _renderTex);
 
 	// Submit command buffer.
 	void SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex) override;

@@ -7,6 +7,15 @@
 class VulkanRenderPass;
 class IDevice;
 class ISwapChain;
+enum class ETextureFormat;
+
+struct RenderPassDesc
+{
+	std::vector<ETextureFormat> colorFormats;
+	ETextureFormat depthFormat;
+	bool hasDepth = false;
+	bool forPresent = false;
+};
 
 // Render pass interface
 class IRenderPass

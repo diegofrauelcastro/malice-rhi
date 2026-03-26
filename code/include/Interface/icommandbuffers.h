@@ -54,17 +54,11 @@ public:
 	// Get Current Frame.
 	uint32_t GetCurrentFrame() const { return currentFrame; }
 
-	// Start to render on a render target.
-	virtual void BeginRenderTarget(ITexture* _renderTex) = 0;
-
 	// Start the drawing cycle.
 	virtual void BeginDraw(IRenderPass* _renderPass, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex) = 0;
 
 	// End the drawing cycle.
 	virtual void EndDraw() = 0;
-
-	// End the render on the render target.
-	virtual void EndRenderTarget(ITexture* _renderTex) = 0;
 
 	// Submit command buffer.
 	virtual void SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex) = 0;
