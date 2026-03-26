@@ -2,7 +2,7 @@
 #include "Vulkan/vulkan_device.h"
 #include "Vulkan/vulkan_swapchain.h"
 
-void VulkanMaliceToImGuiBridge::Create(IInstance* _instance, IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass)
+void VulkanMaliceToImGuiBridge::Create(IInstance* _instance, IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass, IFramebuffers* _framebuffers)
 {
 	LOG_RHI_CLEAN("\n\n===== IMGUI BRIDGE CREATION =====")
 
@@ -10,6 +10,7 @@ void VulkanMaliceToImGuiBridge::Create(IInstance* _instance, IDevice* _device, I
 	storedSwapChain = _swapChain;
 	storedRenderPass = _renderPass;
 	storedInstance = _instance;
+	storedFramebuffers = _framebuffers;
 
 	// Create the big ImGui descriptor pool.
 	VkDescriptorPoolSize pool_sizes[] =
