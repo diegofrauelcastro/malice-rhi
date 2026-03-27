@@ -45,17 +45,25 @@ void Application::InitRHI()
 	m_Device = m_RHI->InstantiateDevice();
 	m_Device->Create(m_Instance, m_Surface);
 
+	// Command pool.
+	m_CommandPool = m_RHI->InstantiateCommandPool();
+	m_CommandPool->Create(m_Device);
+
 	// Swap chain.
 	m_SwapChain = m_RHI->InstantiateSwapChain();
 	m_SwapChain->Create(m_Device, m_Surface, m_Window);
 
-	// Render pass.
+	// Main render pass.
 	m_RenderPass = m_RHI->InstantiateRenderPass();
-	m_RenderPass->Create(m_Device, m_SwapChain);
+	m_RenderPass->Create(m_Device, m_SwapChain, true);
+
+	// Depth texture
+	m_DepthTex = m_RHI->InstantiateTexture();
+	m_DepthTex->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::DEPTH32, ETextureUsage::DEPTH_ATTACHMENT);
 
 	// Framebuffers.
 	m_Framebuffers = m_RHI->InstantiateFramebuffers();
-	m_Framebuffers->Create(m_Device, m_SwapChain, m_RenderPass);
+	m_Framebuffers->Create(m_Device, m_RenderPass, m_SwapChain, m_DepthTex);
 }
 
 void Application::InitScene()
@@ -101,10 +109,6 @@ void Application::InitScene()
 	pipeline.enableColorBlend = false;
 	m_Pipeline->Create(m_Device, m_RenderPass, m_Shaders, pipeline);
 
-	// Command pool.
-	m_CommandPool = m_RHI->InstantiateCommandPool();
-	m_CommandPool->Create(m_Device);
-
 	// Command buffers.
 	m_Commands = m_RHI->InstantiateCommandBuffers();
 	m_Commands->Create(m_Device, m_CommandPool, m_SwapChain);
@@ -133,7 +137,7 @@ void Application::InitScene()
 	int texWidth, texHeight, texChannels;
 	stbi_uc* imgData = stbi_load("resources/textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	m_Texture = m_RHI->InstantiateTexture();
-	m_Texture->Create(m_Device, m_CommandPool, texWidth, texHeight, ETextureFormat::RGBA8, ETextureUsage::Sampled, imgData);
+	m_Texture->Create(m_Device, m_CommandPool, texWidth, texHeight, ETextureFormat::RGBA8, ETextureUsage::SAMPLED, imgData);
 	stbi_image_free(imgData);
 }
 
@@ -174,17 +178,12 @@ void Application::Update()
 
 void Application::Draw()
 {
-	// Acquire next image from the swap chain.
-	uint32_t frame = m_Commands->GetCurrentFrame();
-	uint32_t img;
-	bool bSuccessfulAcquire = m_SwapChain->AcquireNextImage(m_Device, frame, &img);
-	if (!bSuccessfulAcquire)
-		return;
-
 	// Recording commands.
 	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 0.0f });
-	m_Commands->BeginDraw(m_RenderPass, m_SwapChain, m_Framebuffers, img);
+	uint32_t img = 0;
+	m_Commands->BeginFrame(m_Device, m_SwapChain, img);
 
+	m_Commands->BeginRender(m_RenderPass, m_Framebuffers, img);
 		m_Commands->BindPipeline(m_Pipeline);
 
 		m_Commands->BindDescriptorSets(m_Pipeline, m_DescriptorSets);
@@ -194,7 +193,9 @@ void Application::Draw()
 		m_Commands->UpdateTexture(m_Device, m_DescriptorSets, m_Texture, 1, 1);
 
 		m_Commands->DrawVerticesByIndices((uint32_t)userIndices.size(), m_VertexBuffer, m_IndexBuffer);
-	m_Commands->EndDraw();
+	m_Commands->EndRender();
+
+	m_Commands->EndFrame();
 	// Submitting commands and presenting the image.
 	m_Commands->SubmitAndPresent(m_Device, m_SwapChain, m_Framebuffers, img);
 }

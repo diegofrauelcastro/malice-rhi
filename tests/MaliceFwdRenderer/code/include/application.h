@@ -58,6 +58,7 @@ private:
 	ICommandBuffers* m_Commands = nullptr;
 	IDescriptorSetsGroup* m_DescriptorSets = nullptr;
 	ITexture* m_Texture = nullptr;
+	ITexture* m_DepthTex = nullptr;
 
 	IBuffer* m_VertexBuffer = nullptr;
 	IBuffer* m_IndexBuffer = nullptr;
