@@ -6,6 +6,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "vulkan_glfw_imgui_renderer.h"
+
 Application::Application(const char* _appName, int _width, int _height)
 	: m_Width(_width), m_Height(_height)
 {
@@ -13,6 +15,7 @@ Application::Application(const char* _appName, int _width, int _height)
 	InitRHI();
 	InitScreenRendering();
 	InitOffscreenRendering();
+	InitImGuiRenderer();
 	InitScene();
 }
 
@@ -194,6 +197,20 @@ void Application::InitOffscreenRendering()
 	m_OffscreenDescriptorSets->Create(m_Device, m_OffscreenPipeline);
 }
 
+void Application::InitImGuiRenderer()
+{
+	Offscreen offscreenParams{};
+	offscreenParams.colorTex = m_OffscreenColor;
+	offscreenParams.framebuffers = m_OffscreenFramebuffers;
+	offscreenParams.renderPass = m_OffscreenRenderPass;
+
+	m_Bridge = m_RHI->InstantiateMaliceToImGuiBridge();
+	m_Bridge->Create(m_Instance, m_Device, m_SwapChain, m_RenderPass, m_Framebuffers, offscreenParams);
+
+	m_ImGuiRenderer = new Vulkan_GLFW_ImGuiRenderer();
+	m_ImGuiRenderer->Create(m_Bridge, m_Window);
+}
+
 void Application::InitScene()
 {
 	// Vertex and index buffers.
@@ -275,14 +292,19 @@ void Application::Draw()
 		m_Commands->DrawVerticesByIndices((uint32_t)userIndices.size(), m_VertexBuffer, m_IndexBuffer);
 	m_Commands->EndRender();
 
-	// Render the texture on a screen triangle.
-	m_Commands->BeginRender(m_RenderPass, m_Framebuffers, img);
-		m_Commands->BindPipeline(m_Pipeline);
+	//// Render the texture on a screen triangle.
+	//m_Commands->BeginRender(m_RenderPass, m_Framebuffers, img);
+	//	m_Commands->BindPipeline(m_Pipeline);
 
-		m_Commands->BindDescriptorSets(m_Pipeline, m_DescriptorSets);
-		m_Commands->UpdateTexture(m_Device, m_DescriptorSets, m_OffscreenColor, 0, 0);
-		m_Commands->DrawVerticesByIndices(3, m_ScreenVertexBuffer, m_ScreenIndexBuffer);
-	m_Commands->EndRender();
+	//	m_Commands->BindDescriptorSets(m_Pipeline, m_DescriptorSets);
+	//	m_Commands->UpdateTexture(m_Device, m_DescriptorSets, m_OffscreenColor, 0, 0);
+	//	m_Commands->DrawVerticesByIndices(3, m_ScreenVertexBuffer, m_ScreenIndexBuffer);
+	//m_Commands->EndRender();
+	// Render on screen the ImGui windows.
+	m_ImGuiRenderer->RecordNewFrame();
+	m_ImGuiRenderer->ShowOffscreenRenderInWindow();
+	m_ImGuiRenderer->ShowDemoWindow();
+	m_ImGuiRenderer->RenderFrame(m_Commands);
 
 	m_Commands->EndFrame();
 
@@ -328,6 +350,9 @@ void Application::Cleanup()
 	m_IndexBuffer->Destroy(m_Device);
 	m_RHI->DeleteBuffer(m_IndexBuffer);
 
+	// Destroy imgui renderer.
+	m_ImGuiRenderer->Destroy();
+	delete m_ImGuiRenderer;
 
 	m_OffscreenDescriptorSets->Destroy(m_Device);
 	m_RHI->DeleteDescriptorSetsBundle(m_OffscreenDescriptorSets);

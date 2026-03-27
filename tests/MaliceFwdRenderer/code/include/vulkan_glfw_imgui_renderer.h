@@ -1,23 +1,19 @@
+#pragma once
+
 #include "imgui_renderer.h"
 #include "imgui.h"
 
 // Forward declarations
-struct Offscreen;
+typedef struct VkDescriptorSet_T* VkDescriptorSet;
 
 class Vulkan_GLFW_ImGuiRenderer : public IImGuiRenderer
 {
 protected:
 	// Class properties
 
-	Offscreen* off = nullptr;
 	GLFWwindow* window = nullptr;
+	VkDescriptorSet imguiSet = nullptr;
 
-
-	// Helper methods
-
-	static void CreateOffscreen(IDevice* _device, ISwapChain* _swapChain, Offscreen& _out);
-	static void DestroyOffscreen(IDevice* _device, Offscreen& _o);
-	static uint32_t FindMemoryType(IDevice* _device, uint32_t _typeBits);
 public:
 	// Constructor & destructor
 
@@ -38,8 +34,8 @@ public:
 	
 	// Class specific methods
 
-	virtual void RecordOffscreen(ICommandBuffers* _cmd) override;
 	virtual void RecordNewFrame() override;
+	virtual void ShowOffscreenRenderInWindow() override;
 	virtual void ShowDemoWindow() override;
 	virtual void RenderFrame(ICommandBuffers* _cmd) override;
 };

@@ -7,9 +7,18 @@
 class IInstance;
 class IDevice;
 class ISwapChain;
+class ITexture;
 class IRenderPass;
 class IFramebuffers;
 class VulkanMaliceToImGuiBridge;
+
+// Offscreen render target (color-only) to show inside ImGui
+struct Offscreen
+{
+	ITexture* colorTex = nullptr;
+	IRenderPass* renderPass = nullptr;
+	IFramebuffers* framebuffers = nullptr;
+};
 
 class IMaliceToImGuiBridge
 {
@@ -18,9 +27,10 @@ protected:
 
 	IInstance* storedInstance = nullptr;		// Exceptionnally store the instance used to create this object, as it will be needed later by ImGui to be initialized correctly.
 	IDevice* storedDevice = nullptr;			// For the same reason, expectionnally store the device.
-	ISwapChain* storedSwapChain = nullptr;		// Same here.
-	IRenderPass* storedRenderPass = nullptr;	// Same here.
-	IFramebuffers* storedFramebuffers = nullptr;// Same here.
+	ISwapChain* storedScreenSwapChain = nullptr;		// Same here.
+	IRenderPass* storedScreenRenderPass = nullptr;	// Same here.
+	IFramebuffers* storedScreenFramebuffers = nullptr;// Same here.
+	Offscreen offscreenParams;
 
 public:
 	// Class destructor
@@ -29,7 +39,7 @@ public:
 
 	/// Lifetime methods ///
 
-	virtual void Create(IInstance* _instance, IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass, IFramebuffers* _framebuffers) = 0;
+	virtual void Create(IInstance* _instance, IDevice* _device, ISwapChain* _screenSwapChain, IRenderPass* _screenRenderPass, IFramebuffers* _screenFramebuffers, Offscreen _offscreenParams) = 0;
 	virtual void Destroy(IDevice* _device) = 0;
 
 
@@ -38,7 +48,8 @@ public:
 	virtual VulkanMaliceToImGuiBridge& API_Vulkan() { throw std::runtime_error("Bad API call : object is not a VulkanMaliceToImGuiBridge."); }
 	IInstance* GetLinkedInstance() const { return storedInstance; }
 	IDevice* GetLinkedDevice() const { return storedDevice; }
-	ISwapChain* GetLinkedSwapChain() const { return storedSwapChain; }
-	IRenderPass* GetLinkedRenderPass() const { return storedRenderPass; }
-	IFramebuffers* GetLinkedFramebuffers() const { return storedFramebuffers; }
+	ISwapChain* GetLinkedSwapChain() const { return storedScreenSwapChain; }
+	IRenderPass* GetLinkedRenderPass() const { return storedScreenRenderPass; }
+	IFramebuffers* GetLinkedFramebuffers() const { return storedScreenFramebuffers; }
+	Offscreen GetOffscreenParams() const { return offscreenParams; }
 };

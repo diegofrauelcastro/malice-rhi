@@ -6,6 +6,8 @@
 #include <vector>
 #include <chrono>
 
+#include "imgui_renderer.h"
+
 
 class Application
 {
@@ -24,6 +26,7 @@ private:
 	void InitRHI();
 	void InitScreenRendering();
 	void InitOffscreenRendering();
+	void InitImGuiRenderer();
 	void InitScene();
 
 
@@ -55,6 +58,8 @@ private:
 	IDevice* m_Device = nullptr;
 	ICommandPool* m_CommandPool = nullptr;
 	ICommandBuffers* m_Commands = nullptr;
+	IImGuiRenderer* m_ImGuiRenderer = nullptr;
+	IMaliceToImGuiBridge* m_Bridge = nullptr;
 
 	// Screen render objects
 

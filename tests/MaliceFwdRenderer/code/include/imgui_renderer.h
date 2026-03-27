@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 
 // Forward declarations
@@ -8,6 +10,7 @@ class IRenderPass;
 class IDevice;
 class Vulkan_GLFW_ImGuiRenderer;
 struct GLFWwindow;
+struct Offscreen;
 
 class IImGuiRenderer
 {
@@ -15,7 +18,7 @@ protected:
 	// Class properties
 
 	IMaliceToImGuiBridge* bridge = nullptr;
-
+	Offscreen* off = nullptr;
 
 public:
 	// Constructor & destructor
@@ -37,8 +40,8 @@ public:
 	
 	// Class specific methods
 
-	virtual void RecordOffscreen(ICommandBuffers* _cmd) = 0;
 	virtual void RecordNewFrame() = 0;
+	virtual void ShowOffscreenRenderInWindow() = 0;
 	virtual void ShowDemoWindow() = 0;
 	virtual void RenderFrame(ICommandBuffers* _cmd) = 0;
 };
