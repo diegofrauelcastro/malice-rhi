@@ -121,6 +121,7 @@ void VulkanRenderPass::Create(IDevice* _device, ISwapChain* _swapChain, bool _ha
 	sc = &_swapChain->API_Vulkan();
 	params = {};
 	params.hasDepth = _hasDepth;
+	params.depthFormat = ETextureFormat::DEPTH32;
 
 	CreateRenderPass(_device->API_Vulkan());
 }

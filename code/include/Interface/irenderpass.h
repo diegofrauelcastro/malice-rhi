@@ -41,4 +41,5 @@ public:
 	/// Retrieving the backend ///
 
 	virtual VulkanRenderPass& API_Vulkan() { throw std::runtime_error("Bad API call : object is not a VulkanRenderPass."); }
+	bool GetHasDepth() const { return params.hasDepth; }
 };

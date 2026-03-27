@@ -27,7 +27,7 @@ void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_
 	VulkanCommandPool vkCmdPool = _commandPool->API_Vulkan();
 	VulkanDevice& vulkanDevice = _device->API_Vulkan();
 	VkDevice device = vulkanDevice.GetLogicalDeviceVkHandle();
-
+	
 	width = _width;
 	height = _height;
 	format = _format;

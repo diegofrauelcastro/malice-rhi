@@ -217,6 +217,9 @@ void Application::Cleanup()
 {
 	// Cleanup in reverse order of creation.
 
+	// Depth texture
+	m_DepthTex->Destroy(m_Device);
+
 	// Texture
 	m_Texture->Destroy(m_Device);
 

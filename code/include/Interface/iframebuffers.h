@@ -43,4 +43,6 @@ public:
 	/// Retrieving the backend ///
 
 	virtual VulkanFramebuffers& API_Vulkan() { throw std::runtime_error("Bad API call : object is not a VulkanFramebuffers."); }
+	uint32_t GetWidth() const { return params.width; }
+	uint32_t GetHeight() const { return params.height; }
 };
