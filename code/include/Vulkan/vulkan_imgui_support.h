@@ -3,6 +3,7 @@
 #include "Interface/malicerhi_masterheader.h"
 #include "Interface/imgui_support.h"
 
+
 class VulkanMaliceToImGuiBridge : public IMaliceToImGuiBridge
 {
 private:
@@ -17,7 +18,7 @@ public:
 
 	/// Lifetime methods ///
 
-	void Create(IInstance* _instance, IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass) override;
+	void Create(IInstance* _instance, IDevice* _device, ISwapChain* _screenSwapChain, IRenderPass* _screenRenderPass, IFramebuffers* _screenFramebuffers, Offscreen _offscreenParams) override;
 	void Destroy(IDevice* _device) override;
 
 

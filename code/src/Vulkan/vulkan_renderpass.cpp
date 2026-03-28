@@ -2,35 +2,83 @@
 
 #include "Vulkan/vulkan_swapchain.h"
 #include "Vulkan/vulkan_device.h"
+#include "Vulkan/vulkan_texture.h"
 
+static VkFormat ConvertFormat(ETextureFormat format)
+{
+	switch (format)
+	{
+	case ETextureFormat::RGBA8:
+		return VK_FORMAT_R8G8B8A8_UNORM;
+	case ETextureFormat::BGRA8:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	case ETextureFormat::DEPTH32:
+		return VK_FORMAT_D32_SFLOAT;
+	default:
+		LOG_RHI_THROW("/!\\ Unsupported texture format!")
+	}
+}
 
-void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& _swapChain)
+void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device)
 {
 	LOG_RHI_CLEAN("\n\n===== RENDER PASS CREATION =====\n")
 
-	// Single color buffer, same format as the images in our swap chain.
-	VkAttachmentDescription colorAttachment{};
-	colorAttachment.format = _swapChain.GetImageFormat();
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	// We clear the color and depth data before rendering.
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	// We aren't really using stencil data so we ignore it.
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	// The layout of images has to be changed depending on what we plan to do with it.
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;	// "Images to be presented in the swap chain" -> Vulkan Tutorial.
+	std::vector<VkAttachmentDescription> attachments;
+	uint32_t colorCount = sc ? 1 : static_cast<uint32_t>(params.colorFormats.size());
+	for (size_t i = 0; i < colorCount; i++)
+	{
+		VkAttachmentDescription attachment{};
+		attachment.format = sc ? sc->GetImageFormat() : ConvertFormat(params.colorFormats[i]);
+		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		// We clear the color and depth data before rendering.
+		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		// We aren't really using stencil data so we ignore it.
+		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachment.finalLayout = sc ? VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-	// Create an attachment that we'll link to a subpass.
-	VkAttachmentReference colorAttachmentRef{};
-	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments.push_back(attachment);
+	}
+	VkAttachmentReference depthRef{};
+	if (params.hasDepth)
+	{
+		VkAttachmentDescription attachment{};
+		attachment.format = ConvertFormat(params.depthFormat);
+		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		// We clear the color and depth data before rendering.
+		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments.push_back(attachment);
+
+		depthRef.attachment = (uint32_t)(attachments.size() - 1);
+		depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	}
+
+	// Create attachment references for all color attachments.
+	std::vector<VkAttachmentReference> colorAttachmentRefs;
+	for (size_t i = 0; i < colorCount; i++)
+	{
+		VkAttachmentReference ref{};
+		ref.attachment = i;
+		ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		colorAttachmentRefs.push_back(ref);
+	}
+
 	// Create a single subpass (we won't need more for now).
 	VkSubpassDescription subpass{};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.colorAttachmentCount = (uint32_t)colorAttachmentRefs.size();
+	subpass.pColorAttachments = colorAttachmentRefs.data();
+	if (params.hasDepth)
+		subpass.pDepthStencilAttachment = &depthRef;
+	else
+		subpass.pDepthStencilAttachment = nullptr;
 
 	// Define a subpass dependency to handle the transition of the image layout.
 	VkSubpassDependency dependency{};
@@ -43,11 +91,18 @@ void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& 
 	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
+	if (params.hasDepth)
+	{
+		dependency.srcStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
+
 	// Create info about the render pass, linking the color attachment and the subpass we created before.
 	VkRenderPassCreateInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = (uint32_t)attachments.size();
+	renderPassInfo.pAttachments = attachments.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
@@ -61,14 +116,32 @@ void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device, VulkanSwapChain& 
 		LOG_RHI("Render pass created successfully.")
 }
 
-void VulkanRenderPass::Create(IDevice* _device, ISwapChain* _swapChain)
+void VulkanRenderPass::Create(IDevice* _device, ISwapChain* _swapChain, bool _hasDepth)
 {
-	CreateRenderPass(_device->API_Vulkan(), _swapChain->API_Vulkan());
+	sc = &_swapChain->API_Vulkan();
+	params = {};
+	params.hasDepth = _hasDepth;
+	params.depthFormat = ETextureFormat::DEPTH32;
+
+	CreateRenderPass(_device->API_Vulkan());
+}
+
+void VulkanRenderPass::Create(IDevice* _device, const RenderPassParams& _params)
+{
+	params = {};
+	params.colorFormats = _params.colorFormats;
+	params.depthFormat = _params.depthFormat;
+	params.hasDepth = _params.hasDepth;
+
+	CreateRenderPass(_device->API_Vulkan());
 }
 
 void VulkanRenderPass::Destroy(IDevice* _device)
 {
 	LOG_RHI_CLEAN("\n\n===== RENDER PASS DESTRUCTION =====\n")
+
+	params = {};
+	sc = nullptr;
 
 	// Destroy the render pass.
 	if (renderPass != VK_NULL_HANDLE)

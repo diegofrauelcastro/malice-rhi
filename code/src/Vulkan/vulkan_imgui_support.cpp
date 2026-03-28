@@ -2,14 +2,20 @@
 #include "Vulkan/vulkan_device.h"
 #include "Vulkan/vulkan_swapchain.h"
 
-void VulkanMaliceToImGuiBridge::Create(IInstance* _instance, IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass)
+void VulkanMaliceToImGuiBridge::Create(IInstance* _instance, IDevice* _device, ISwapChain* _screenSwapChain, IRenderPass* _screenRenderPass, IFramebuffers* _screenFramebuffers, Offscreen _offscreenParams)
 {
 	LOG_RHI_CLEAN("\n\n===== IMGUI BRIDGE CREATION =====")
 
 	storedDevice = _device;
-	storedSwapChain = _swapChain;
-	storedRenderPass = _renderPass;
 	storedInstance = _instance;
+
+	storedScreenSwapChain = _screenSwapChain;
+	storedScreenFramebuffers = _screenFramebuffers;
+	storedScreenRenderPass = _screenRenderPass;
+
+	offscreenParams.colorTex = _offscreenParams.colorTex;
+	offscreenParams.framebuffers = _offscreenParams.framebuffers;
+	offscreenParams.renderPass = _offscreenParams.renderPass;
 
 	// Create the big ImGui descriptor pool.
 	VkDescriptorPoolSize pool_sizes[] =
@@ -34,8 +40,7 @@ void VulkanMaliceToImGuiBridge::Create(IInstance* _instance, IDevice* _device, I
 	pool_info.poolSizeCount = std::size(pool_sizes);
 	pool_info.pPoolSizes = pool_sizes;
 
-	VkDescriptorPool imguiPool;
-	VkResult result = vkCreateDescriptorPool(_device->API_Vulkan().GetLogicalDeviceVkHandle(), &pool_info, nullptr, &imguiPool);
+	VkResult result = vkCreateDescriptorPool(_device->API_Vulkan().GetLogicalDeviceVkHandle(), &pool_info, nullptr, &imguiDescPool);
 	if (result != VK_SUCCESS)
 		LOG_RHI("/!\\ Failed to create descriptor pool for ImGui support!")
 
@@ -48,8 +53,8 @@ void VulkanMaliceToImGuiBridge::Destroy(IDevice* _device)
 
 	vkDestroyDescriptorPool(_device->API_Vulkan().GetLogicalDeviceVkHandle(), imguiDescPool, nullptr);
 	storedDevice = nullptr;
-	storedSwapChain = nullptr;
-	storedRenderPass = nullptr;
+	storedScreenSwapChain = nullptr;
+	storedScreenRenderPass = nullptr;
 	storedInstance = nullptr;
 
 	LOG_RHI_CLEAN("")

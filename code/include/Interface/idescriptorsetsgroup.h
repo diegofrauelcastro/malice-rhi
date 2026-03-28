@@ -19,6 +19,7 @@ public:
 	/// Lifetime methods ///
 
 	virtual void Create(IDevice* _device, IPipeline* _pipeline, ISwapChain* _swapChain) = 0;
+	virtual void Create(IDevice* _device, IPipeline* _pipeline) = 0;
 	virtual void Destroy(IDevice* _device) = 0;
 
 
