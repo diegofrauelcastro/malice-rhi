@@ -107,22 +107,15 @@ void Vulkan_GLFW_ImGuiRenderer::ShowDemoWindow()
     ImGui::ShowDemoWindow();
 }
 
-void Vulkan_GLFW_ImGuiRenderer::RenderFrame(ICommandBuffers* _cmd)
+void Vulkan_GLFW_ImGuiRenderer::Render()
+{
+    ImGui::Render();
+}
+
+void Vulkan_GLFW_ImGuiRenderer::DrawImGuiData(ICommandBuffers* _cmd)
 {
     VkCommandBuffer cmd = _cmd->API_Vulkan().GetCurrentCommandBuffer();
     
-    ImGui::Render();
-
-    VkClearValue clearMain; clearMain.color = { { 0.02f, 0.02f, 0.02f, 1.0f } };
-    VkRenderPassBeginInfo rpbi{ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
-    rpbi.renderPass = bridge->GetLinkedRenderPass()->API_Vulkan().GetVkHandle();
-    rpbi.framebuffer = bridge->GetLinkedFramebuffers()->API_Vulkan().GetVkHandles()[_cmd->GetCurrentFrame()];
-    rpbi.renderArea.extent = bridge->GetLinkedSwapChain()->API_Vulkan().GetImageExtent();
-    rpbi.clearValueCount = 1; rpbi.pClearValues = &clearMain;
-    vkCmdBeginRenderPass(cmd, &rpbi, VK_SUBPASS_CONTENTS_INLINE);
-
     // Render ImGui draw data into the current command buffer
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
-
-    vkCmdEndRenderPass(cmd);
 }

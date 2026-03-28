@@ -82,7 +82,7 @@ public:
 	uint32_t GetCurrentFrame() const { return currentFrame; }
 
 	// Begin recording commands for a frame's rendering process. After all rendering commands are done, the user MUST call EndFrame() before submitting the frame.
-	virtual void BeginFrame(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex) = 0;
+	virtual bool BeginFrame(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex) = 0;
 
 	// End recording commands for a frame's rendering process. Should be called AFTER a BeginFrame(...).
 	virtual void EndFrame() = 0;

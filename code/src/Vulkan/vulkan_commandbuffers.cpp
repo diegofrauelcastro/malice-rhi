@@ -216,14 +216,14 @@ void VulkanCommandBuffers::UpdateTexture(IDevice* _device, IDescriptorSetsGroup*
 	vkUpdateDescriptorSets(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &write, 0, nullptr);
 }
 
-void VulkanCommandBuffers::BeginFrame(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex)
+bool VulkanCommandBuffers::BeginFrame(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex)
 {
 	// Acquire next image from the swap chain and record it.
 	uint32_t frame = GetCurrentFrame();
 	uint32_t img;
 	bool bSuccessfulAcquire = _swapChain->AcquireNextImage(_device, frame, &img);
 	if (!bSuccessfulAcquire)
-		return;
+		return false;
 	_imageIndex = img;
 
 	// Reset the current command buffer.
@@ -237,7 +237,11 @@ void VulkanCommandBuffers::BeginFrame(IDevice* _device, ISwapChain* _swapChain, 
 	// Begin the command buffer recording and ensure it succeeded.
 	VkResult resultBeginCommandBuffer = vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo);
 	if (resultBeginCommandBuffer != VK_SUCCESS)
-		LOG_RHI_THROW("/!\\ Failed to begin recording command buffer!")
+	{
+		LOG_RHI("/!\\ Failed to begin recording command buffer!")
+		return false;
+	}
+	return true;
 }
 
 void VulkanCommandBuffers::EndFrame()

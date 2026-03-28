@@ -93,7 +93,6 @@ void VulkanFramebuffers::Destroy(IDevice* _device)
 
 	framebuffers.clear();
 	framebuffers.shrink_to_fit();
-	params = {};
 	sc = nullptr;
 }
 
@@ -102,5 +101,8 @@ void VulkanFramebuffers::Recreate(IDevice* _device, ISwapChain* _swapChain)
 	LOG_RHI("Recreating framebuffers...")
 	Destroy(_device);
 	sc = &_swapChain->API_Vulkan();
+	params.width = sc->GetImageExtent().width;
+	params.height = sc->GetImageExtent().height;
+	
 	CreateFramebuffers(_device->API_Vulkan(), renderPass);
 }

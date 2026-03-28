@@ -275,11 +275,12 @@ void Application::Update()
 void Application::Draw()
 {
 	// Recording commands.
-	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 0.0f });
 	uint32_t img = 0;
-	m_Commands->BeginFrame(m_Device, m_SwapChain, img);
+	bool isValid = m_Commands->BeginFrame(m_Device, m_SwapChain, img);
+	if (!isValid) return;
 
 	// Render scene in offscreen texture.
+	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 	m_Commands->BeginRender(m_OffscreenRenderPass, m_OffscreenFramebuffers, 0);
 		m_Commands->BindPipeline(m_OffscreenPipeline);
 
@@ -292,7 +293,7 @@ void Application::Draw()
 		m_Commands->DrawVerticesByIndices((uint32_t)userIndices.size(), m_VertexBuffer, m_IndexBuffer);
 	m_Commands->EndRender();
 
-	//// Render the texture on a screen triangle.
+	// Render the texture on a screen triangle.
 	//m_Commands->BeginRender(m_RenderPass, m_Framebuffers, img);
 	//	m_Commands->BindPipeline(m_Pipeline);
 
@@ -300,11 +301,17 @@ void Application::Draw()
 	//	m_Commands->UpdateTexture(m_Device, m_DescriptorSets, m_OffscreenColor, 0, 0);
 	//	m_Commands->DrawVerticesByIndices(3, m_ScreenVertexBuffer, m_ScreenIndexBuffer);
 	//m_Commands->EndRender();
-	// Render on screen the ImGui windows.
+
 	m_ImGuiRenderer->RecordNewFrame();
 	m_ImGuiRenderer->ShowOffscreenRenderInWindow();
 	m_ImGuiRenderer->ShowDemoWindow();
-	m_ImGuiRenderer->RenderFrame(m_Commands);
+	m_ImGuiRenderer->Render();
+
+	// Render on screen the ImGui windows.
+	m_Commands->SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	m_Commands->BeginRender(m_RenderPass, m_Framebuffers, img);
+		m_ImGuiRenderer->DrawImGuiData(m_Commands);
+	m_Commands->EndRender();
 
 	m_Commands->EndFrame();
 
@@ -350,9 +357,11 @@ void Application::Cleanup()
 	m_IndexBuffer->Destroy(m_Device);
 	m_RHI->DeleteBuffer(m_IndexBuffer);
 
-	// Destroy imgui renderer.
+	// Destroy imgui renderer and brige.
 	m_ImGuiRenderer->Destroy();
 	delete m_ImGuiRenderer;
+	m_Bridge->Destroy(m_Device);
+	m_RHI->DeleteMaliceToImGuiBridge(m_Bridge);
 
 	m_OffscreenDescriptorSets->Destroy(m_Device);
 	m_RHI->DeleteDescriptorSetsBundle(m_OffscreenDescriptorSets);

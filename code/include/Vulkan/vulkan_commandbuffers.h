@@ -71,7 +71,7 @@ public:
 	VkCommandBuffer GetCurrentCommandBuffer() const { return commandBuffers[currentFrame]; }
 
 	// Begin recording commands for a frame's rendering process. After all rendering commands are done, the user MUST call EndFrame() before submitting the frame.
-	virtual void BeginFrame(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex);
+	virtual bool BeginFrame(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex);
 
 	// End recording commands for a frame's rendering process. Should be called AFTER a BeginFrame(...).
 	virtual void EndFrame();
