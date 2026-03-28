@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cmath>
 
 // Forward declarations.
 class IInstance;
@@ -17,6 +18,7 @@ class IPipeline;
 class IUniformBuffers;
 class IDescriptorSetsGroup;
 class ITexture;
+class IMaliceToImGuiBridge;
 
 // Available rendering APIs.
 enum ERenderingAPI
@@ -100,4 +102,8 @@ public:
 	// Texture
 	virtual ITexture* InstantiateTexture() = 0;
 	virtual void DeleteTexture(ITexture* _texture) { delete _texture; }
+
+	// MaliceRHI to ImGui bridge class
+	virtual IMaliceToImGuiBridge* InstantiateMaliceToImGuiBridge() = 0;
+	virtual void DeleteMaliceToImGuiBridge(IMaliceToImGuiBridge* _bridge) { delete _bridge; }
 };

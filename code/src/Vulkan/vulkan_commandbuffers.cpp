@@ -34,49 +34,6 @@ void VulkanCommandBuffers::CreateCommandBuffers(VulkanDevice& _device, VulkanCom
 		LOG_RHI("Command buffers allocated successfully.")
 }
 
-void VulkanCommandBuffers::BeginDraw(IRenderPass* _renderPass, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex)
-{
-	swapChainExtent = _swapChain->API_Vulkan().GetImageExtent();
-
-	// Reset the current command buffer.
-	vkResetCommandBuffer(commandBuffers[currentFrame], 0);
-	// Begin recording the command buffer.
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = 0;					// Optional
-	beginInfo.pInheritanceInfo = nullptr;	// Optional
-
-	// Begin the command buffer recording and ensure it succeeded.
-	VkResult resultBeginCommandBuffer = vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo);
-	if (resultBeginCommandBuffer != VK_SUCCESS)
-		LOG_RHI_THROW("/!\\ Failed to begin recording command buffer!")
-
-	// Info about the render pass.
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = _renderPass->API_Vulkan().GetVkHandle();
-	renderPassInfo.framebuffer = _framebuffers->API_Vulkan().GetVkHandles()[_imageIndex];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapChainExtent;
-	VkClearValue clearColor = { {{backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a}} };	// Color of the "background" (the color we fill the image before rendering).
-	renderPassInfo.clearValueCount = 1;
-	renderPassInfo.pClearValues = &clearColor;
-
-	// Bind the render pass.
-	vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-}
-
-void VulkanCommandBuffers::EndDraw()
-{
-	// End render pass.
-	vkCmdEndRenderPass(commandBuffers[currentFrame]);
-
-	// Finish recording the command buffer.
-	VkResult resultEndCommandBuffer = vkEndCommandBuffer(commandBuffers[currentFrame]);
-	if (resultEndCommandBuffer != VK_SUCCESS)
-		LOG_RHI_THROW("/!\\ Failed to record command buffer!")
-}
-
 void VulkanCommandBuffers::SubmitAndPresent(IDevice* _device, ISwapChain* _swapChain, IFramebuffers* _framebuffers, uint32_t& _imageIndex)
 {
 	// Submit the commands inside the command buffer.
@@ -138,8 +95,8 @@ void VulkanCommandBuffers::BindPipeline(IPipeline* _pipeline)
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(swapChainExtent.width);
-	viewport.height = static_cast<float>(swapChainExtent.height);
+	viewport.width = static_cast<float>(renderExtent.width);
+	viewport.height = static_cast<float>(renderExtent.height);
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
@@ -147,7 +104,7 @@ void VulkanCommandBuffers::BindPipeline(IPipeline* _pipeline)
 	// Setup scissor values (required because we set it as dynamic).
 	VkRect2D scissor{};
 	scissor.offset = { 0, 0 };
-	scissor.extent = swapChainExtent;
+	scissor.extent = renderExtent;
 	vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 }
 
@@ -257,4 +214,76 @@ void VulkanCommandBuffers::UpdateTexture(IDevice* _device, IDescriptorSetsGroup*
 
 	// Update the descriptor set.
 	vkUpdateDescriptorSets(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &write, 0, nullptr);
+}
+
+bool VulkanCommandBuffers::BeginFrame(IDevice* _device, ISwapChain* _swapChain, uint32_t& _imageIndex)
+{
+	// Acquire next image from the swap chain and record it.
+	uint32_t frame = GetCurrentFrame();
+	uint32_t img;
+	bool bSuccessfulAcquire = _swapChain->AcquireNextImage(_device, frame, &img);
+	if (!bSuccessfulAcquire)
+		return false;
+	_imageIndex = img;
+
+	// Reset the current command buffer.
+	vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+	// Begin recording the command buffer.
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = 0;					// Optional
+	beginInfo.pInheritanceInfo = nullptr;	// Optional
+
+	// Begin the command buffer recording and ensure it succeeded.
+	VkResult resultBeginCommandBuffer = vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo);
+	if (resultBeginCommandBuffer != VK_SUCCESS)
+	{
+		LOG_RHI("/!\\ Failed to begin recording command buffer!")
+		return false;
+	}
+	return true;
+}
+
+void VulkanCommandBuffers::EndFrame()
+{
+	// Finish recording the command buffer.
+	VkResult resultEndCommandBuffer = vkEndCommandBuffer(commandBuffers[currentFrame]);
+	if (resultEndCommandBuffer != VK_SUCCESS)
+		LOG_RHI_THROW("/!\\ Failed to record command buffer!")
+}
+
+void VulkanCommandBuffers::BeginRender(IRenderPass* _renderPass, IFramebuffers* _framebuffers, uint32_t _framebufferIndex)
+{
+	// Info about the render pass we are binding.
+	VkFramebuffer fb = _framebuffers->API_Vulkan().GetVkHandles()[_framebufferIndex];
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = _renderPass->API_Vulkan().GetVkHandle();
+	renderPassInfo.framebuffer = fb;
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = { _framebuffers->GetWidth(), _framebuffers->GetHeight() };
+	renderExtent = renderPassInfo.renderArea.extent;
+
+	// Clear values.
+	std::vector<VkClearValue> clears;
+	// Color of the "background" (the color we fill the image before rendering). This color can be customized by the user.
+	VkClearValue colorClear{};
+	colorClear.color = { { backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a } };
+	clears.push_back(colorClear);
+	// Depth (if needed by render pass).
+	VkClearValue depthClear{};
+	depthClear.depthStencil = { 1.0f, 0 };
+	if (_renderPass->GetHasDepth())
+		clears.push_back(depthClear);
+	renderPassInfo.clearValueCount = clears.size();
+	renderPassInfo.pClearValues = clears.data();
+
+	// Bind the render pass.
+	vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void VulkanCommandBuffers::EndRender()
+{
+	// End render pass.
+	vkCmdEndRenderPass(commandBuffers[currentFrame]);
 }

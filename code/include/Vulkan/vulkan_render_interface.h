@@ -44,4 +44,6 @@ public:
 	IUniformBuffers* InstantiateUniformBuffers() override;
 	// Texture
 	ITexture* InstantiateTexture() override;
+	// MaliceRHI to ImGui bridge class
+	IMaliceToImGuiBridge* InstantiateMaliceToImGuiBridge() override;
 };

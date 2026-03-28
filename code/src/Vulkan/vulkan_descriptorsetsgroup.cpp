@@ -3,7 +3,7 @@
 #include "Vulkan/vulkan_pipeline.h"
 #include "Vulkan/vulkan_swapchain.h"
 
-void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _device, VulkanPipeline& _pipeline, VulkanSwapChain& _swapChain)
+void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _device, VulkanPipeline& _pipeline, VulkanSwapChain* _swapChain)
 {
     LOG_RHI_CLEAN("\n\n===== DESCRIPTOR POOL CREATION =====\n")
 
@@ -30,11 +30,12 @@ void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _devic
     }
 
     // Create descriptor pool
+    uint32_t frameCount = _swapChain ? _swapChain->GetMaxFramesInFlight() : 1;
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = setCount * _swapChain.GetMaxFramesInFlight();
+    poolInfo.maxSets = setCount * frameCount;
 
     // Create the descriptor pool and ensure it succeeded.
     VkResult result = vkCreateDescriptorPool(_device.GetLogicalDeviceVkHandle(), &poolInfo, nullptr, &descriptorPool);
@@ -44,9 +45,9 @@ void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _devic
         LOG_RHI("Descriptor pool created successfully.")
     LOG_RHI_CLEAN("")
 
-        // Allocate descriptor sets for each frame in flight.
-        descriptorSets.resize(_swapChain.GetMaxFramesInFlight());
-    for (uint32_t i = 0; i < _swapChain.GetMaxFramesInFlight(); i++)
+    // Allocate descriptor sets for each frame in flight.
+    descriptorSets.resize(frameCount);
+    for (uint32_t i = 0; i < frameCount; i++)
     {
         descriptorSets[i].resize(setCount);
 
@@ -67,7 +68,13 @@ void VulkanDescriptorSetsGroup::CreateDescriptorPoolAndSets(VulkanDevice& _devic
 void VulkanDescriptorSetsGroup::Create(IDevice* _device, IPipeline* _pipeline, ISwapChain* _swapChain)
 {
     // Create descriptor pool and sets.
-    CreateDescriptorPoolAndSets(_device->API_Vulkan(), _pipeline->API_Vulkan(), _swapChain->API_Vulkan());
+    CreateDescriptorPoolAndSets(_device->API_Vulkan(), _pipeline->API_Vulkan(), &_swapChain->API_Vulkan());
+}
+
+void VulkanDescriptorSetsGroup::Create(IDevice* _device, IPipeline* _pipeline)
+{
+    // Create descriptor pool and sets.
+    CreateDescriptorPoolAndSets(_device->API_Vulkan(), _pipeline->API_Vulkan(), nullptr);
 }
 
 void VulkanDescriptorSetsGroup::Destroy(IDevice* _device)

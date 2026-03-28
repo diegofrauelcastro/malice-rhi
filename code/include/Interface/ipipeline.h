@@ -62,6 +62,11 @@ struct PipelineParams
 // Pipeline interface
 class IPipeline
 {
+protected:
+	// Class properties
+
+	bool hasDepth = false;
+
 public:
 	// Class destructor
 	virtual ~IPipeline() = default;

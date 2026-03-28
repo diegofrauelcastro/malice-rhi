@@ -13,6 +13,8 @@ static VkFormat ConvertFormat(ETextureFormat format)
 			return VK_FORMAT_R8G8B8A8_UNORM;
 		case ETextureFormat::BGRA8:
 			return VK_FORMAT_B8G8R8A8_UNORM;
+		case ETextureFormat::DEPTH32:
+			return VK_FORMAT_D32_SFLOAT;
 		default:
 			LOG_RHI_THROW("/!\\ Unsupported texture format!")
 	}
@@ -25,7 +27,7 @@ void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_
 	VulkanCommandPool vkCmdPool = _commandPool->API_Vulkan();
 	VulkanDevice& vulkanDevice = _device->API_Vulkan();
 	VkDevice device = vulkanDevice.GetLogicalDeviceVkHandle();
-
+	
 	width = _width;
 	height = _height;
 	format = _format;
@@ -39,7 +41,9 @@ void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_
 	CreateImage(vulkanDevice, width, height, vkFormat);
 	AllocateMemory(vulkanDevice);
 	CreateImageView(vulkanDevice, vkFormat);
-	CreateSampler(vulkanDevice);
+	if (HasUsage(usage, ETextureUsage::SAMPLED))
+		CreateSampler(vulkanDevice);
+	currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 	// Passing the data to the GPU via a staging buffer.
 	if (data)
@@ -53,12 +57,19 @@ void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_
 		memcpy(stagingData, data, static_cast<size_t>(imageSize));
 		vkUnmapMemory(device, stagingBufferMemory);
 
-		TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		CopyBufferToImage(vulkanDevice, vkCmdPool, stagingBuffer, image, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-		TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		vkDestroyBuffer(device, stagingBuffer, nullptr);
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
+	}
+	else
+	{
+		if (HasUsage(usage, ETextureUsage::COLOR_ATTACHMENT))
+			TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+			TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
 	LOG_RHI_CLEAN("")
@@ -95,11 +106,19 @@ void VulkanTexture::CreateImage(VulkanDevice& _device, uint32_t _width, uint32_t
 	info.samples = VK_SAMPLE_COUNT_1_BIT;
 
 	// Make the correct usage for the texture.
-	info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-	if (usage == ETextureUsage::Sampled)
+	info.usage = 0;
+	if (HasUsage(usage, ETextureUsage::SAMPLED))
 		info.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
-	if (usage == ETextureUsage::RenderTarget)
+
+	if (HasUsage(usage, ETextureUsage::COLOR_ATTACHMENT))
 		info.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+		info.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+	// VERY IMPORTANT if reused later
+	if (HasUsage(usage, ETextureUsage::SAMPLED))
+		info.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	VkResult result = vkCreateImage(_device.GetLogicalDeviceVkHandle(), &info, nullptr, &image);
 	if (result != VK_SUCCESS)
@@ -133,11 +152,14 @@ void VulkanTexture::CreateImageView(VulkanDevice& _device, VkFormat _vkFormat)
 	viewInfo.image = image;
 	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	viewInfo.format = _vkFormat;
-	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	viewInfo.subresourceRange.levelCount = 1;
 	viewInfo.subresourceRange.layerCount = 1;
 	viewInfo.subresourceRange.baseMipLevel = 0;
 	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
 	VkResult result = vkCreateImageView(_device.GetLogicalDeviceVkHandle(), &viewInfo, nullptr, &imageView);
 	if (result != VK_SUCCESS)
@@ -221,48 +243,88 @@ uint32_t VulkanTexture::FindMemoryType(VulkanDevice& _device, uint32_t _typeFilt
 	LOG_RHI_THROW("/!\\ Failed to find suitable memory type for texture!")
 }
 
-void VulkanTexture::TransitionImageLayout(VulkanDevice& _device, VulkanCommandPool& _commandPool, VkImage _image, VkImageLayout _oldLayout, VkImageLayout _newLayout)
+void VulkanTexture::TransitionImageLayout(VulkanDevice& _device, VulkanCommandPool& _commandPool, VkImage _image, VkImageLayout _newLayout)
 {
 	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(_device, _commandPool);
 
 	VkImageMemoryBarrier barrier{};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.oldLayout = _oldLayout;
+	barrier.oldLayout = currentLayout;
 	barrier.newLayout = _newLayout;
 	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	barrier.image = _image;
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	barrier.subresourceRange.baseMipLevel = 0;
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-	VkPipelineStageFlags sourceStage;
-	VkPipelineStageFlags destinationStage;
+	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
-	if (_oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && _newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-	{
+	VkPipelineStageFlags srcStage;
+	VkPipelineStageFlags dstStage;
+
+	// From undefined to optimal-transfer.
+	if (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED && _newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+	// From optimal-transfer to shader-readable.
+    else if (currentLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && _newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    {
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+	// From undefined to depth.
+	else if (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED && _newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		dstStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else if (_oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && _newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+	// From depth to shader-readable.
+	else if (currentLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL && _newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 	{
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		srcStage = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 	}
+	// From undefined to color attachment.
+    else if (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED && _newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        dstStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    }
+	// From color attachment to shader-readable.
+    else if (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED && _newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    {
+        barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        srcStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
 	else
 		LOG_RHI_THROW("/!\\ Unsupported layout transition!")
 
 	vkCmdPipelineBarrier(
 		commandBuffer,
-		sourceStage, destinationStage,
+		srcStage, dstStage,
 		0,
 		0, nullptr,
 		0, nullptr,
@@ -281,12 +343,15 @@ void VulkanTexture::CopyBufferToImage(VulkanDevice& _device, VulkanCommandPool& 
 	region.bufferOffset = 0;
 	region.bufferRowLength = 0;
 	region.bufferImageHeight = 0;
-	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	region.imageSubresource.mipLevel = 0;
 	region.imageSubresource.baseArrayLayer = 0;
 	region.imageSubresource.layerCount = 1;
 	region.imageOffset = { 0, 0, 0 };
 	region.imageExtent = { _width, _height, 1 };
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
 	vkCmdCopyBufferToImage(commandBuffer, _buffer, _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 

@@ -21,7 +21,7 @@ private:
 	/// Helper functions ///
 
 	// Create descriptor pool and descriptor sets.
-	void CreateDescriptorPoolAndSets(VulkanDevice& _device, VulkanPipeline& _pipeline, VulkanSwapChain& _swapChain);
+	void CreateDescriptorPoolAndSets(VulkanDevice& _device, VulkanPipeline& _pipeline, VulkanSwapChain* _swapChain);
 
 public:
 	// Class destructor
@@ -31,6 +31,7 @@ public:
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, IPipeline* _pipeline, ISwapChain* _swapChain) override;
+	void Create(IDevice* _device, IPipeline* _pipeline) override;
 	void Destroy(IDevice* _device) override;
 
 

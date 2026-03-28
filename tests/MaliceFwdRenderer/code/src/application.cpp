@@ -6,11 +6,16 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "vulkan_glfw_imgui_renderer.h"
+
 Application::Application(const char* _appName, int _width, int _height)
 	: m_Width(_width), m_Height(_height)
 {
 	InitWindow(_appName);
 	InitRHI();
+	InitScreenRendering();
+	InitOffscreenRendering();
+	InitImGuiRenderer();
 	InitScene();
 }
 
@@ -45,46 +50,48 @@ void Application::InitRHI()
 	m_Device = m_RHI->InstantiateDevice();
 	m_Device->Create(m_Instance, m_Surface);
 
+	// Command pool.
+	m_CommandPool = m_RHI->InstantiateCommandPool();
+	m_CommandPool->Create(m_Device);
+
+}
+
+void Application::InitScreenRendering()
+{
 	// Swap chain.
 	m_SwapChain = m_RHI->InstantiateSwapChain();
 	m_SwapChain->Create(m_Device, m_Surface, m_Window);
 
-	// Render pass.
+	// Depth texture
+	m_DepthTex = m_RHI->InstantiateTexture();
+	m_DepthTex->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::DEPTH32, ETextureUsage::DEPTH_ATTACHMENT);
+
+	// Main render pass.
 	m_RenderPass = m_RHI->InstantiateRenderPass();
-	m_RenderPass->Create(m_Device, m_SwapChain);
+	m_RenderPass->Create(m_Device, m_SwapChain, true);
 
 	// Framebuffers.
 	m_Framebuffers = m_RHI->InstantiateFramebuffers();
-	m_Framebuffers->Create(m_Device, m_SwapChain, m_RenderPass);
-}
+	m_Framebuffers->Create(m_Device, m_RenderPass, m_SwapChain, m_DepthTex);
 
-void Application::InitScene()
-{
 	// Shader location params
-    uint32_t vertexTotalSize = sizeof(UserVertex);
-    VertexInputLocationParams posParams;
-    posParams.location = 0;
-    posParams.type = VEC3;
-    posParams.memoryOffset = offsetof(UserVertex, UserVertex::pos);
-    VertexInputLocationParams colorParams;
-    colorParams.location = 1;
-    colorParams.type = VEC3;
-    colorParams.memoryOffset = offsetof(UserVertex, UserVertex::color);
+	uint32_t vertexTotalSize = sizeof(ScreenVertex);
+	VertexInputLocationParams posParams;
+	posParams.location = 0;
+	posParams.type = VEC2;
+	posParams.memoryOffset = offsetof(ScreenVertex, ScreenVertex::pos);
 	VertexInputLocationParams uvParams;
-	uvParams.location = 2;
+	uvParams.location = 1;
 	uvParams.type = VEC2;
-	uvParams.memoryOffset = offsetof(UserVertex, UserVertex::uv);
-	std::vector<VertexInputLocationParams> params = { posParams, colorParams, uvParams };
+	uvParams.memoryOffset = offsetof(ScreenVertex, ScreenVertex::uv);
+	std::vector<VertexInputLocationParams> params = { posParams, uvParams };
 
 	// Shader modules.
 	m_Shaders = m_RHI->InstantiateShaderModules();
-	m_Shaders->Create(m_Device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", sizeof(UserVertex), params);
+	m_Shaders->Create(m_Device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", vertexTotalSize, params);
 
 	// Descriptor set bindings.
-	m_Shaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);
-	m_Shaders->AddDescriptorSetBinding(0, 1, 1, VERTEX_SHADER);
-	m_Shaders->AddDescriptorSetBinding(1, 0, 1, FRAGMENT_SHADER);
-	m_Shaders->AddDescriptorSetBinding(1, 1, 1, FRAGMENT_SHADER, true);
+	m_Shaders->AddDescriptorSetBinding(0, 0, 1, FRAGMENT_SHADER, true);
 
 	// Graphics pipeline.
 	m_Pipeline = m_RHI->InstantiatePipeline();
@@ -101,24 +108,117 @@ void Application::InitScene()
 	pipeline.enableColorBlend = false;
 	m_Pipeline->Create(m_Device, m_RenderPass, m_Shaders, pipeline);
 
-	// Command pool.
-	m_CommandPool = m_RHI->InstantiateCommandPool();
-	m_CommandPool->Create(m_Device);
+	// Descriptor sets bundle
+	m_DescriptorSets = m_RHI->InstantiateDescriptorSetsBundle();
+	m_DescriptorSets->Create(m_Device, m_Pipeline);
 
 	// Command buffers.
 	m_Commands = m_RHI->InstantiateCommandBuffers();
 	m_Commands->Create(m_Device, m_CommandPool, m_SwapChain);
 
+	// Screen index and vertex buffers.
+	m_ScreenVertexBuffer = m_RHI->InstantiateBuffer();
+	m_ScreenIndexBuffer = m_RHI->InstantiateBuffer();
+
+	m_ScreenVertexBuffer->Create(m_Device, m_CommandPool, VERTEX_BUFFER, sizeof(ScreenVertex) * 3, screenTriangle.data());
+	m_ScreenIndexBuffer->Create(m_Device, m_CommandPool, INDEX_BUFFER, sizeof(uint16_t) * 3, screenIndices.data());
+}
+
+void Application::InitOffscreenRendering()
+{
+	// Color texture.
+	m_OffscreenColor = m_RHI->InstantiateTexture();
+	m_OffscreenColor->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::RGBA8, ETextureUsage::COLOR_ATTACHMENT | ETextureUsage::SAMPLED);
+
+	// Depth texture.
+	m_OffscreenDepthTex = m_RHI->InstantiateTexture();
+	m_OffscreenDepthTex->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::DEPTH32, ETextureUsage::DEPTH_ATTACHMENT);
+
+	// Main render pass.
+	m_OffscreenRenderPass = m_RHI->InstantiateRenderPass();
+	RenderPassParams rpp{};
+	rpp.colorFormats = { ETextureFormat::RGBA8 };
+	rpp.depthFormat = ETextureFormat::DEPTH32;
+	rpp.hasDepth = true;
+	m_OffscreenRenderPass->Create(m_Device, rpp);
+
+	// Framebuffers.
+	m_OffscreenFramebuffers = m_RHI->InstantiateFramebuffers();
+	FramebufferParams fbp{};
+	fbp.colorAttachments = { m_OffscreenColor };
+	fbp.depthAttachment = m_OffscreenDepthTex;
+	fbp.width = m_Width;
+	fbp.height = m_Height;
+	m_OffscreenFramebuffers->Create(m_Device, m_OffscreenRenderPass, fbp);
+
+	// Shader location params
+	uint32_t vertexTotalSize = sizeof(UserVertex);
+	VertexInputLocationParams posParams;
+	posParams.location = 0;
+	posParams.type = VEC3;
+	posParams.memoryOffset = offsetof(UserVertex, UserVertex::pos);
+	VertexInputLocationParams colorParams;
+	colorParams.location = 1;
+	colorParams.type = VEC3;
+	colorParams.memoryOffset = offsetof(UserVertex, UserVertex::color);
+	VertexInputLocationParams uvParams;
+	uvParams.location = 2;
+	uvParams.type = VEC2;
+	uvParams.memoryOffset = offsetof(UserVertex, UserVertex::uv);
+	std::vector<VertexInputLocationParams> params = { posParams, colorParams, uvParams };
+
+	// Shader modules.
+	m_OffscreenShaders = m_RHI->InstantiateShaderModules();
+	m_OffscreenShaders->Create(m_Device, "resources/shaders/offscreenVert.spv", "resources/shaders/offscreenFrag.spv", vertexTotalSize, params);
+
+	// Descriptor set bindings.
+	m_OffscreenShaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);
+	m_OffscreenShaders->AddDescriptorSetBinding(0, 1, 1, VERTEX_SHADER);
+	m_OffscreenShaders->AddDescriptorSetBinding(1, 0, 1, FRAGMENT_SHADER);
+	m_OffscreenShaders->AddDescriptorSetBinding(1, 1, 1, FRAGMENT_SHADER, true);
+
+	// Graphics pipeline.
+	m_OffscreenPipeline = m_RHI->InstantiatePipeline();
+	PipelineParams pipeline;
+	pipeline.enableRasterizerDiscard = false;
+	pipeline.enableDepthClamp = false;
+	pipeline.inputTopologyMode = TRIANGLE_LIST;
+	pipeline.polygonMode = FILL;
+	pipeline.enablePrimitiveRestart = false;
+	pipeline.rasterizerLineWidth = 1.0f;
+	pipeline.frontFace = COUNTER_CLOCKWISE;
+	pipeline.cullingMode = CULL_BACK_FACE;
+	pipeline.enableDepthBias = false;
+	pipeline.enableColorBlend = false;
+	m_OffscreenPipeline->Create(m_Device, m_OffscreenRenderPass, m_OffscreenShaders, pipeline);
+
+	// Descriptor sets bundle
+	m_OffscreenDescriptorSets = m_RHI->InstantiateDescriptorSetsBundle();
+	m_OffscreenDescriptorSets->Create(m_Device, m_OffscreenPipeline);
+}
+
+void Application::InitImGuiRenderer()
+{
+	Offscreen offscreenParams{};
+	offscreenParams.colorTex = m_OffscreenColor;
+	offscreenParams.framebuffers = m_OffscreenFramebuffers;
+	offscreenParams.renderPass = m_OffscreenRenderPass;
+
+	m_Bridge = m_RHI->InstantiateMaliceToImGuiBridge();
+	m_Bridge->Create(m_Instance, m_Device, m_SwapChain, m_RenderPass, m_Framebuffers, offscreenParams);
+
+	m_ImGuiRenderer = new Vulkan_GLFW_ImGuiRenderer();
+	m_ImGuiRenderer->Create(m_Bridge, m_Window);
+}
+
+void Application::InitScene()
+{
 	// Vertex and index buffers.
 	m_VertexBuffer = m_RHI->InstantiateBuffer();
 	m_IndexBuffer = m_RHI->InstantiateBuffer();
 
 	m_VertexBuffer->Create(m_Device, m_CommandPool, VERTEX_BUFFER, sizeof(UserVertex) * userVertices.size(), userVertices.data());
 	m_IndexBuffer->Create(m_Device, m_CommandPool, INDEX_BUFFER, sizeof(uint16_t) * userIndices.size(), userIndices.data());
-
-	// Descriptor sets bundle
-    m_DescriptorSets = m_RHI->InstantiateDescriptorSetsBundle();
-	m_DescriptorSets->Create(m_Device, m_Pipeline, m_SwapChain);
 
 	// Uniform buffers.
 	m_CamBuffer = m_RHI->InstantiateUniformBuffers();
@@ -133,7 +233,7 @@ void Application::InitScene()
 	int texWidth, texHeight, texChannels;
 	stbi_uc* imgData = stbi_load("resources/textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	m_Texture = m_RHI->InstantiateTexture();
-	m_Texture->Create(m_Device, m_CommandPool, texWidth, texHeight, ETextureFormat::RGBA8, ETextureUsage::Sampled, imgData);
+	m_Texture->Create(m_Device, m_CommandPool, texWidth, texHeight, ETextureFormat::RGBA8, ETextureUsage::SAMPLED, imgData);
 	stbi_image_free(imgData);
 }
 
@@ -174,27 +274,46 @@ void Application::Update()
 
 void Application::Draw()
 {
-	// Acquire next image from the swap chain.
-	uint32_t frame = m_Commands->GetCurrentFrame();
-	uint32_t img;
-	bool bSuccessfulAcquire = m_SwapChain->AcquireNextImage(m_Device, frame, &img);
-	if (!bSuccessfulAcquire)
-		return;
-
 	// Recording commands.
-	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 0.0f });
-	m_Commands->BeginDraw(m_RenderPass, m_SwapChain, m_Framebuffers, img);
+	uint32_t img = 0;
+	bool isValid = m_Commands->BeginFrame(m_Device, m_SwapChain, img);
+	if (!isValid) return;
 
-		m_Commands->BindPipeline(m_Pipeline);
+	// Render scene in offscreen texture.
+	m_Commands->SetClearColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+	m_Commands->BeginRender(m_OffscreenRenderPass, m_OffscreenFramebuffers, 0);
+		m_Commands->BindPipeline(m_OffscreenPipeline);
 
-		m_Commands->BindDescriptorSets(m_Pipeline, m_DescriptorSets);
-		m_Commands->UpdateUniformBuffer(m_Device, m_DescriptorSets, m_ModelBuffer, 0, 0, 1);
-		m_Commands->UpdateUniformBuffer(m_Device, m_DescriptorSets, m_CamBuffer, 0, 1, 1);
-		m_Commands->UpdateUniformBuffer(m_Device, m_DescriptorSets, m_ColorBuffer, 1, 0, 1);
-		m_Commands->UpdateTexture(m_Device, m_DescriptorSets, m_Texture, 1, 1);
+		m_Commands->BindDescriptorSets(m_OffscreenPipeline, m_OffscreenDescriptorSets);
+		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ModelBuffer, 0, 0, 1);
+		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_CamBuffer, 0, 1, 1);
+		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ColorBuffer, 1, 0, 1);
+		m_Commands->UpdateTexture(m_Device, m_OffscreenDescriptorSets, m_Texture, 1, 1);
 
 		m_Commands->DrawVerticesByIndices((uint32_t)userIndices.size(), m_VertexBuffer, m_IndexBuffer);
-	m_Commands->EndDraw();
+	m_Commands->EndRender();
+
+	// Render the texture on a screen triangle.
+	//m_Commands->BeginRender(m_RenderPass, m_Framebuffers, img);
+	//	m_Commands->BindPipeline(m_Pipeline);
+
+	//	m_Commands->BindDescriptorSets(m_Pipeline, m_DescriptorSets);
+	//	m_Commands->UpdateTexture(m_Device, m_DescriptorSets, m_OffscreenColor, 0, 0);
+	//	m_Commands->DrawVerticesByIndices(3, m_ScreenVertexBuffer, m_ScreenIndexBuffer);
+	//m_Commands->EndRender();
+
+	m_ImGuiRenderer->RecordNewFrame();
+	m_ImGuiRenderer->ShowOffscreenRenderInWindow();
+	m_ImGuiRenderer->ShowDemoWindow();
+
+	// Render on screen the ImGui windows.
+	m_Commands->SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	m_Commands->BeginRender(m_RenderPass, m_Framebuffers, img);
+		m_ImGuiRenderer->DrawImGuiData(m_Commands);
+	m_Commands->EndRender();
+
+	m_Commands->EndFrame();
+
 	// Submitting commands and presenting the image.
 	m_Commands->SubmitAndPresent(m_Device, m_SwapChain, m_Framebuffers, img);
 }
@@ -237,6 +356,31 @@ void Application::Cleanup()
 	m_IndexBuffer->Destroy(m_Device);
 	m_RHI->DeleteBuffer(m_IndexBuffer);
 
+	// Destroy imgui renderer and brige.
+	m_ImGuiRenderer->Destroy();
+	delete m_ImGuiRenderer;
+	m_Bridge->Destroy(m_Device);
+	m_RHI->DeleteMaliceToImGuiBridge(m_Bridge);
+
+	m_OffscreenDescriptorSets->Destroy(m_Device);
+	m_RHI->DeleteDescriptorSetsBundle(m_OffscreenDescriptorSets);
+	m_ScreenVertexBuffer->Destroy(m_Device);
+	m_RHI->DeleteBuffer(m_ScreenVertexBuffer);
+	m_ScreenIndexBuffer->Destroy(m_Device);
+	m_RHI->DeleteBuffer(m_ScreenIndexBuffer);
+	m_OffscreenFramebuffers->Destroy(m_Device);
+	m_RHI->DeleteFramebuffers(m_OffscreenFramebuffers);
+	m_OffscreenRenderPass->Destroy(m_Device);
+	m_RHI->DeleteRenderPass(m_OffscreenRenderPass);
+	m_OffscreenColor->Destroy(m_Device);
+	m_RHI->DeleteTexture(m_OffscreenColor);
+	m_OffscreenDepthTex->Destroy(m_Device);
+	m_RHI->DeleteTexture(m_OffscreenDepthTex);
+	m_OffscreenPipeline->Destroy(m_Device);
+	m_RHI->DeletePipeline(m_OffscreenPipeline);
+	m_OffscreenShaders->Destroy(m_Device);
+	m_RHI->DeleteShaderModules(m_OffscreenShaders);
+
 	// Command buffers and pool.
 	m_Commands->Destroy(m_Device, m_CommandPool);
 	m_RHI->DeleteCommandBuffers(m_Commands);
@@ -245,23 +389,16 @@ void Application::Cleanup()
 	m_CommandPool->Destroy(m_Device);
 	m_RHI->DeleteCommandPool(m_CommandPool);
 
-	// Graphics pipeline.
+	m_DepthTex->Destroy(m_Device);
+	m_RHI->DeleteTexture(m_DepthTex);
 	m_Pipeline->Destroy(m_Device);
 	m_RHI->DeletePipeline(m_Pipeline);
-
-	// Shader modules.
 	m_Shaders->Destroy(m_Device);
 	m_RHI->DeleteShaderModules(m_Shaders);
-
-	// Framebuffers.
 	m_Framebuffers->Destroy(m_Device);
 	m_RHI->DeleteFramebuffers(m_Framebuffers);
-
-	// Swap chain.
 	m_SwapChain->Destroy(m_Device);
 	m_RHI->DeleteSwapChain(m_SwapChain);
-
-	// Render pass.
 	m_RenderPass->Destroy(m_Device);
 	m_RHI->DeleteRenderPass(m_RenderPass);
 

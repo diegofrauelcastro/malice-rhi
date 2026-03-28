@@ -17,11 +17,12 @@ private:
 	std::vector<VkFramebuffer> framebuffers;
 
 	VkRenderPass renderPass;
+	VulkanSwapChain* sc = nullptr;
 
 	/// Helper functions ///
 
 	// Create framebuffers.
-	void CreateFramebuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain, VkRenderPass _renderPass);
+	void CreateFramebuffers(VulkanDevice& _device, VkRenderPass _renderPass);
 
 public:
 	// Class destructor
@@ -30,7 +31,10 @@ public:
 
 	/// Lifetime methods ///
 
-	void Create(IDevice* _device, ISwapChain* _swapChain, IRenderPass* _renderPass) override;
+	// Direct screen rendering. For offscreen rendering, use Create() with FramebufferParams instead of an ISwapChain.
+	void Create(IDevice* _device, IRenderPass* _renderPass, ISwapChain* _swapChain, ITexture* _depthTex) override;
+	// Flexible creation of framebuffers, can be used for offscreen rendering.
+	void Create(IDevice* _device, IRenderPass* _renderPass, const FramebufferParams& _params) override;
 	void Destroy(IDevice* _device) override;
 
 
