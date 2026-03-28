@@ -66,11 +66,6 @@ void Vulkan_GLFW_ImGuiRenderer::Create(IMaliceToImGuiBridge* _bridge, GLFWwindow
 
 void Vulkan_GLFW_ImGuiRenderer::Destroy()
 {
-    // Shutdown ImGui.
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
     // Destroy ImGui descriptor set.
     if (imguiSet)
     {
@@ -83,6 +78,11 @@ void Vulkan_GLFW_ImGuiRenderer::Destroy()
         delete off;
         off = nullptr;
     }
+
+    // Shutdown ImGui.
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void Vulkan_GLFW_ImGuiRenderer::RecordNewFrame()
@@ -107,15 +107,12 @@ void Vulkan_GLFW_ImGuiRenderer::ShowDemoWindow()
     ImGui::ShowDemoWindow();
 }
 
-void Vulkan_GLFW_ImGuiRenderer::Render()
-{
-    ImGui::Render();
-}
-
 void Vulkan_GLFW_ImGuiRenderer::DrawImGuiData(ICommandBuffers* _cmd)
 {
     VkCommandBuffer cmd = _cmd->API_Vulkan().GetCurrentCommandBuffer();
     
+    ImGui::Render();
+
     // Render ImGui draw data into the current command buffer
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 }

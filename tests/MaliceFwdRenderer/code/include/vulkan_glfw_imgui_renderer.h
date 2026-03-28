@@ -37,6 +37,5 @@ public:
 	virtual void RecordNewFrame() override;
 	virtual void ShowOffscreenRenderInWindow() override;
 	virtual void ShowDemoWindow() override;
-	virtual void Render() override;
 	virtual void DrawImGuiData(ICommandBuffers* _cmd) override;
 };

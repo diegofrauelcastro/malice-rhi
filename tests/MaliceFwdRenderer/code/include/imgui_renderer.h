@@ -43,6 +43,5 @@ public:
 	virtual void RecordNewFrame() = 0;
 	virtual void ShowOffscreenRenderInWindow() = 0;
 	virtual void ShowDemoWindow() = 0;
-	virtual void Render() = 0;
 	virtual void DrawImGuiData(ICommandBuffers* _cmd) = 0;
 };

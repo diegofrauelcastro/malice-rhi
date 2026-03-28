@@ -305,7 +305,6 @@ void Application::Draw()
 	m_ImGuiRenderer->RecordNewFrame();
 	m_ImGuiRenderer->ShowOffscreenRenderInWindow();
 	m_ImGuiRenderer->ShowDemoWindow();
-	m_ImGuiRenderer->Render();
 
 	// Render on screen the ImGui windows.
 	m_Commands->SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
