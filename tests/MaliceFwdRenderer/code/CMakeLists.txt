@@ -7,10 +7,9 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-#target_include_directories(MaliceRHI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/code/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui-docking)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
 
 # Link the RHI lib and glm for math.
 target_link_libraries(${PROJECT_NAME}

@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+FetchContent_Populate(imgui
+  URL https://github.com/ocornut/imgui/archive/docking.zip
+  SOURCE_DIR IMGUI_DIR
+)
+
 set(IMGUI_SOURCES
     # Base
     ${IMGUI_DIR}/imgui.cpp
