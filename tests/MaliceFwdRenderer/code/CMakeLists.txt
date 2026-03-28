@@ -9,7 +9,12 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
+# Download ImGui
+FetchContent_Populate(imgui
+  URL https://github.com/ocornut/imgui/archive/docking.zip
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui
+)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external)
 
 # Link the RHI lib and glm for math.
 target_link_libraries(${PROJECT_NAME}
