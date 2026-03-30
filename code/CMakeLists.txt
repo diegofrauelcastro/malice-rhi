@@ -7,7 +7,7 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "*.cpp")
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "*.h")
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/code/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Ensure the computer has Vulkan SDK installed.
 find_package(Vulkan)
