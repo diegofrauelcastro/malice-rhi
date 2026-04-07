@@ -2,6 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <fstream>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -24,6 +25,24 @@ Application::~Application()
 	Cleanup();
 }
 
+std::vector<char> Application::ReadFile(const std::string& _filename)
+{
+	// Start reading the file from the end to get the file size easily. Also, open it in binary mode.
+	std::ifstream file(_filename, std::ios::ate | std::ios::binary);
+	if (!file.is_open())
+		return {};
+
+	// Get the file size and allocate a buffer accordingly.
+	size_t fileSize = (size_t)file.tellg();
+	std::vector<char> buffer(fileSize);
+	// Go back to the beginning of the file and read all its content into the buffer.
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+	// Close the file and return it.
+	file.close();
+	return buffer;
+}
+
 void Application::InitWindow(const char* _windowName)
 {
 	// GLFW window.
@@ -32,6 +51,7 @@ void Application::InitWindow(const char* _windowName)
 	m_Window = glfwCreateWindow(m_Width, m_Height, _windowName, nullptr, nullptr);
 	glfwSetWindowUserPointer(m_Window, this);
 }
+
 
 void Application::InitRHI()
 {
@@ -87,8 +107,10 @@ void Application::InitScreenRendering()
 	std::vector<VertexInputLocationParams> params = { posParams, uvParams };
 
 	// Shader modules.
+	std::vector<char> vertexShaderCode = ReadFile("resources/shaders/vert.spv");
+	std::vector<char> fragmentShaderCode = ReadFile("resources/shaders/frag.spv");
 	m_Shaders = m_RHI->InstantiateShaderModules();
-	m_Shaders->Create(m_Device, "resources/shaders/vert.spv", "resources/shaders/frag.spv", vertexTotalSize, params);
+	m_Shaders->Create(m_Device, vertexShaderCode, fragmentShaderCode, vertexTotalSize, params);
 
 	// Descriptor set bindings.
 	m_Shaders->AddDescriptorSetBinding(0, 0, 1, FRAGMENT_SHADER, true);
@@ -168,8 +190,10 @@ void Application::InitOffscreenRendering()
 	std::vector<VertexInputLocationParams> params = { posParams, colorParams, uvParams };
 
 	// Shader modules.
+	std::vector<char> vertexShaderCode = ReadFile("resources/shaders/offscreenVert.spv");
+	std::vector<char> fragmentShaderCode = ReadFile("resources/shaders/offscreenFrag.spv");
 	m_OffscreenShaders = m_RHI->InstantiateShaderModules();
-	m_OffscreenShaders->Create(m_Device, "resources/shaders/offscreenVert.spv", "resources/shaders/offscreenFrag.spv", vertexTotalSize, params);
+	m_OffscreenShaders->Create(m_Device, vertexShaderCode, fragmentShaderCode, vertexTotalSize, params);
 
 	// Descriptor set bindings.
 	m_OffscreenShaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);

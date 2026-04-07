@@ -41,6 +41,12 @@ private:
 	void Cleanup();
 
 
+	/// Helper methods ///
+
+	// Read a file. Static function.
+	static std::vector<char> ReadFile(const std::string& _filename);
+
+
 	/// Window properties ///
 
 	int m_Width;

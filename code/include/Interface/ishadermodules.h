@@ -48,7 +48,7 @@ public:
 
 	/// Lifetime methods ///
 
-	virtual void Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams) = 0;
+	virtual void Create(IDevice* _device, const std::vector<char>& _vertSrc, const std::vector<char>& _fragSrc, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams) = 0;
 	virtual void Destroy(IDevice* _device) = 0;
 
 
