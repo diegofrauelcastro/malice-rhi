@@ -3,27 +3,6 @@
 #include "Vulkan/vulkan_device.h"
 
 
-std::vector<char> VulkanShaderModules::ReadFile(const std::string& _filename)
-{
-	// Start reading the file from the end to get the file size easily. Also, open it in binary mode.
-	std::ifstream file(_filename, std::ios::ate | std::ios::binary);
-	LOG_RHI("Reading %s", _filename.c_str())
-
-	if (!file.is_open())
-		LOG_RHI_THROW("/!\\ Failed to open \"%s\" file!", _filename.c_str())
-
-
-	// Get the file size and allocate a buffer accordingly.
-	size_t fileSize = (size_t)file.tellg();
-	std::vector<char> buffer(fileSize);
-	// Go back to the beginning of the file and read all its content into the buffer.
-	file.seekg(0);
-	file.read(buffer.data(), fileSize);
-	// Close the file and return it.
-	file.close();
-	return buffer;
-}
-
 VkShaderModule VulkanShaderModules::CreateShaderModule(VulkanDevice& _device, const std::vector<char>& _code)
 {
 	// Create info for the shader module. We only need a pointer to the bytecode, and the size of it.
@@ -107,19 +86,15 @@ void VulkanShaderModules::AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _
 	LOG_RHI("Registered shader's descriptor set %d (binding %d) with %d descriptors.", (int)_setIndex, (int)_bindingIndex, (int)_descriptorCount)
 }
 
-void VulkanShaderModules::Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams)
+void VulkanShaderModules::Create(IDevice* _device, const std::vector<char>& _vertSrc, const std::vector<char>& _fragSrc, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams)
 {
 	LOG_RHI_CLEAN("\n\n===== SHADER MODULES CREATION =====\n")
 
-	// Read both precompiled shader files.
-	std::vector<char> vertexShaderCode = ReadFile(_vertPath);
-	std::vector<char> fragmentShaderCode = ReadFile(_fragPath); // The path looks like this because the default directory is the one where the executable is.
-
 	// Make a module for each of them.
 	LOG_RHI("Creating vertex shader module...")
-	vertexShader = CreateShaderModule(_device->API_Vulkan(), vertexShaderCode);
+	vertexShader = CreateShaderModule(_device->API_Vulkan(), _vertSrc);
 	LOG_RHI("Creating fragment shader module...")
-	fragmentShader = CreateShaderModule(_device->API_Vulkan(), fragmentShaderCode);
+	fragmentShader = CreateShaderModule(_device->API_Vulkan(), _fragSrc);
 
 	// Initialize vertex input locations.
 	vertexInputTotalSize = _vertexTotalSize;

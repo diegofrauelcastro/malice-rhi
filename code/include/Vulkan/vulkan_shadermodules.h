@@ -2,7 +2,6 @@
 
 #include "Interface/malicerhi_masterheader.h"
 #include "Interface/ishadermodules.h"
-#include <fstream>
 
 // Forward declarations
 class VulkanDevice;
@@ -28,11 +27,8 @@ private:
 
 	/// Helper functions ///
 
-	// Read a file. Static function.
-	static std::vector<char> ReadFile(const std::string& _filename);
-
 	// Create shader modules.
-	VkShaderModule CreateShaderModule(VulkanDevice& _device, const std::vector<char>& code);
+	VkShaderModule CreateShaderModule(VulkanDevice& _device, const std::vector<char>& _srcCode);
 
 	// Use given structs to build a list of VkVertexInputAttributeDescription and pass it to the graphics pipeline.
 	void CreateInputAttributeDescriptions(std::vector<VertexInputLocationParams> _params);
@@ -47,7 +43,7 @@ public:
 
 	/// Lifetime methods ///
 
-	void Create(IDevice* _device, const char* _vertPath, const char* _fragPath, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams) override ;
+	void Create(IDevice* _device, const std::vector<char>& _vertSrc, const std::vector<char>& _fragSrc, uint32_t _vertexTotalSize, std::vector<VertexInputLocationParams> _vertexInputParams) override ;
 	void Destroy(IDevice* _device) override;
 
 
