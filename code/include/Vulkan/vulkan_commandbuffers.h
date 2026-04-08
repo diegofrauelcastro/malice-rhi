@@ -43,6 +43,9 @@ public:
 	// Bind a pipeline to draw the next objects with. This method should be called within the scope of a BeginFrame(...)/EndFrame().
 	void BindPipeline(IPipeline* _pipeline) override;
 
+	// Send push constants. This method should be called within the scope of a BeginFrame(...)/EndFrame().
+	void SendPushConstants(IPipeline* _pipeline, const void* _data, uint32_t _dataSize, uint32_t _dataOffset) override;
+
 	// Bind descriptor sets. This method should be called within the scope of a BeginFrame(...)/EndFrame().
 	void BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets) override;
 

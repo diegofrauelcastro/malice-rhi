@@ -214,6 +214,11 @@ void Application::InitOffscreenRendering()
 	pipeline.cullingMode = CULL_BACK_FACE;
 	pipeline.enableDepthBias = false;
 	pipeline.enableColorBlend = false;
+
+	// Push constants layout.
+	m_OffscreenPipeline->AddPushConstant(VEC3, VERTEX_SHADER, 0);
+	m_OffscreenPipeline->AddPushConstant(FLOAT, VERTEX_SHADER, sizeof(float)*3);
+
 	m_OffscreenPipeline->Create(m_Device, m_OffscreenRenderPass, m_OffscreenShaders, pipeline);
 
 	// Descriptor sets bundle
@@ -290,8 +295,8 @@ void Application::Update()
 	// Camera matrices.
 	m_CamBuffer->UploadData(m_Commands, sizeof(glm::mat4)*2, &u);
 	m_ModelBuffer->UploadData(m_Commands, sizeof(glm::mat4), &u.model);
-	// Changing color over time (cycling).
-	glm::vec4 c = glm::vec4((sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2, 0, 1);
+	// White color.
+	glm::vec4 c = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_ColorBuffer->UploadData(m_Commands, sizeof(glm::vec4), &c);
 }
 
@@ -312,6 +317,11 @@ void Application::Draw()
 		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ModelBuffer, 0, 0, 1);
 		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_CamBuffer, 0, 1, 1);
 		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ColorBuffer, 1, 0, 1);
+		// Changing color over time (cycling).
+		glm::vec3 c = glm::vec3((sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2, 0);
+		m_Commands->SendPushConstants(m_OffscreenPipeline, &c, sizeof(glm::vec3), 0);
+		m_Commands->SendPushConstants(m_OffscreenPipeline, &c, sizeof(float), sizeof(glm::vec3));
+
 		m_Commands->UpdateTexture(m_Device, m_OffscreenDescriptorSets, m_Texture, 1, 1);
 
 		m_Commands->DrawVerticesByIndices((uint32_t)userIndices.size(), m_VertexBuffer, m_IndexBuffer);

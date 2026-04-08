@@ -7,3 +7,4 @@ log.txt
 MaliceRHI_ForwardRenderer_UT/x64/
 x64/
 tests/MaliceFwdRenderer/code/external/imgui/
+.idea/
