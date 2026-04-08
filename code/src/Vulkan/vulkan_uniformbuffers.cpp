@@ -6,14 +6,14 @@
 
 #include <cstring>
 
-void VulkanUniformBuffers::CreateUniformBuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain)
+void VulkanUniformBuffers::CreateUniformBuffers(VulkanDevice& _device, uint32_t _framesInFlight)
 {
 	LOG_RHI_CLEAN("\n\n===== UNIFORM BUFFERS CREATION =====\n")
 
 	// Resize the buffers vector to hold a uniform buffer for each frame.
-	buffers.resize(_swapChain.GetMaxFramesInFlight());
+	buffers.resize(_framesInFlight);
 	// Create a uniform buffer for each frame.
-	for (size_t i = 0; i < _swapChain.GetMaxFramesInFlight(); i++)
+	for (size_t i = 0; i < _framesInFlight; i++)
 	{
 		LOG_RHI("Creating uniform buffer %d.", (int)i)
 
@@ -84,7 +84,7 @@ void VulkanUniformBuffers::Create(IDevice* _device, ISwapChain* _swapChain, uint
 {
 	// Create uniform buffers.
 	bufferSize = static_cast<uint32_t>(_bufferSize);
-	CreateUniformBuffers(_device->API_Vulkan(), _swapChain->API_Vulkan());
+	CreateUniformBuffers(_device->API_Vulkan(), _swapChain ? _swapChain->API_Vulkan().GetMaxFramesInFlight() : 1);
 }
 
 void VulkanUniformBuffers::Destroy(IDevice* _device)

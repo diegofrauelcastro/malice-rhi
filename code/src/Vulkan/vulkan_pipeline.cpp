@@ -327,6 +327,15 @@ void VulkanPipeline::AddPushConstant(EShaderDataType _type, EShaderStage _shader
 	case VEC4:
 		newPushConstant.size = sizeof(float) * 4;
 		break;
+	case MAT2:
+		newPushConstant.size = sizeof(float) * 4;
+		break;
+	case MAT3:
+		newPushConstant.size = sizeof(float) * 9;
+		break;
+	case MAT4:
+		newPushConstant.size = sizeof(float) * 16;
+		break;
 	}
 	switch (_shaderStage)
 	{
