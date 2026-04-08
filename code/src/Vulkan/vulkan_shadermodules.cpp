@@ -48,10 +48,13 @@ VkFormat VulkanShaderModules::DataTypeToVkFormat(EShaderDataType _type)
 		return VK_FORMAT_R32_SFLOAT;
 	case DOUBLE:
 		return VK_FORMAT_R64_SFLOAT;
+	case MAT2:
 	case VEC2:
 		return VK_FORMAT_R32G32_SFLOAT;
+	case MAT3:
 	case VEC3:
 		return VK_FORMAT_R32G32B32_SFLOAT;
+	case MAT4:
 	case VEC4:
 		return VK_FORMAT_R32G32B32A32_SFLOAT;
 	case NONE:

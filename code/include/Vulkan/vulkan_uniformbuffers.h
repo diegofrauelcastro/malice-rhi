@@ -29,7 +29,7 @@ private:
 	/// Helper functions ///
 
 	// Create uniform buffers.
-	void CreateUniformBuffers(VulkanDevice& _device, VulkanSwapChain& _swapChain);
+	void CreateUniformBuffers(VulkanDevice& _device, uint32_t _framesInFlight);
 
 	// Find a suitable memory type for the buffer.
 	uint32_t FindMemoryType(VulkanDevice& _device, uint32_t _typeFilter, VkMemoryPropertyFlags _properties);
