@@ -108,6 +108,23 @@ void VulkanCommandBuffers::BindPipeline(IPipeline* _pipeline)
 	vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 }
 
+void VulkanCommandBuffers::SendPushConstants(IPipeline* _pipeline, const void* _data, uint32_t _dataSize, uint32_t _dataOffset)
+{
+	// Find the current stage of the constant at the given offset.
+	const std::vector<VkPushConstantRange>& pushConstants = _pipeline->API_Vulkan().GetPushConstantsVkHandles();
+	VkShaderStageFlags stage = 0;
+	for (const VkPushConstantRange& range : pushConstants)
+	{
+		if (_dataOffset >= range.offset && _dataOffset < range.offset + range.size)
+		{
+			stage = range.stageFlags;
+			break;
+		}
+	}
+	// Send the push constants to the shader.
+	vkCmdPushConstants(commandBuffers[currentFrame], _pipeline->API_Vulkan().GetPipelineLayoutVkHandle(), stage, _dataOffset, _dataSize, _data);
+}
+
 void VulkanCommandBuffers::BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets)
 {
 	// Bind the descriptor set for the current frame.

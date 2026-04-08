@@ -9,6 +9,8 @@ class IDevice;
 class IBuffer;
 class IRenderPass;
 class IShaderModules;
+enum EShaderStage;
+enum EShaderDataType;
 struct GLFWwindow;
 
 // Abstraction enums
@@ -70,6 +72,11 @@ protected:
 public:
 	// Class destructor
 	virtual ~IPipeline() = default;
+
+
+	/// Public methods ///
+
+	virtual void AddPushConstant(EShaderDataType _type, EShaderStage _shaderStage, uint32_t _offset) = 0;
 
 
 	/// Lifetime methods ///

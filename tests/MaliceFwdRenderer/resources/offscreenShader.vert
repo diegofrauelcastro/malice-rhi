@@ -21,10 +21,19 @@ layout(set = 0, binding = 1) uniform ViewProj
     mat4 proj;
 } camUbo;
 
+// Push constants
+layout( push_constant ) uniform constants
+{
+    vec3 colorPushConst;
+} PushConstants;
+layout( push_constant ) uniform constants2
+{
+    layout(offset = 12) float alpha;
+} PushConstants2;
 
 void main()
 {
     gl_Position = camUbo.proj * camUbo.view * modelUbo.model * vec4(inPosition, 1.0);
-    fragColor = inColor;
+    fragColor = inColor * PushConstants.colorPushConst;
     uvCoords = inUVCoords;
 }

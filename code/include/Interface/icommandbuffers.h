@@ -51,6 +51,9 @@ public:
 	// Bind descriptor sets.
 	virtual void BindDescriptorSets(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets) = 0;
 
+	// Send push constants. This method should be called within the scope of a BeginFrame(...)/EndFrame().
+	virtual void SendPushConstants(IPipeline* _pipeline, const void* _data, uint32_t _dataSize, uint32_t _dataOffset) = 0;
+
 	// Update the uniform buffer descriptor in the given descriptor set, at the indicated set and binding indices. This method should be called within the scope of a BeginFrame(...)/EndFrame().
 	virtual void UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount) = 0;
 

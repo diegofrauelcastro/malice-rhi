@@ -16,5 +16,5 @@ layout(set = 1, binding = 1) uniform sampler2D tex;
 
 void main()
 {
-    outColor = vec4(colorModifier.col.rgb * fragColor * texture(tex, uvCoords).rgb, 1.0);
+    outColor = vec4(fragColor * texture(tex, uvCoords).rgb, 1.0);
 }

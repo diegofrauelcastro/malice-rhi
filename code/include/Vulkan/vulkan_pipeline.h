@@ -19,6 +19,7 @@ private:
 	VkPipelineLayout pipelineLayout;
 	std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
 	std::vector<std::vector<VkDescriptorSetLayoutBinding>> descriptorSetLayoutBindingsPerSet; // Initialized in CreateDescriptorSetLayouts.
+	std::vector<VkPushConstantRange> pushConstants;
 
 	struct VulkanTranslatedParams
 	{
@@ -45,6 +46,11 @@ public:
 	virtual ~VulkanPipeline() override = default;
 
 
+	/// Public methods ///
+
+	void AddPushConstant(EShaderDataType _type, EShaderStage _shaderStage, uint32_t _offset) override;
+
+
 	/// Lifetime methods ///
 
 	void Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders, PipelineParams& _params) override;
@@ -58,4 +64,5 @@ public:
 	VkPipelineLayout GetPipelineLayoutVkHandle() const { return pipelineLayout; }
 	std::vector<VkDescriptorSetLayout> GetDescriptorSetLayoutsVkHandles() const { return descriptorSetLayouts; }
 	std::vector<std::vector<VkDescriptorSetLayoutBinding>> GetDescriptorSetLayoutBindingsPerSet() const { return descriptorSetLayoutBindingsPerSet; }
+	std::vector<VkPushConstantRange> GetPushConstantsVkHandles() const { return pushConstants; }
 };

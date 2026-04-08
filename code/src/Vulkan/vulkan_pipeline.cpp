@@ -125,6 +125,8 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = (uint32_t)descriptorSetLayouts.size();
 	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+	pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
+	pipelineLayoutInfo.pushConstantRangeCount = pushConstants.size();
 
 	// Create the pipeline and ensure it was created successfully.
 	VkResult pipelineLayoutResult = vkCreatePipelineLayout(_device.GetLogicalDeviceVkHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout);
@@ -289,6 +291,57 @@ VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParamete
 		break;
 	}
 	return newParams;
+}
+
+void VulkanPipeline::AddPushConstant(EShaderDataType _type, EShaderStage _shaderStage, uint32_t _offset)
+{
+	VkPushConstantRange newPushConstant{};
+	newPushConstant.offset = _offset;
+	switch (_type)
+	{
+	default:
+	case NONE:
+		newPushConstant.size = 0;
+		break;
+	case BOOL:
+		newPushConstant.size = sizeof(bool);
+		break;
+	case INT:
+		newPushConstant.size = sizeof(int);
+		break;
+	case UINT:
+		newPushConstant.size = sizeof(uint32_t);
+		break;
+	case FLOAT:
+		newPushConstant.size = sizeof(float);
+		break;
+	case DOUBLE:
+		newPushConstant.size = sizeof(double);
+		break;
+	case VEC2:
+		newPushConstant.size = sizeof(float) * 2;
+		break;
+	case VEC3:
+		newPushConstant.size = sizeof(float) * 3;
+		break;
+	case VEC4:
+		newPushConstant.size = sizeof(float) * 4;
+		break;
+	}
+	switch (_shaderStage)
+	{
+	default:
+	case ALL:
+		newPushConstant.stageFlags = VK_SHADER_STAGE_ALL;
+		break;
+	case VERTEX_SHADER:
+		newPushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		break;
+	case FRAGMENT_SHADER:
+		newPushConstant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		break;
+	}
+	pushConstants.push_back(newPushConstant);
 }
 
 void VulkanPipeline::Create(IDevice* _device, IRenderPass* _renderPass, IShaderModules* _shaders, PipelineParams& _params)
