@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "MaliceRHI/malice_enums.h"
 
 
 // Forward declarations
@@ -9,41 +10,7 @@ class IDevice;
 class IBuffer;
 class IRenderPass;
 class IShaderModules;
-enum EShaderStage;
-enum EShaderDataType;
 struct GLFWwindow;
-
-// Abstraction enums
-enum ETopologyMode
-{
-	POINT_LIST,
-	LINE_LIST,
-	LINE_STRIP,
-	TRIANGLE_LIST,
-	TRIANGLE_STRIP,
-	TRIANGLE_FAN
-};
-
-enum EPolygonMode
-{
-	FILL,
-	LINE,
-	POINT
-};
-
-enum ECullMode
-{
-	CULL_NONE,
-	CULL_FRONT_FACE,
-	CULL_BACK_FACE,
-	CULL_FRONT_AND_BACK
-};
-
-enum EFrontFace
-{
-	COUNTER_CLOCKWISE,
-	CLOCKWISE
-};
 
 
 // Param structs

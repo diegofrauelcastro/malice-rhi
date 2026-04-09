@@ -1,26 +1,12 @@
 #pragma once
 
 #include <cstdint>
+#include "MaliceRHI/malice_enums.h"
 
 // Forward declarations
 class IDevice;
 class ICommandPool;
 class VulkanTexture;
-
-enum class ETextureFormat
-{
-	RGBA8,
-	BGRA8,
-	DEPTH32
-};
-
-enum class ETextureUsage : uint32_t
-{
-	NONE = 0,
-	SAMPLED = 1 << 0,
-	COLOR_ATTACHMENT = 1 << 1,
-	DEPTH_ATTACHMENT = 1 << 2
-};
 
 inline ETextureUsage operator|(ETextureUsage a, ETextureUsage b)
 {
