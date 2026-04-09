@@ -39,25 +39,25 @@ VkFormat VulkanShaderModules::DataTypeToVkFormat(EShaderDataType _type)
 {
 	switch (_type)
 	{
-	case BOOL:
-	case UINT:
+	case MRHI_BOOL:
+	case MRHI_UINT:
 		return VK_FORMAT_R32_UINT;
-	case INT:
+	case MRHI_INT:
 		return VK_FORMAT_R32_SINT;
-	case FLOAT:
+	case MRHI_FLOAT:
 		return VK_FORMAT_R32_SFLOAT;
-	case DOUBLE:
+	case MRHI_DOUBLE:
 		return VK_FORMAT_R64_SFLOAT;
-	case MAT2:
-	case VEC2:
+	case MRHI_MAT2:
+	case MRHI_VEC2:
 		return VK_FORMAT_R32G32_SFLOAT;
-	case MAT3:
-	case VEC3:
+	case MRHI_MAT3:
+	case MRHI_VEC3:
 		return VK_FORMAT_R32G32B32_SFLOAT;
-	case MAT4:
-	case VEC4:
+	case MRHI_MAT4:
+	case MRHI_VEC4:
 		return VK_FORMAT_R32G32B32A32_SFLOAT;
-	case NONE:
+	case MRHI_NONE:
 	default:
 		return VK_FORMAT_UNDEFINED;
 	}
@@ -68,13 +68,13 @@ void VulkanShaderModules::AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _
 	VkShaderStageFlags shaderStageVkEquivalent;
 	switch (_shaderStage)
 	{
-	case ALL:
+	case MRHI_ALL:
 		shaderStageVkEquivalent = VK_SHADER_STAGE_ALL;
 		break;
-	case FRAGMENT_SHADER:
+	case MRHI_FRAGMENT_SHADER:
 		shaderStageVkEquivalent = VK_SHADER_STAGE_FRAGMENT_BIT;
 		break;
-	case VERTEX_SHADER:
+	case MRHI_VERTEX_SHADER:
 	default:
 		shaderStageVkEquivalent = VK_SHADER_STAGE_VERTEX_BIT;
 		break;

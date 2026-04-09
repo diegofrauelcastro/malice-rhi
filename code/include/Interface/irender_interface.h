@@ -25,7 +25,7 @@ class IMaliceToImGuiBridge;
 class IRenderInterface
 {
 protected:
-	ERenderingAPI currentAPI = VULKAN;
+	ERenderingAPI currentAPI = MRHI_VULKAN;
 
 public:
 	// Class destructor

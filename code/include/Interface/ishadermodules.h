@@ -14,7 +14,7 @@ struct VertexInputLocationParams
 {
 	uint32_t location = 0;
 	uint32_t memoryOffset = 0;
-	EShaderDataType type = NONE;
+	EShaderDataType type = MRHI_NONE;
 };
 
 // Shader modules interface

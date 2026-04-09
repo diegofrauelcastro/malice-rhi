@@ -22,7 +22,7 @@ VulkanRenderInterface::VulkanRenderInterface()
 {
 	LOG_RHI_CLEAN("\n\n===== VULKAN RENDER INTERFACE =====\n")
 	LOG_RHI("Initializing Volk for Vulkan RHI...")
-	currentAPI = VULKAN;
+	currentAPI = MRHI_VULKAN;
 	volkInitialize();
 	LOG_RHI("Vulkan RHI initialized.\n")
 }

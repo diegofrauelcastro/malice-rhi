@@ -9,11 +9,11 @@ static VkFormat ConvertFormat(ETextureFormat format)
 {
 	switch (format)
 	{
-		case ETextureFormat::RGBA8:
+		case ETextureFormat::MRHI_RGBA8:
 			return VK_FORMAT_R8G8B8A8_UNORM;
-		case ETextureFormat::BGRA8:
+		case ETextureFormat::MRHI_BGRA8:
 			return VK_FORMAT_B8G8R8A8_UNORM;
-		case ETextureFormat::DEPTH32:
+		case ETextureFormat::MRHI_DEPTH32:
 			return VK_FORMAT_D32_SFLOAT;
 		default:
 			LOG_RHI_THROW("/!\\ Unsupported texture format!")
@@ -34,14 +34,14 @@ void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_
 	usage = _usage;
 
 	// Calculate size of the image according to its type. For now, only RGBA8 and BGRA8 are supported.
-	uint32_t bytesPerPixel = (format == ETextureFormat::RGBA8 || format == ETextureFormat::BGRA8) ? 4 : 0;
+	uint32_t bytesPerPixel = (format == ETextureFormat::MRHI_RGBA8 || format == ETextureFormat::MRHI_BGRA8) ? 4 : 0;
 	VkDeviceSize imageSize = width * height * bytesPerPixel;
 	VkFormat vkFormat = ConvertFormat(format);
 
 	CreateImage(vulkanDevice, width, height, vkFormat);
 	AllocateMemory(vulkanDevice);
 	CreateImageView(vulkanDevice, vkFormat);
-	if (HasUsage(usage, ETextureUsage::SAMPLED))
+	if (HasUsage(usage, ETextureUsage::MRHI_SAMPLED))
 		CreateSampler(vulkanDevice);
 	currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
@@ -66,9 +66,9 @@ void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_
 	}
 	else
 	{
-		if (HasUsage(usage, ETextureUsage::COLOR_ATTACHMENT))
+		if (HasUsage(usage, ETextureUsage::MRHI_COLOR_ATTACHMENT))
 			TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-		if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+		if (HasUsage(usage, ETextureUsage::MRHI_DEPTH_ATTACHMENT))
 			TransitionImageLayout(vulkanDevice, vkCmdPool, image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
@@ -107,17 +107,17 @@ void VulkanTexture::CreateImage(VulkanDevice& _device, uint32_t _width, uint32_t
 
 	// Make the correct usage for the texture.
 	info.usage = 0;
-	if (HasUsage(usage, ETextureUsage::SAMPLED))
+	if (HasUsage(usage, ETextureUsage::MRHI_SAMPLED))
 		info.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
 
-	if (HasUsage(usage, ETextureUsage::COLOR_ATTACHMENT))
+	if (HasUsage(usage, ETextureUsage::MRHI_COLOR_ATTACHMENT))
 		info.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+	if (HasUsage(usage, ETextureUsage::MRHI_DEPTH_ATTACHMENT))
 		info.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
 	// VERY IMPORTANT if reused later
-	if (HasUsage(usage, ETextureUsage::SAMPLED))
+	if (HasUsage(usage, ETextureUsage::MRHI_SAMPLED))
 		info.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	VkResult result = vkCreateImage(_device.GetLogicalDeviceVkHandle(), &info, nullptr, &image);
@@ -158,7 +158,7 @@ void VulkanTexture::CreateImageView(VulkanDevice& _device, VkFormat _vkFormat)
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+	if (HasUsage(usage, ETextureUsage::MRHI_DEPTH_ATTACHMENT))
 		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
 	VkResult result = vkCreateImageView(_device.GetLogicalDeviceVkHandle(), &viewInfo, nullptr, &imageView);
@@ -260,7 +260,7 @@ void VulkanTexture::TransitionImageLayout(VulkanDevice& _device, VulkanCommandPo
 	barrier.subresourceRange.layerCount = 1;
 	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+	if (HasUsage(usage, ETextureUsage::MRHI_DEPTH_ATTACHMENT))
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
 	VkPipelineStageFlags srcStage;
@@ -350,7 +350,7 @@ void VulkanTexture::CopyBufferToImage(VulkanDevice& _device, VulkanCommandPool& 
 	region.imageExtent = { _width, _height, 1 };
 	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-	if (HasUsage(usage, ETextureUsage::DEPTH_ATTACHMENT))
+	if (HasUsage(usage, ETextureUsage::MRHI_DEPTH_ATTACHMENT))
 		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
 	vkCmdCopyBufferToImage(commandBuffer, _buffer, _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);

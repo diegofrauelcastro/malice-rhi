@@ -16,10 +16,10 @@ struct GLFWwindow;
 // Param structs
 struct PipelineParams
 {
-	ETopologyMode inputTopologyMode = TRIANGLE_LIST;
-	EPolygonMode polygonMode = FILL;
-	EFrontFace frontFace = COUNTER_CLOCKWISE;
-	ECullMode cullingMode = CULL_BACK_FACE;
+	ETopologyMode inputTopologyMode = MRHI_TRIANGLE_LIST;
+	EPolygonMode polygonMode = MRHI_FILL;
+	EFrontFace frontFace = MRHI_COUNTER_CLOCKWISE;
+	ECullMode cullingMode = MRHI_CULL_BACK_FACE;
 	float rasterizerLineWidth = 1.0f;
 	bool enableRasterizerDiscard = false;
 	bool enableDepthClamp = false;

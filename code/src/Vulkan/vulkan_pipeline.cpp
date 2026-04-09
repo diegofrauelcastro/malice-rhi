@@ -229,22 +229,22 @@ VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParamete
 	switch (_params.inputTopologyMode)
 	{
 	default:
-	case POINT_LIST:
+	case MRHI_POINT_LIST:
 		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 		break;
-	case LINE_LIST:
+	case MRHI_LINE_LIST:
 		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 		break;
-	case LINE_STRIP:
+	case MRHI_LINE_STRIP:
 		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
 		break;
-	case TRIANGLE_LIST:
+	case MRHI_TRIANGLE_LIST:
 		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		break;
-	case TRIANGLE_STRIP:
+	case MRHI_TRIANGLE_STRIP:
 		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 		break;
-	case TRIANGLE_FAN:
+	case MRHI_TRIANGLE_FAN:
 		newParams.inputTopologyMode = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		break;
 	}
@@ -252,13 +252,13 @@ VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParamete
 	switch (_params.polygonMode)
 	{
 	default:
-	case FILL:
+	case MRHI_FILL:
 		newParams.polygonMode = VK_POLYGON_MODE_FILL;
 		break;
-	case LINE:
+	case MRHI_LINE:
 		newParams.polygonMode = VK_POLYGON_MODE_LINE;
 		break;
-	case POINT:
+	case MRHI_POINT:
 		newParams.polygonMode = VK_POLYGON_MODE_POINT;
 		break;
 	}
@@ -266,10 +266,10 @@ VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParamete
 	switch (_params.frontFace)
 	{
 	default:
-	case COUNTER_CLOCKWISE:
+	case MRHI_COUNTER_CLOCKWISE:
 		newParams.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		break;
-	case CLOCKWISE:
+	case MRHI_CLOCKWISE:
 		newParams.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		break;
 	}
@@ -277,16 +277,16 @@ VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParamete
 	switch (_params.cullingMode)
 	{
 	default:
-	case CULL_NONE:
+	case MRHI_CULL_NONE:
 		newParams.cullingMode = VK_CULL_MODE_NONE;
 		break;
-	case CULL_FRONT_FACE:
+	case MRHI_CULL_FRONT_FACE:
 		newParams.cullingMode = VK_CULL_MODE_FRONT_BIT;
 		break;
-	case CULL_BACK_FACE:
+	case MRHI_CULL_BACK_FACE:
 		newParams.cullingMode = VK_CULL_MODE_BACK_BIT;
 		break;
-	case CULL_FRONT_AND_BACK:
+	case MRHI_CULL_FRONT_AND_BACK:
 		newParams.cullingMode = VK_CULL_MODE_FRONT_AND_BACK;
 		break;
 	}
@@ -300,53 +300,53 @@ void VulkanPipeline::AddPushConstant(EShaderDataType _type, EShaderStage _shader
 	switch (_type)
 	{
 	default:
-	case NONE:
+	case MRHI_NONE:
 		newPushConstant.size = 0;
 		break;
-	case BOOL:
+	case MRHI_BOOL:
 		newPushConstant.size = sizeof(bool);
 		break;
-	case INT:
+	case MRHI_INT:
 		newPushConstant.size = sizeof(int);
 		break;
-	case UINT:
+	case MRHI_UINT:
 		newPushConstant.size = sizeof(uint32_t);
 		break;
-	case FLOAT:
+	case MRHI_FLOAT:
 		newPushConstant.size = sizeof(float);
 		break;
-	case DOUBLE:
+	case MRHI_DOUBLE:
 		newPushConstant.size = sizeof(double);
 		break;
-	case VEC2:
+	case MRHI_VEC2:
 		newPushConstant.size = sizeof(float) * 2;
 		break;
-	case VEC3:
+	case MRHI_VEC3:
 		newPushConstant.size = sizeof(float) * 3;
 		break;
-	case VEC4:
+	case MRHI_VEC4:
 		newPushConstant.size = sizeof(float) * 4;
 		break;
-	case MAT2:
+	case MRHI_MAT2:
 		newPushConstant.size = sizeof(float) * 4;
 		break;
-	case MAT3:
+	case MRHI_MAT3:
 		newPushConstant.size = sizeof(float) * 9;
 		break;
-	case MAT4:
+	case MRHI_MAT4:
 		newPushConstant.size = sizeof(float) * 16;
 		break;
 	}
 	switch (_shaderStage)
 	{
 	default:
-	case ALL:
+	case MRHI_ALL:
 		newPushConstant.stageFlags = VK_SHADER_STAGE_ALL;
 		break;
-	case VERTEX_SHADER:
+	case MRHI_VERTEX_SHADER:
 		newPushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 		break;
-	case FRAGMENT_SHADER:
+	case MRHI_FRAGMENT_SHADER:
 		newPushConstant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		break;
 	}
