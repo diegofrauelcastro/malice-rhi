@@ -8,11 +8,11 @@ static VkFormat ConvertFormat(ETextureFormat format)
 {
 	switch (format)
 	{
-	case ETextureFormat::RGBA8:
+	case ETextureFormat::MRHI_RGBA8:
 		return VK_FORMAT_R8G8B8A8_UNORM;
-	case ETextureFormat::BGRA8:
+	case ETextureFormat::MRHI_BGRA8:
 		return VK_FORMAT_B8G8R8A8_UNORM;
-	case ETextureFormat::DEPTH32:
+	case ETextureFormat::MRHI_DEPTH32:
 		return VK_FORMAT_D32_SFLOAT;
 	default:
 		LOG_RHI_THROW("/!\\ Unsupported texture format!")
@@ -121,7 +121,7 @@ void VulkanRenderPass::Create(IDevice* _device, ISwapChain* _swapChain, bool _ha
 	sc = &_swapChain->API_Vulkan();
 	params = {};
 	params.hasDepth = _hasDepth;
-	params.depthFormat = ETextureFormat::DEPTH32;
+	params.depthFormat = ETextureFormat::MRHI_DEPTH32;
 
 	CreateRenderPass(_device->API_Vulkan());
 }

@@ -3,88 +3,88 @@
 // Buffer usage enum.
 enum EBufferUsage
 {
-	VERTEX_BUFFER,
-	INDEX_BUFFER
+	MRHI_VERTEX_BUFFER,
+	MRHI_INDEX_BUFFER
 };
 
 // Input topology mode.
 enum ETopologyMode
 {
-	POINT_LIST,
-	LINE_LIST,
-	LINE_STRIP,
-	TRIANGLE_LIST,
-	TRIANGLE_STRIP,
-	TRIANGLE_FAN
+	MRHI_POINT_LIST,
+	MRHI_LINE_LIST,
+	MRHI_LINE_STRIP,
+	MRHI_TRIANGLE_LIST,
+	MRHI_TRIANGLE_STRIP,
+	MRHI_TRIANGLE_FAN
 };
 // Line drawing mode.
 enum EPolygonMode
 {
-	FILL,
-	LINE,
-	POINT
+	MRHI_FILL,
+	MRHI_LINE,
+	MRHI_POINT
 };
 // Culling mode.
 enum ECullMode
 {
-	CULL_NONE,
-	CULL_FRONT_FACE,
-	CULL_BACK_FACE,
-	CULL_FRONT_AND_BACK
+	MRHI_CULL_NONE,
+	MRHI_CULL_FRONT_FACE,
+	MRHI_CULL_BACK_FACE,
+	MRHI_CULL_FRONT_AND_BACK
 };
 // Culling face.
 enum EFrontFace
 {
-	COUNTER_CLOCKWISE,
-	CLOCKWISE
+	MRHI_COUNTER_CLOCKWISE,
+	MRHI_CLOCKWISE
 };
 
 // Available rendering APIs.
 enum ERenderingAPI
 {
-	VULKAN,
-	OPENGL,
-	DIRECTX12
+	MRHI_VULKAN,
+	MRHI_OPENGL,
+	MRHI_DIRECTX12
 };
 
 // Data types supported for the shader (input location for vertex, or push constants).
 enum EShaderDataType
 {
-	NONE,
-	BOOL,
-	INT,
-	UINT,
-	FLOAT,
-	DOUBLE,
-	VEC2,
-	VEC3,
-	VEC4,
-	MAT2,
-	MAT3,
-	MAT4
+	MRHI_NONE,
+	MRHI_BOOL,
+	MRHI_INT,
+	MRHI_UINT,
+	MRHI_FLOAT,
+	MRHI_DOUBLE,
+	MRHI_VEC2,
+	MRHI_VEC3,
+	MRHI_VEC4,
+	MRHI_MAT2,
+	MRHI_MAT3,
+	MRHI_MAT4
 };
 
 // Shader stage enum.
 enum EShaderStage
 {
-	ALL,
-	VERTEX_SHADER,
-	FRAGMENT_SHADER
+	MRHI_ALL,
+	MRHI_VERTEX_SHADER,
+	MRHI_FRAGMENT_SHADER
 };
 
 // Format of a texture/image
 enum class ETextureFormat
 {
-	RGBA8,
-	BGRA8,
-	DEPTH32
+	MRHI_RGBA8,
+	MRHI_BGRA8,
+	MRHI_DEPTH32
 };
 
 // Usage of a texture.
 enum class ETextureUsage : uint32_t
 {
-	NONE = 0,
-	SAMPLED = 1 << 0,
-	COLOR_ATTACHMENT = 1 << 1,
-	DEPTH_ATTACHMENT = 1 << 2
+	MRHI_NONE = 0,
+	MRHI_SAMPLED = 1 << 0,
+	MRHI_COLOR_ATTACHMENT = 1 << 1,
+	MRHI_DEPTH_ATTACHMENT = 1 << 2
 };

@@ -84,7 +84,7 @@ void Application::InitScreenRendering()
 
 	// Depth texture
 	m_DepthTex = m_RHI->InstantiateTexture();
-	m_DepthTex->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::DEPTH32, ETextureUsage::DEPTH_ATTACHMENT);
+	m_DepthTex->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::MRHI_DEPTH32, ETextureUsage::MRHI_DEPTH_ATTACHMENT);
 
 	// Main render pass.
 	m_RenderPass = m_RHI->InstantiateRenderPass();
@@ -98,11 +98,11 @@ void Application::InitScreenRendering()
 	uint32_t vertexTotalSize = sizeof(ScreenVertex);
 	VertexInputLocationParams posParams;
 	posParams.location = 0;
-	posParams.type = VEC2;
+	posParams.type = MRHI_VEC2;
 	posParams.memoryOffset = offsetof(ScreenVertex, ScreenVertex::pos);
 	VertexInputLocationParams uvParams;
 	uvParams.location = 1;
-	uvParams.type = VEC2;
+	uvParams.type = MRHI_VEC2;
 	uvParams.memoryOffset = offsetof(ScreenVertex, ScreenVertex::uv);
 	std::vector<VertexInputLocationParams> params = { posParams, uvParams };
 
@@ -113,19 +113,19 @@ void Application::InitScreenRendering()
 	m_Shaders->Create(m_Device, vertexShaderCode, fragmentShaderCode, vertexTotalSize, params);
 
 	// Descriptor set bindings.
-	m_Shaders->AddDescriptorSetBinding(0, 0, 1, FRAGMENT_SHADER, true);
+	m_Shaders->AddDescriptorSetBinding(0, 0, 1, MRHI_FRAGMENT_SHADER, true);
 
 	// Graphics pipeline.
 	m_Pipeline = m_RHI->InstantiatePipeline();
 	PipelineParams pipeline;
 	pipeline.enableRasterizerDiscard = false;
 	pipeline.enableDepthClamp = false;
-	pipeline.inputTopologyMode = TRIANGLE_LIST;
-	pipeline.polygonMode = FILL;
+	pipeline.inputTopologyMode = MRHI_TRIANGLE_LIST;
+	pipeline.polygonMode = MRHI_FILL;
 	pipeline.enablePrimitiveRestart = false;
 	pipeline.rasterizerLineWidth = 1.0f;
-	pipeline.frontFace = COUNTER_CLOCKWISE;
-	pipeline.cullingMode = CULL_BACK_FACE;
+	pipeline.frontFace = MRHI_COUNTER_CLOCKWISE;
+	pipeline.cullingMode = MRHI_CULL_BACK_FACE;
 	pipeline.enableDepthBias = false;
 	pipeline.enableColorBlend = false;
 	m_Pipeline->Create(m_Device, m_RenderPass, m_Shaders, pipeline);
@@ -142,25 +142,25 @@ void Application::InitScreenRendering()
 	m_ScreenVertexBuffer = m_RHI->InstantiateBuffer();
 	m_ScreenIndexBuffer = m_RHI->InstantiateBuffer();
 
-	m_ScreenVertexBuffer->Create(m_Device, m_CommandPool, VERTEX_BUFFER, sizeof(ScreenVertex) * 3, screenTriangle.data());
-	m_ScreenIndexBuffer->Create(m_Device, m_CommandPool, INDEX_BUFFER, sizeof(uint16_t) * 3, screenIndices.data());
+	m_ScreenVertexBuffer->Create(m_Device, m_CommandPool, MRHI_VERTEX_BUFFER, sizeof(ScreenVertex) * 3, screenTriangle.data());
+	m_ScreenIndexBuffer->Create(m_Device, m_CommandPool, MRHI_INDEX_BUFFER, sizeof(uint16_t) * 3, screenIndices.data());
 }
 
 void Application::InitOffscreenRendering()
 {
 	// Color texture.
 	m_OffscreenColor = m_RHI->InstantiateTexture();
-	m_OffscreenColor->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::RGBA8, ETextureUsage::COLOR_ATTACHMENT | ETextureUsage::SAMPLED);
+	m_OffscreenColor->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::MRHI_RGBA8, ETextureUsage::MRHI_COLOR_ATTACHMENT | ETextureUsage::MRHI_SAMPLED);
 
 	// Depth texture.
 	m_OffscreenDepthTex = m_RHI->InstantiateTexture();
-	m_OffscreenDepthTex->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::DEPTH32, ETextureUsage::DEPTH_ATTACHMENT);
+	m_OffscreenDepthTex->Create(m_Device, m_CommandPool, m_Width, m_Height, ETextureFormat::MRHI_DEPTH32, ETextureUsage::MRHI_DEPTH_ATTACHMENT);
 
 	// Main render pass.
 	m_OffscreenRenderPass = m_RHI->InstantiateRenderPass();
 	RenderPassParams rpp{};
-	rpp.colorFormats = { ETextureFormat::RGBA8 };
-	rpp.depthFormat = ETextureFormat::DEPTH32;
+	rpp.colorFormats = { ETextureFormat::MRHI_RGBA8 };
+	rpp.depthFormat = ETextureFormat::MRHI_DEPTH32;
 	rpp.hasDepth = true;
 	m_OffscreenRenderPass->Create(m_Device, rpp);
 
@@ -177,15 +177,15 @@ void Application::InitOffscreenRendering()
 	uint32_t vertexTotalSize = sizeof(UserVertex);
 	VertexInputLocationParams posParams;
 	posParams.location = 0;
-	posParams.type = VEC3;
+	posParams.type = MRHI_VEC3;
 	posParams.memoryOffset = offsetof(UserVertex, UserVertex::pos);
 	VertexInputLocationParams colorParams;
 	colorParams.location = 1;
-	colorParams.type = VEC3;
+	colorParams.type = MRHI_VEC3;
 	colorParams.memoryOffset = offsetof(UserVertex, UserVertex::color);
 	VertexInputLocationParams uvParams;
 	uvParams.location = 2;
-	uvParams.type = VEC2;
+	uvParams.type = MRHI_VEC2;
 	uvParams.memoryOffset = offsetof(UserVertex, UserVertex::uv);
 	std::vector<VertexInputLocationParams> params = { posParams, colorParams, uvParams };
 
@@ -196,28 +196,28 @@ void Application::InitOffscreenRendering()
 	m_OffscreenShaders->Create(m_Device, vertexShaderCode, fragmentShaderCode, vertexTotalSize, params);
 
 	// Descriptor set bindings.
-	m_OffscreenShaders->AddDescriptorSetBinding(0, 0, 1, VERTEX_SHADER);
-	m_OffscreenShaders->AddDescriptorSetBinding(0, 1, 1, VERTEX_SHADER);
-	m_OffscreenShaders->AddDescriptorSetBinding(1, 0, 1, FRAGMENT_SHADER);
-	m_OffscreenShaders->AddDescriptorSetBinding(1, 1, 1, FRAGMENT_SHADER, true);
+	m_OffscreenShaders->AddDescriptorSetBinding(0, 0, 1, MRHI_VERTEX_SHADER);
+	m_OffscreenShaders->AddDescriptorSetBinding(0, 1, 1, MRHI_VERTEX_SHADER);
+	m_OffscreenShaders->AddDescriptorSetBinding(1, 0, 1, MRHI_FRAGMENT_SHADER);
+	m_OffscreenShaders->AddDescriptorSetBinding(1, 1, 1, MRHI_FRAGMENT_SHADER, true);
 
 	// Graphics pipeline.
 	m_OffscreenPipeline = m_RHI->InstantiatePipeline();
 	PipelineParams pipeline;
 	pipeline.enableRasterizerDiscard = false;
 	pipeline.enableDepthClamp = false;
-	pipeline.inputTopologyMode = TRIANGLE_LIST;
-	pipeline.polygonMode = FILL;
+	pipeline.inputTopologyMode = MRHI_TRIANGLE_LIST;
+	pipeline.polygonMode = MRHI_FILL;
 	pipeline.enablePrimitiveRestart = false;
 	pipeline.rasterizerLineWidth = 1.0f;
-	pipeline.frontFace = COUNTER_CLOCKWISE;
-	pipeline.cullingMode = CULL_BACK_FACE;
+	pipeline.frontFace = MRHI_COUNTER_CLOCKWISE;
+	pipeline.cullingMode = MRHI_CULL_BACK_FACE;
 	pipeline.enableDepthBias = false;
 	pipeline.enableColorBlend = false;
 
 	// Push constants layout.
-	m_OffscreenPipeline->AddPushConstant(VEC3, VERTEX_SHADER, 0);
-	m_OffscreenPipeline->AddPushConstant(FLOAT, VERTEX_SHADER, sizeof(float)*3);
+	m_OffscreenPipeline->AddPushConstant(MRHI_VEC3, MRHI_VERTEX_SHADER, 0);
+	m_OffscreenPipeline->AddPushConstant(MRHI_FLOAT, MRHI_VERTEX_SHADER, sizeof(float)*3);
 
 	m_OffscreenPipeline->Create(m_Device, m_OffscreenRenderPass, m_OffscreenShaders, pipeline);
 
@@ -246,8 +246,8 @@ void Application::InitScene()
 	m_VertexBuffer = m_RHI->InstantiateBuffer();
 	m_IndexBuffer = m_RHI->InstantiateBuffer();
 
-	m_VertexBuffer->Create(m_Device, m_CommandPool, VERTEX_BUFFER, sizeof(UserVertex) * userVertices.size(), userVertices.data());
-	m_IndexBuffer->Create(m_Device, m_CommandPool, INDEX_BUFFER, sizeof(uint16_t) * userIndices.size(), userIndices.data());
+	m_VertexBuffer->Create(m_Device, m_CommandPool, MRHI_VERTEX_BUFFER, sizeof(UserVertex) * userVertices.size(), userVertices.data());
+	m_IndexBuffer->Create(m_Device, m_CommandPool, MRHI_INDEX_BUFFER, sizeof(uint16_t) * userIndices.size(), userIndices.data());
 
 	// Uniform buffers.
 	m_CamBuffer = m_RHI->InstantiateUniformBuffers();
@@ -262,7 +262,7 @@ void Application::InitScene()
 	int texWidth, texHeight, texChannels;
 	stbi_uc* imgData = stbi_load("resources/textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	m_Texture = m_RHI->InstantiateTexture();
-	m_Texture->Create(m_Device, m_CommandPool, texWidth, texHeight, ETextureFormat::RGBA8, ETextureUsage::SAMPLED, imgData);
+	m_Texture->Create(m_Device, m_CommandPool, texWidth, texHeight, ETextureFormat::MRHI_RGBA8, ETextureUsage::MRHI_SAMPLED, imgData);
 	stbi_image_free(imgData);
 }
 

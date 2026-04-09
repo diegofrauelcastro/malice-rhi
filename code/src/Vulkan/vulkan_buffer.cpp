@@ -164,10 +164,10 @@ void VulkanBuffer::Create(IDevice* _device, ICommandPool* _commandPool, EBufferU
 	size = _size;
 	switch (bufferType)
 	{
-	case VERTEX_BUFFER:
+	case MRHI_VERTEX_BUFFER:
 		CreateVertexBuffer(_device->API_Vulkan(), _commandPool->API_Vulkan(), _size, _data);
 		break;
-	case INDEX_BUFFER:
+	case MRHI_INDEX_BUFFER:
 		CreateIndexBuffer(_device->API_Vulkan(), _commandPool->API_Vulkan(), _size, _data);
 		break;
 	default:
@@ -179,10 +179,10 @@ void VulkanBuffer::Destroy(IDevice* _device)
 {
 	switch (bufferType)
 	{
-	case VERTEX_BUFFER:
+	case MRHI_VERTEX_BUFFER:
 		LOG_RHI_CLEAN("\n\n===== VERTEX BUFFER DESTRUCTION =====\n")
 		break;
-	case INDEX_BUFFER:
+	case MRHI_INDEX_BUFFER:
 		LOG_RHI_CLEAN("\n\n===== INDEX BUFFER DESTRUCTION =====\n")
 		break;
 	default:
