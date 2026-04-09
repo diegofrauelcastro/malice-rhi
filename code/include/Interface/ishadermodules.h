@@ -2,36 +2,12 @@
 
 #include <iostream>
 #include <vector>
+#include "MaliceRHI/malice_enums.h"
 
 
 // Forward declarations
 class VulkanShaderModules;
 class IDevice;
-
-// Data types supported for the shader.
-enum EShaderDataType
-{
-	NONE,
-	BOOL,
-	INT,
-	UINT,
-	FLOAT,
-	DOUBLE,
-	VEC2,
-	VEC3,
-	VEC4,
-	MAT2,
-	MAT3,
-	MAT4
-};
-
-// Shader stage enum
-enum EShaderStage
-{
-	ALL,
-	VERTEX_SHADER,
-	FRAGMENT_SHADER
-};
 
 // Struct for vertex input location params.
 struct VertexInputLocationParams

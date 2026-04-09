@@ -1,13 +1,13 @@
 #pragma once
 
 #include <iostream>
+#include "MaliceRHI/malice_enums.h"
 
 
 // Forward declarations
 class VulkanRenderPass;
 class IDevice;
 class ISwapChain;
-enum class ETextureFormat;
 
 struct RenderPassParams
 {

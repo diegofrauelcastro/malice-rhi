@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cmath>
+#include "MaliceRHI/malice_enums.h"
 
 // Forward declarations.
 class IInstance;
@@ -19,14 +20,6 @@ class IUniformBuffers;
 class IDescriptorSetsGroup;
 class ITexture;
 class IMaliceToImGuiBridge;
-
-// Available rendering APIs.
-enum ERenderingAPI
-{
-	VULKAN,
-	OPENGL,
-	DIRECTX12
-};
 
 // Factory interface.
 class IRenderInterface

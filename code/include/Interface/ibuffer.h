@@ -1,19 +1,13 @@
 #pragma once
 
 #include <iostream>
+#include "MaliceRHI/malice_enums.h"
 
 
 // Forward declarations
 class VulkanBuffer;
 class IDevice;
 class ICommandPool;
-
-// Buffer usage enum
-enum EBufferUsage
-{
-	VERTEX_BUFFER,
-	INDEX_BUFFER
-};
 
 // General buffer interface
 class IBuffer
