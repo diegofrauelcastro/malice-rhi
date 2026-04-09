@@ -18,13 +18,14 @@ endif()
 
 # Link libraries.
 target_link_libraries(${PROJECT_NAME}
-	PUBLIC
+	PRIVATE
 	volk
 	glfw
 )
 
 # Macro definitions.
 target_compile_definitions(${PROJECT_NAME}
-	PRIVATE VK_NO_PROTOTYPES
+	PRIVATE
+	VK_NO_PROTOTYPES
 	GLFW_INCLUDE_NONE
 )
