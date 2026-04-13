@@ -293,50 +293,11 @@ VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParamete
 	return newParams;
 }
 
-void VulkanPipeline::AddPushConstant(EShaderDataType _type, EShaderStage _shaderStage, uint32_t _offset)
+void VulkanPipeline::AddPushConstant(uint32_t _dataSize, EShaderStage _shaderStage, uint32_t _offset)
 {
 	VkPushConstantRange newPushConstant{};
 	newPushConstant.offset = _offset;
-	switch (_type)
-	{
-	default:
-	case MRHI_NONE:
-		newPushConstant.size = 0;
-		break;
-	case MRHI_BOOL:
-		newPushConstant.size = sizeof(bool);
-		break;
-	case MRHI_INT:
-		newPushConstant.size = sizeof(int);
-		break;
-	case MRHI_UINT:
-		newPushConstant.size = sizeof(uint32_t);
-		break;
-	case MRHI_FLOAT:
-		newPushConstant.size = sizeof(float);
-		break;
-	case MRHI_DOUBLE:
-		newPushConstant.size = sizeof(double);
-		break;
-	case MRHI_VEC2:
-		newPushConstant.size = sizeof(float) * 2;
-		break;
-	case MRHI_VEC3:
-		newPushConstant.size = sizeof(float) * 3;
-		break;
-	case MRHI_VEC4:
-		newPushConstant.size = sizeof(float) * 4;
-		break;
-	case MRHI_MAT2:
-		newPushConstant.size = sizeof(float) * 4;
-		break;
-	case MRHI_MAT3:
-		newPushConstant.size = sizeof(float) * 9;
-		break;
-	case MRHI_MAT4:
-		newPushConstant.size = sizeof(float) * 16;
-		break;
-	}
+	newPushConstant.size = _dataSize;
 	switch (_shaderStage)
 	{
 	default:

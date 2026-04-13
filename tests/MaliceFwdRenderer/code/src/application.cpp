@@ -216,8 +216,8 @@ void Application::InitOffscreenRendering()
 	pipeline.enableColorBlend = false;
 
 	// Push constants layout.
-	m_OffscreenPipeline->AddPushConstant(MRHI_VEC3, MRHI_VERTEX_SHADER, 0);
-	m_OffscreenPipeline->AddPushConstant(MRHI_FLOAT, MRHI_VERTEX_SHADER, sizeof(float)*3);
+	m_OffscreenPipeline->AddPushConstant(sizeof(glm::vec3), MRHI_VERTEX_SHADER, 0);
+	m_OffscreenPipeline->AddPushConstant(sizeof(float), MRHI_VERTEX_SHADER, sizeof(float) * 3);
 
 	m_OffscreenPipeline->Create(m_Device, m_OffscreenRenderPass, m_OffscreenShaders, pipeline);
 
@@ -305,6 +305,7 @@ void Application::Draw()
 {
 	// Recording commands.
 	uint32_t img = 0;
+
 	bool isValid = m_Commands->BeginFrame(m_Device, m_SwapChain, img);
 	if (!isValid) return;
 

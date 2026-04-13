@@ -29,7 +29,7 @@ target_include_directories(imgui PUBLIC
 find_package(Vulkan REQUIRED)
 # Link libraries.
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
     volk
     glfw
 )
