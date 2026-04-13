@@ -48,7 +48,7 @@ public:
 
 	/// Public methods ///
 
-	void AddPushConstant(EShaderDataType _type, EShaderStage _shaderStage, uint32_t _offset) override;
+	void AddPushConstant(uint32_t _dataSize, EShaderStage _shaderStage, uint32_t _offset) override;
 
 
 	/// Lifetime methods ///

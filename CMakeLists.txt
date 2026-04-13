@@ -11,11 +11,6 @@ option(BUILD_TESTS "Build tests" OFF)
 add_subdirectory(external/volk)
 add_subdirectory(external/glfw)
 
-# Create a "volk" target that carries its own include paths
-add_library(malice_volk INTERFACE)
-target_include_directories(malice_volk INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/external/volk")
-target_compile_definitions(malice_volk INTERFACE VK_NO_PROTOTYPES)
-
 # Add MaliceRHI lib
 add_subdirectory(code)
 

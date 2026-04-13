@@ -43,7 +43,7 @@ public:
 
 	/// Public methods ///
 
-	virtual void AddPushConstant(EShaderDataType _type, EShaderStage _shaderStage, uint32_t _offset) = 0;
+	virtual void AddPushConstant(uint32_t _dataSize, EShaderStage _shaderStage, uint32_t _offset) = 0;
 
 
 	/// Lifetime methods ///
