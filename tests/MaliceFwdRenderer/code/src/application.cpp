@@ -80,7 +80,7 @@ void Application::InitScreenRendering()
 {
 	// Swap chain.
 	m_SwapChain = m_RHI->InstantiateSwapChain();
-	m_SwapChain->Create(m_Device, m_Surface, m_Window);
+	m_SwapChain->Create(m_Device, m_Surface, m_Window, true);
 
 	// Depth texture
 	m_DepthTex = m_RHI->InstantiateTexture();
