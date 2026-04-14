@@ -76,7 +76,7 @@ public:
 
 	/// Lifetime methods ///
 
-	void Create(IDevice* _device, ISurface* _surface, GLFWwindow* _window) override;
+	void Create(IDevice* _device, ISurface* _surface, GLFWwindow* _window, bool _bUseImGui = false) override;
 	void Destroy(IDevice* _device) override;
 
 

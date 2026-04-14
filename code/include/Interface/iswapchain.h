@@ -25,6 +25,9 @@ protected:
 	// Flag marked as true when the framebuffer is resizing.
 	bool bResizeRequested = false;
 
+	// True when the user wants to create a swapchain for ImGui use. This will allow then to choose a proper VkFormat.
+	bool bUseImGui = false;
+
 public:
 	// Class destructor
 	virtual ~ISwapChain() = default;
@@ -32,7 +35,7 @@ public:
 
 	/// Lifetime methods ///
 
-	virtual void Create(IDevice* _device, ISurface* _surface, GLFWwindow* _window) = 0;
+	virtual void Create(IDevice* _device, ISurface* _surface, GLFWwindow* _window, bool _bUseImGui = false) = 0;
 	virtual void Destroy(IDevice* _device) = 0;
 
 

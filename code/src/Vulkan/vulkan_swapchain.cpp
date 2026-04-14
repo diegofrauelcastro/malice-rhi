@@ -12,10 +12,12 @@ VkSurfaceFormatKHR VulkanSwapChain::ChoosePreferredSwapSurfaceFormat(const std::
 		LOG_RHI_THROW("/!\\ There are no available surface formats to choose from.")
 
 	// We prefer the 32 bits BGR format, with sRGB color space.
-	for (const VkSurfaceFormatKHR& availableFormat : _availableFormats) {
-		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+	for (const VkSurfaceFormatKHR& availableFormat : _availableFormats)
+	{
+		VkFormat desiredFormat = VK_FORMAT_B8G8R8A8_SRGB;
+		if (bUseImGui) desiredFormat = VK_FORMAT_R8G8B8A8_UNORM;
+		if (availableFormat.format == desiredFormat && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			return availableFormat;
-		}
 	}
 
 	// If the preferred format is not found, return the first available one, which should be just fine anyways.
@@ -298,8 +300,10 @@ void VulkanSwapChain::CreateSyncObjects(VulkanDevice& _device)
 }
 
 
-void VulkanSwapChain::Create(IDevice* _device, ISurface* _surface, GLFWwindow* _window)
+void VulkanSwapChain::Create(IDevice* _device, ISurface* _surface, GLFWwindow* _window, bool _bUseImGui)
 {
+	bUseImGui = _bUseImGui;
+
 	// Setup Swap Chain.
 	SetupSwapChain(_device->API_Vulkan(), _surface->API_Vulkan().GetVkHandle(), _window);
 	// Create image views from our swap chain.
