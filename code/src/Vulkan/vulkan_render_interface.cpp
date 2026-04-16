@@ -49,7 +49,7 @@ std::vector<float> VulkanRenderInterface::GetPerspectiveProjectionMatrix(unsigne
 
 	std::vector<float> result(16);
 	result[0] = a;
-	result[5] = q;
+	result[5] = -q;
 	result[10] = b;
 	result[11] = c;
 	result[14] = -1.0f;
