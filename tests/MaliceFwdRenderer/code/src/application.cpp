@@ -234,7 +234,8 @@ void Application::InitImGuiRenderer()
 	offscreenParams.renderPass = m_OffscreenRenderPass;
 
 	m_Bridge = m_RHI->InstantiateMaliceToImGuiBridge();
-	m_Bridge->Create(m_Instance, m_Device, m_SwapChain, m_RenderPass, m_Framebuffers, offscreenParams);
+	m_Bridge->Create(m_Instance, m_Device, m_SwapChain, m_RenderPass, m_Framebuffers);
+	m_Bridge->AddOffscreenTarget("MainTarget", offscreenParams);
 
 	m_ImGuiRenderer = new Vulkan_GLFW_ImGuiRenderer();
 	m_ImGuiRenderer->Create(m_Bridge, m_Window);
