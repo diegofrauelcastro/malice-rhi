@@ -58,7 +58,7 @@ void Vulkan_GLFW_ImGuiRenderer::Create(IMaliceToImGuiBridge* _bridge, GLFWwindow
 
     // Create offscreen target and register to ImGui
     off = new Offscreen();
-    *off = bridge->GetOffscreenParams();
+    *off = bridge->GetOffscreenTargetByName("MainTarget");
     // ImGui Render Texture
     VulkanTexture& vkTex = off->colorTex->API_Vulkan();
     imguiSet = ImGui_ImplVulkan_AddTexture(vkTex.GetSampler(), vkTex.GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

@@ -18,7 +18,7 @@ public:
 
 	/// Lifetime methods ///
 
-	void Create(IInstance* _instance, IDevice* _device, ISwapChain* _screenSwapChain, IRenderPass* _screenRenderPass, IFramebuffers* _screenFramebuffers, Offscreen _offscreenParams) override;
+	void Create(IInstance* _instance, IDevice* _device, ISwapChain* _screenSwapChain, IRenderPass* _screenRenderPass, IFramebuffers* _screenFramebuffers) override;
 	void Destroy(IDevice* _device) override;
 
 
