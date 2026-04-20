@@ -211,6 +211,40 @@ void VulkanCommandBuffers::UpdateUniformBuffer(IDevice* _device, IDescriptorSets
 	vkUpdateDescriptorSets(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &write, 0, nullptr);
 }
 
+void VulkanCommandBuffers::UpdateUniformBufferWithRange(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount, bool _bIsDynamicUBO, uint64_t _rangeSizeUpdated)
+{
+	// Prepare the buffer info structure.
+	VkDescriptorBufferInfo bufInfo{};
+	bufInfo.buffer = _ubo->API_Vulkan().GetBuffers()[currentFrame].buffer;
+	bufInfo.offset = 0;
+	bufInfo.range = _rangeSizeUpdated;
+
+	// Check that the set index is valid.
+	size_t setCount = _descSets->API_Vulkan().GetDescriptorSetsVkHandles()[0].size();
+	if (setCount == 0)
+	{
+		LOG_RHI("/!\\ No descriptor sets available to update.")
+			return;
+	}
+	else if (_setIndex >= setCount)
+	{
+		LOG_RHI("/!\\ Set index %d is out of bounds (max is %d).", (int)_setIndex, (int)(setCount - 1))
+			return;
+	}
+
+	// Prepare the write descriptor set structure.
+	VkWriteDescriptorSet write{};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.dstSet = _descSets->API_Vulkan().GetDescriptorSetsVkHandles()[currentFrame][_setIndex];
+	write.dstBinding = _binding;
+	write.descriptorType = _bIsDynamicUBO ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.descriptorCount = _descriptorCount;
+	write.pBufferInfo = &bufInfo;
+
+	// Update the descriptor set.
+	vkUpdateDescriptorSets(_device->API_Vulkan().GetLogicalDeviceVkHandle(), 1, &write, 0, nullptr);
+}
+
 void VulkanCommandBuffers::UpdateTexture(IDevice* _device, IDescriptorSetsGroup* _descSets, ITexture* _tex, uint32_t _setIndex, uint32_t _binding)
 {
 	// Prepare the buffer info structure.
