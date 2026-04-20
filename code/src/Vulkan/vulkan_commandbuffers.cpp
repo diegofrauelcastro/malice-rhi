@@ -136,6 +136,18 @@ void VulkanCommandBuffers::BindDescriptorSets(IPipeline* _pipeline, IDescriptorS
 	);
 }
 
+void VulkanCommandBuffers::BindDescriptorSetsDynamically(IPipeline* _pipeline, IDescriptorSetsGroup* _descriptorSets, uint32_t _amountOfDynamicSets, const uint32_t* _dynamicOffsetsArray)
+{
+	// Bind the descriptor set for the current frame.
+	const std::vector<VkDescriptorSet> sets = _descriptorSets->API_Vulkan().GetDescriptorSetsVkHandles()[currentFrame];
+	vkCmdBindDescriptorSets(
+		commandBuffers[currentFrame],
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		_pipeline->API_Vulkan().GetPipelineLayoutVkHandle(),
+		0, static_cast<uint32_t>(sets.size()), sets.data(), _amountOfDynamicSets, _dynamicOffsetsArray
+	);
+}
+
 void VulkanCommandBuffers::DrawVerticesByIndices(uint32_t _vertexNumber, IBuffer* _vertexBuffer, IBuffer* _indexBuffer)
 {
 	// Bind the vertex buffer.
@@ -165,7 +177,7 @@ void VulkanCommandBuffers::Destroy(IDevice* _device, ICommandPool* _commandPool)
 	LOG_RHI("Command buffers destroyed successfully.")
 }
 
-void VulkanCommandBuffers::UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount)
+void VulkanCommandBuffers::UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount, bool _bIsDynamicUBO)
 {
 	// Prepare the buffer info structure.
 	VkDescriptorBufferInfo bufInfo{};
@@ -191,7 +203,7 @@ void VulkanCommandBuffers::UpdateUniformBuffer(IDevice* _device, IDescriptorSets
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	write.dstSet = _descSets->API_Vulkan().GetDescriptorSetsVkHandles()[currentFrame][_setIndex];
 	write.dstBinding = _binding;
-	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.descriptorType = _bIsDynamicUBO ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	write.descriptorCount = _descriptorCount;
 	write.pBufferInfo = &bufInfo;
 

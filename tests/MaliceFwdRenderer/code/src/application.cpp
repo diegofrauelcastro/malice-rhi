@@ -113,7 +113,7 @@ void Application::InitScreenRendering()
 	m_Shaders->Create(m_Device, vertexShaderCode, fragmentShaderCode, vertexTotalSize, params);
 
 	// Descriptor set bindings.
-	m_Shaders->AddDescriptorSetBinding(0, 0, 1, MRHI_FRAGMENT_SHADER, true);
+	m_Shaders->AddDescriptorSetBinding(0, 0, 1, MRHI_FRAGMENT_SHADER, MRHI_COMBINED_IMAGE_SAMPLER);
 
 	// Graphics pipeline.
 	m_Pipeline = m_RHI->InstantiatePipeline();
@@ -196,10 +196,10 @@ void Application::InitOffscreenRendering()
 	m_OffscreenShaders->Create(m_Device, vertexShaderCode, fragmentShaderCode, vertexTotalSize, params);
 
 	// Descriptor set bindings.
-	m_OffscreenShaders->AddDescriptorSetBinding(0, 0, 1, MRHI_VERTEX_SHADER);
-	m_OffscreenShaders->AddDescriptorSetBinding(0, 1, 1, MRHI_VERTEX_SHADER);
-	m_OffscreenShaders->AddDescriptorSetBinding(1, 0, 1, MRHI_FRAGMENT_SHADER);
-	m_OffscreenShaders->AddDescriptorSetBinding(1, 1, 1, MRHI_FRAGMENT_SHADER, true);
+	m_OffscreenShaders->AddDescriptorSetBinding(0, 0, 1, MRHI_VERTEX_SHADER, MRHI_UNIFORM_BUFFER_DYNAMIC);
+	m_OffscreenShaders->AddDescriptorSetBinding(0, 1, 1, MRHI_VERTEX_SHADER, MRHI_UNIFORM_BUFFER);
+	m_OffscreenShaders->AddDescriptorSetBinding(1, 0, 1, MRHI_FRAGMENT_SHADER, MRHI_UNIFORM_BUFFER);
+	m_OffscreenShaders->AddDescriptorSetBinding(1, 1, 1, MRHI_FRAGMENT_SHADER, MRHI_COMBINED_IMAGE_SAMPLER);
 
 	// Graphics pipeline.
 	m_OffscreenPipeline = m_RHI->InstantiatePipeline();
@@ -315,10 +315,11 @@ void Application::Draw()
 	m_Commands->BeginRender(m_OffscreenRenderPass, m_OffscreenFramebuffers, 0);
 		m_Commands->BindPipeline(m_OffscreenPipeline);
 
-		m_Commands->BindDescriptorSets(m_OffscreenPipeline, m_OffscreenDescriptorSets);
-		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ModelBuffer, 0, 0, 1);
-		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_CamBuffer, 0, 1, 1);
-		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ColorBuffer, 1, 0, 1);
+		uint32_t dynamicOffset = 0; // We have only one model, so the offset is 0.
+		m_Commands->BindDescriptorSetsDynamically(m_OffscreenPipeline, m_OffscreenDescriptorSets, 1, &dynamicOffset);
+		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ModelBuffer, 0, 0, 1, true);
+		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_CamBuffer, 0, 1, 1, false);
+		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ColorBuffer, 1, 0, 1, false);
 		// Changing color over time (cycling).
 		glm::vec3 c = glm::vec3((sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2, 0);
 		m_Commands->SendPushConstants(m_OffscreenPipeline, &c, sizeof(glm::vec3), 0);

@@ -63,7 +63,7 @@ VkFormat VulkanShaderModules::DataTypeToVkFormat(EShaderDataType _type)
 	}
 }
 
-void VulkanShaderModules::AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage, bool _bIsTextureSampler)
+void VulkanShaderModules::AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage, EDescriptorType _descriptorBufferType)
 {
 	VkShaderStageFlags shaderStageVkEquivalent;
 	switch (_shaderStage)
@@ -82,7 +82,19 @@ void VulkanShaderModules::AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _
 
 	VkDescriptorSetLayoutBinding newLayoutBinding{};
 	newLayoutBinding.binding = _bindingIndex;
-	newLayoutBinding.descriptorType = _bIsTextureSampler ? VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	switch (_descriptorBufferType)
+	{
+	case MRHI_UNIFORM_BUFFER_DYNAMIC:
+		newLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+		break;
+	case MRHI_COMBINED_IMAGE_SAMPLER:
+		newLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		break;
+	case MRHI_UNIFORM_BUFFER:
+	default:
+		newLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		break;
+	}
 	newLayoutBinding.descriptorCount = _descriptorCount;
 	newLayoutBinding.stageFlags = shaderStageVkEquivalent;
 	mapDescriptorSetLayoutDescsPerSetIndex[_setIndex].push_back(newLayoutBinding);

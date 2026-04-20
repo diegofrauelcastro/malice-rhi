@@ -60,5 +60,5 @@ public:
 	/// Class specfic methods ///
 
 	// Create the parameters for a descriptor set layout binding for a specified set.
-	void AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage, bool _bIsTextureSampler = false) override;
+	void AddDescriptorSetBinding(uint32_t _setIndex, uint32_t _bindingIndex, uint32_t _descriptorCount, EShaderStage _shaderStage, EDescriptorType _descriptorBufferType) override;
 };

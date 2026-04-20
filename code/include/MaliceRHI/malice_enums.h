@@ -72,6 +72,14 @@ enum EShaderStage
 	MRHI_FRAGMENT_SHADER
 };
 
+// Descriptor type enum.
+enum EDescriptorType
+{
+	MRHI_UNIFORM_BUFFER,
+	MRHI_UNIFORM_BUFFER_DYNAMIC,
+	MRHI_COMBINED_IMAGE_SAMPLER
+};
+
 // Format of a texture/image
 enum class ETextureFormat
 {
