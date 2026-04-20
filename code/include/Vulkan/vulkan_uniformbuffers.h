@@ -55,4 +55,7 @@ public:
 
 	// Upload data to the uniform buffer, using the current frame stored in the command buffers.
 	void UploadData(ICommandBuffers* _commandBuffers, uint32_t _size, const void* _data) override;
+
+	// Upload data to the uniform buffer, using the current frame stored in the command buffers. Use carefully, as this can cause memory issues if not handled correctly due to offset.
+	virtual void UploadDataWithOffset(ICommandBuffers* _commandBuffers, uint32_t _offset, uint32_t _size, const void* _data) override;
 };
