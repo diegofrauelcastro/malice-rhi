@@ -80,6 +80,13 @@ void VulkanUniformBuffers::UploadData(ICommandBuffers* _commandBuffers, uint32_t
 	memcpy(buffers[currentFrameIndex].mappedData, _data, _size);
 }
 
+void VulkanUniformBuffers::UploadDataWithOffset(ICommandBuffers* _commandBuffers, uint32_t _offset, uint32_t _size, const void* _data)
+{
+	// Copy the data to the mapped memory of the uniform buffer for this frame.
+	uint32_t currentFrameIndex = _commandBuffers->API_Vulkan().GetCurrentFrame();
+	memcpy(static_cast<char*>(buffers[currentFrameIndex].mappedData) + _offset, _data, _size);
+}
+
 void VulkanUniformBuffers::Create(IDevice* _device, ISwapChain* _swapChain, uint32_t _bufferSize)
 {
 	// Create uniform buffers.

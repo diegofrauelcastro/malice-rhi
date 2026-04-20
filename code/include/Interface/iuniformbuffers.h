@@ -31,4 +31,7 @@ public:
 
     // Upload data to the uniform buffer, using the current frame stored in the command buffers.
     virtual void UploadData(ICommandBuffers* _commandBuffers, uint32_t _size, const void* _data) = 0;
+
+    // Upload data to the uniform buffer, using the current frame stored in the command buffers.
+    virtual void UploadDataWithOffset(ICommandBuffers* _commandBuffers, uint32_t _offset, uint32_t _size, const void* _data) = 0;
 };
