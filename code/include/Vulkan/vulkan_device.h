@@ -55,11 +55,11 @@ private:
 	/// Helper methods ///
 
 	void PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surface);									// Pick physical device.
-	bool IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surface);									// Check if the given physical device is suitable.
+	bool IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surface, bool _bShouldBeDiscrete);		// Check if the given physical device is suitable.
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice _device);												// Check if the given physical device has all the extensions that we require.
 	void CreateLogicalDevice(VkSurfaceKHR _surface);														// Create logical device.
 	QueueFamilyIndices FindRequiredQueueFamilies(VkPhysicalDevice _device, VkSurfaceKHR _surface) const;	// Find queue families in the given physical device.
-
+	
 public:
 	// Class destructor
 	virtual ~VulkanDevice() override = default;
