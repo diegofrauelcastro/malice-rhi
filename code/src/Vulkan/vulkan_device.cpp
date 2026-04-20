@@ -19,10 +19,23 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 	std::vector<VkPhysicalDevice> devices(deviceCount);
 	vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
 
+	// Check if there is at least one discrete GPU.
+	bool bHasDiscreteGPU = false;
+	for (const VkPhysicalDevice& device : devices)
+	{
+		VkPhysicalDeviceProperties deviceProperties;
+		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+		{
+			bHasDiscreteGPU = true;
+			break;
+		}
+	}
+
 	// Pick the first suitable device.
 	for (const VkPhysicalDevice& device : devices)
 	{
-		if (IsDeviceSuitable(device, _surface))
+		if (IsDeviceSuitable(device, _surface, bHasDiscreteGPU))
 		{
 			physicalDevice = device;
 			if (enableValidationLayers)
@@ -41,13 +54,13 @@ void VulkanDevice::PickPhysicalDevice(VkInstance _instance, VkSurfaceKHR _surfac
 		LOG_RHI_THROW("/!\\ Failed to find a suitable GPU!")
 }
 
-bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surface)
+bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surface, bool _bShouldBeDiscrete)
 {
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(_device, &deviceProperties);
 
 	bool bIsDiscreteGPU = (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
-	bIsDiscreteGPU = true; // TEMPORARILY USE ALL GPU FOR LINUX/WSL COMPATIBILITY.
+	if (!_bShouldBeDiscrete) bIsDiscreteGPU = true;
 
 	// Find queue families in this physical device.
 	QueueFamilyIndices familyIndices = FindRequiredQueueFamilies(_device, _surface);
@@ -55,7 +68,7 @@ bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice _device, VkSurfaceKHR _surf
 	// Checks if the device supports the extensions we need (specified in the header file of this class).
 	bool bHasAllTheRequiredExtensions = CheckDeviceExtensionSupport(_device);
 
-	// Checks if the device's swap chain support is suitable. --> I'm not quite sure what "suitable" means here though, to be seen. Formats? PresentModes?
+	// Checks if the device's swap chain support is suitable.
 	bool bIsSwapChainSupportAdequate = false;
 	if (bHasAllTheRequiredExtensions)
 	{
@@ -131,6 +144,11 @@ void VulkanDevice::CreateLogicalDevice(VkSurfaceKHR _surface)
 {
 	// Store the queue families' indices.
 	indices = FindRequiredQueueFamilies(physicalDevice, _surface);
+
+	// Get hardware limits for UBO alignment.
+	VkPhysicalDeviceProperties props;
+	vkGetPhysicalDeviceProperties(physicalDevice, &props);
+	minUBOOffsetAlignment = props.limits.minUniformBufferOffsetAlignment;
 
 	// Specify queue creation info.
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

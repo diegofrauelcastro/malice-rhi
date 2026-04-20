@@ -315,11 +315,11 @@ void Application::Draw()
 	m_Commands->BeginRender(m_OffscreenRenderPass, m_OffscreenFramebuffers, 0);
 		m_Commands->BindPipeline(m_OffscreenPipeline);
 
-		uint32_t dynamicOffset = 0; // We have only one model, so the offset is 0.
-		m_Commands->BindDescriptorSetsDynamically(m_OffscreenPipeline, m_OffscreenDescriptorSets, 1, &dynamicOffset);
 		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ModelBuffer, 0, 0, 1, true);
 		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_CamBuffer, 0, 1, 1, false);
 		m_Commands->UpdateUniformBuffer(m_Device, m_OffscreenDescriptorSets, m_ColorBuffer, 1, 0, 1, false);
+		uint32_t dynamicOffset = 0; // We have only one model, so the offset is 0.
+		m_Commands->BindDescriptorSetsDynamically(m_OffscreenPipeline, m_OffscreenDescriptorSets, 1, &dynamicOffset);
 		// Changing color over time (cycling).
 		glm::vec3 c = glm::vec3((sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2, 0);
 		m_Commands->SendPushConstants(m_OffscreenPipeline, &c, sizeof(glm::vec3), 0);
