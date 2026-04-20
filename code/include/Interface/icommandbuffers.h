@@ -59,6 +59,9 @@ public:
 
 	// Update the uniform buffer descriptor in the given descriptor set, at the indicated set and binding indices. This method should be called within the scope of a BeginFrame(...)/EndFrame().
 	virtual void UpdateUniformBuffer(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount, bool _bIsDynamicUBO) = 0;
+	
+	// Update the uniform buffer descriptor in the given descriptor set, at the indicated set and binding indices. This method should be called within the scope of a BeginFrame(...)/EndFrame().
+	virtual void UpdateUniformBufferWithRange(IDevice* _device, IDescriptorSetsGroup* _descSets, IUniformBuffers* _ubo, uint32_t _setIndex, uint32_t _binding, uint32_t _descriptorCount, bool _bIsDynamicUBO, uint64_t _rangeSizeUpdated) = 0;
 
 	// Update the bound texture in the given descriptor set, at the indicated set and binding indices. This method should be called within the scope of a BeginFrame(...)/EndFrame().
 	virtual void UpdateTexture(IDevice* _device, IDescriptorSetsGroup* _descSets, ITexture* _tex, uint32_t _setIndex, uint32_t _binding) = 0;
