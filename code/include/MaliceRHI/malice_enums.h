@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 // Buffer usage enum.
 enum EBufferUsage
 {
