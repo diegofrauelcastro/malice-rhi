@@ -9,7 +9,7 @@
 #define LOG_RHI(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, ##__VA_ARGS__); }
 
 // Only write to the log file, without printing to the console.
-#define LOG_CLEAN(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, ##__VA_ARGS__); }
+#define LOG_RHI_CLEAN(_str, ...) { MaliceRHI::Debug::Log::GetInstance()->PrintClean(_str, ##__VA_ARGS__); }
 #else
 // Used for : MACRO LOG_RHI (RHI logs)
 #define LOG_RHI(_str, ...) { std::cout << "[RHI LOG] : " << MaliceRHI::Debug::Log::GetInstance()->PrintRHI_Log(_str, ##__VA_ARGS__) << std::endl; }
