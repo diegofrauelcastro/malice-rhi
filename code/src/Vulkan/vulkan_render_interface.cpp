@@ -58,17 +58,23 @@ std::vector<float> VulkanRenderInterface::GetPerspectiveProjectionMatrix(unsigne
 }
 
 // Get Orthographic Projection Matrix, in the form of a row-major vector of 16 floats (Matrix4x4).
-std::vector<float> VulkanRenderInterface::GetOrthographicProjectionMatrix(unsigned int _width, unsigned int _height, float _near, float _far)
+std::vector<float> VulkanRenderInterface::GetOrthographicProjectionMatrix(float _left, float _right, float _bottom, float _top, float _zNear, float _zFar)
 {
-	float ratio = (float)_width / _height;
-	float inverseFarMinusMin = 1.f / (_far - _near);
+	float inverseFarMinusMin = 1.0f / (_zFar - _zNear);
+	float inverseRightMinusLeft = 1.0f / (_right - _left);
+	float inverseTopMinusBottom = 1.0f / (_top - _bottom);
 
 	std::vector<float> result(16);
-	result[0] = 1.f;
-	result[5] = ratio;
-	result[10] = -inverseFarMinusMin;
-	result[11] = -_near * inverseFarMinusMin;
-	result[15] = 1.f;
+	result[0] = 2.0f * inverseRightMinusLeft;
+	result[3] = -(_right + _left) * inverseRightMinusLeft;
+
+	result[5] = -2.0f * inverseTopMinusBottom;
+	result[7] = -(_top + _bottom) * inverseTopMinusBottom;
+
+	result[10] = inverseFarMinusMin;
+	result[11] = -_zNear * inverseFarMinusMin;
+
+	result[15] = 1.0f;
 
 	return result;
 }
