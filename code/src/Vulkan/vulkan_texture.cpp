@@ -20,7 +20,7 @@ static VkFormat ConvertFormat(ETextureFormat format)
 	}
 }
 
-void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* data, EImageAdressMode _addressMode = MRHI_REPEAT)
+void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* data, EImageAdressMode _addressMode)
 {
 	LOG_RHI_CLEAN("\n\n===== TEXTURE CREATION =====\n")
 
