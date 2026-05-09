@@ -34,7 +34,7 @@ private:
 public:
 	/// Lifetime methods ///
 
-	void Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* _data = nullptr) override;
+	void Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* _data = nullptr, EImageAdressMode _addressMode = MRHI_REPEAT) override;
 	void Destroy(IDevice* _device) override;
 	virtual ~VulkanTexture() override = default;
 

@@ -27,11 +27,12 @@ protected:
 	uint32_t height = 0;
 	ETextureFormat format;
 	ETextureUsage usage;
+	EImageAdressMode addressMode;
 
 public:
 	/// Lifetime methods ///
 
-	virtual void Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* _data = nullptr) = 0;
+	virtual void Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* _data = nullptr, EImageAdressMode _addressMode = MRHI_REPEAT) = 0;
 	virtual void Destroy(IDevice* _device) = 0;
 	virtual ~ITexture() = default;
 

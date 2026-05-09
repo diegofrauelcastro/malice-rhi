@@ -98,3 +98,11 @@ enum class ETextureUsage : uint32_t
 	MRHI_COLOR_ATTACHMENT = 1 << 1,
 	MRHI_DEPTH_ATTACHMENT = 1 << 2
 };
+
+enum EImageAdressMode
+{
+	MRHI_REPEAT,
+	MRHI_MIRRORED_REPEAT,
+	MRHI_CLAMP_TO_EDGE,
+	MRHI_CLAMP_TO_BORDER
+};
