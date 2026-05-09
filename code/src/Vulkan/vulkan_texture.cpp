@@ -20,7 +20,7 @@ static VkFormat ConvertFormat(ETextureFormat format)
 	}
 }
 
-void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* data)
+void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_t _width, uint32_t _height, ETextureFormat _format, ETextureUsage _usage, const void* data, EImageAdressMode _addressMode = MRHI_REPEAT)
 {
 	LOG_RHI_CLEAN("\n\n===== TEXTURE CREATION =====\n")
 
@@ -32,6 +32,7 @@ void VulkanTexture::Create(IDevice* _device, ICommandPool* _commandPool, uint32_
 	height = _height;
 	format = _format;
 	usage = _usage;
+	addressMode = _addressMode;
 
 	// Calculate size of the image according to its type. For now, only RGBA8 and BGRA8 are supported.
 	uint32_t bytesPerPixel = (format == ETextureFormat::MRHI_RGBA8 || format == ETextureFormat::MRHI_BGRA8) ? 4 : 0;
@@ -177,9 +178,31 @@ void VulkanTexture::CreateSampler(VulkanDevice& _device)
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.magFilter = VK_FILTER_LINEAR;
 	samplerInfo.minFilter = VK_FILTER_LINEAR;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+	switch (addressMode)
+	{
+	default:
+	case MRHI_REPEAT:
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		break;
+	case MRHI_MIRRORED_REPEAT:
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+		break;
+	case MRHI_CLAMP_TO_EDGE:
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		break;
+	case MRHI_CLAMP_TO_BORDER:
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+		break;
+	}
 
 	VkResult result = vkCreateSampler(_device.GetLogicalDeviceVkHandle(), &samplerInfo, nullptr, &sampler);
 	if (result != VK_SUCCESS)
