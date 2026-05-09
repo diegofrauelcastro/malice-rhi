@@ -53,7 +53,7 @@ void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device)
 		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		attachments.push_back(attachment);
 
 		depthRef.attachment = (uint32_t)(attachments.size() - 1);
@@ -81,22 +81,39 @@ void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device)
 		subpass.pDepthStencilAttachment = nullptr;
 
 	// Define a subpass dependency to handle the transition of the image layout.
-	VkSubpassDependency dependency{};
-	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass = 0;
+	VkSubpassDependency inDep{};
+	inDep.srcSubpass = VK_SUBPASS_EXTERNAL;
+	inDep.dstSubpass = 0;
 	// Specify the pipeline stages and access masks.
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.srcAccessMask = 0;
+	inDep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	inDep.srcAccessMask = 0;
 	// Specify that the destination is the color attachment output stage.
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	inDep.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	inDep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	if (params.hasDepth)
 	{
-		dependency.srcStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		inDep.srcStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		inDep.dstStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		inDep.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 	}
+
+	// Define transition to read the depth in the shader later.
+	VkSubpassDependency outDep{};
+	outDep.srcSubpass = 0;
+	outDep.dstSubpass = VK_SUBPASS_EXTERNAL;
+	outDep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	outDep.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	outDep.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	outDep.dstAccessMask = VK_ACCESS_SHADER_READ_BIT; // We want to READ in the shader.
+
+	if (params.hasDepth)
+	{
+		// Make sure depth writes finish before the shader tries to sample the texture.
+		outDep.srcStageMask |= VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		outDep.srcAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
+	std::vector<VkSubpassDependency> dependencies = { inDep, outDep };
 
 	// Create info about the render pass, linking the color attachment and the subpass we created before.
 	VkRenderPassCreateInfo renderPassInfo{};
@@ -105,8 +122,8 @@ void VulkanRenderPass::CreateRenderPass(VulkanDevice& _device)
 	renderPassInfo.pAttachments = attachments.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
-	renderPassInfo.dependencyCount = 1;
-	renderPassInfo.pDependencies = &dependency;
+	renderPassInfo.dependencyCount = (uint32_t)(dependencies.size());
+	renderPassInfo.pDependencies = dependencies.data();
 
 	// Finally, create the render pass and ensure it succeeded.
 	VkResult result = vkCreateRenderPass(_device.GetLogicalDeviceVkHandle(), &renderPassInfo, nullptr, &renderPass);

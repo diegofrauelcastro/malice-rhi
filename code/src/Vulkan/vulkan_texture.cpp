@@ -114,7 +114,10 @@ void VulkanTexture::CreateImage(VulkanDevice& _device, uint32_t _width, uint32_t
 		info.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
 	if (HasUsage(usage, ETextureUsage::MRHI_DEPTH_ATTACHMENT))
+	{
 		info.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		info.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+	}
 
 	// VERY IMPORTANT if reused later
 	if (HasUsage(usage, ETextureUsage::MRHI_SAMPLED))
