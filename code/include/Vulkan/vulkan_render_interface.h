@@ -14,7 +14,7 @@ public:
 	std::vector<float> GetPerspectiveProjectionMatrix(unsigned int _width, unsigned int _height, float _near, float _far, float _fovYDeg) override;
 
 	// Get Orthographic Projection Matrix, in the form of a row-major vector of 16 floats (Matrix4x4).
-	std::vector<float> GetOrthographicProjectionMatrix(unsigned int _width, unsigned int _height, float _near, float _far) override;
+	std::vector<float> GetOrthographicProjectionMatrix(float _left, float _right, float _bottom, float _top, float _zNear, float _zFar) override;
 
 	// Instance
 	IInstance* InstantiateInstance() override;
