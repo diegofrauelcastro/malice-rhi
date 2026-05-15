@@ -27,6 +27,7 @@ private:
 		VkPolygonMode polygonMode;
 		VkFrontFace frontFace;
 		VkCullModeFlagBits cullingMode;
+		VkCompareOp depthCompareMode;
 	};
 
 
