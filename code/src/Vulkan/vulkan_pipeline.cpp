@@ -75,8 +75,8 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDevice& _device, VulkanRenderP
 	{
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencil.depthTestEnable = VK_TRUE;
-		depthStencil.depthWriteEnable = VK_TRUE;
-		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+		depthStencil.depthWriteEnable = _params.enableDepthWrite;
+		depthStencil.depthCompareOp = translatedParams.depthCompareMode;
 		depthStencil.depthBoundsTestEnable = VK_FALSE;
 		depthStencil.minDepthBounds = 0.0f; // Optional
 		depthStencil.maxDepthBounds = 1.0f; // Optional
@@ -288,6 +288,32 @@ VulkanPipeline::VulkanTranslatedParams VulkanPipeline::TranslateAbstractParamete
 		break;
 	case MRHI_CULL_FRONT_AND_BACK:
 		newParams.cullingMode = VK_CULL_MODE_FRONT_AND_BACK;
+		break;
+	}
+	// Compare modes
+	switch (_params.depthCompareMode)
+	{
+	default:
+	case MRHI_LESS:
+		newParams.depthCompareMode = VK_COMPARE_OP_LESS;
+		break;
+	case MRHI_LEQUAL:
+		newParams.depthCompareMode = VK_COMPARE_OP_LESS_OR_EQUAL;
+		break;
+	case MRHI_EQUAL:
+		newParams.depthCompareMode = VK_COMPARE_OP_EQUAL;
+		break;
+	case MRHI_GREATER:
+		newParams.depthCompareMode = VK_COMPARE_OP_GREATER;
+		break;
+	case MRHI_GEQUAL:
+		newParams.depthCompareMode = VK_COMPARE_OP_GREATER_OR_EQUAL;
+		break;
+	case MRHI_ALWAYS:
+		newParams.depthCompareMode = VK_COMPARE_OP_ALWAYS;
+		break;
+	case MRHI_NEVER:
+		newParams.depthCompareMode = VK_COMPARE_OP_NEVER;
 		break;
 	}
 	return newParams;

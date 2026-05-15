@@ -20,12 +20,14 @@ struct PipelineParams
 	EPolygonMode polygonMode = MRHI_FILL;
 	EFrontFace frontFace = MRHI_COUNTER_CLOCKWISE;
 	ECullMode cullingMode = MRHI_CULL_BACK_FACE;
+	EDepthCompareMode depthCompareMode = MRHI_LESS;
 	float rasterizerLineWidth = 1.0f;
 	bool enableRasterizerDiscard = false;
 	bool enableDepthClamp = false;
 	bool enableDepthBias = false;
 	bool enableColorBlend = false;
 	bool enablePrimitiveRestart = false;
+	bool enableDepthWrite = true;
 };
 
 // Pipeline interface
